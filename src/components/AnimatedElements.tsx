@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Heart, Music } from 'lucide-react';
 
 export const FloatingPetals: React.FC = () => {

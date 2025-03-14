@@ -21,24 +21,19 @@ const Invitation = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!guestName) {
-      navigate('/');
-      return;
-    }
-    
     // Simulating page loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [guestName, navigate]);
+  }, []);
 
   return (
     <div className="min-h-screen w-full pattern-background">
       {isLoading ? (
-        <div className="loading-overlay">
-          <div className="loading-spinner mb-4"></div>
+        <div className="loading-overlay flex flex-col items-center justify-center min-h-screen">
+          <div className="loading-spinner mb-4 w-12 h-12 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
           <p className="text-wedding-maroon font-dancing-script text-xl">Preparing your invitation...</p>
         </div>
       ) : (

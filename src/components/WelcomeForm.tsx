@@ -1,24 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Heart } from 'lucide-react';
 
 const WelcomeForm: React.FC = () => {
-  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const { setGuestName } = useGuest();
+  const { guestName } = useGuest();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    
+  const handleOpenInvitation = () => {
     setIsLoading(true);
-    setGuestName(name.trim());
     
     // Simulate loading for better UX
     setTimeout(() => {
@@ -28,24 +22,16 @@ const WelcomeForm: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-md px-6 py-8">
-      <form onSubmit={handleSubmit} className="glass-card w-full p-8 flex flex-col items-center space-y-6">
+      <div className="glass-card w-full p-8 flex flex-col items-center space-y-6">
         <div className="text-center mb-4 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          <h2 className="text-lg font-medium text-wedding-maroon mb-1">Welcome</h2>
-          <p className="text-sm text-gray-600">Please enter your name to continue</p>
+          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">Welcome, {guestName}</h2>
+          <p className="text-sm text-gray-600">Your special invitation awaits</p>
         </div>
         
-        <div className="w-full opacity-0 animate-slide-in-left" style={{ animationDelay: '0.6s' }}>
-          <div className="relative">
-            <Input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your Name"
-              className="bg-white bg-opacity-80 border-wedding-blush focus:border-wedding-gold focus:ring-wedding-gold px-4 py-3 rounded-md w-full transition-all duration-300"
-              disabled={isLoading}
-            />
-            <Heart className="absolute right-3 top-1/2 transform -translate-y-1/2 text-wedding-blush h-4 w-4" />
-          </div>
+        <div className="text-center opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <p className="text-wedding-gold font-dancing-script text-xl mb-4">
+            Ananya & Arjun cordially invite you to celebrate their wedding
+          </p>
         </div>
         
         <div 
@@ -55,8 +41,8 @@ const WelcomeForm: React.FC = () => {
           onMouseLeave={() => setIsHovered(false)}
         >
           <Button
-            type="submit"
-            disabled={!name.trim() || isLoading}
+            onClick={handleOpenInvitation}
+            disabled={isLoading}
             className={`relative overflow-hidden bg-wedding-blush text-wedding-maroon hover:bg-wedding-blush/90 px-8 py-2 rounded-full transition-all duration-300 ${
               isHovered ? 'shadow-gold-glow' : 'shadow-gold-soft'
             }`}
@@ -86,7 +72,7 @@ const WelcomeForm: React.FC = () => {
             )}
           </Button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

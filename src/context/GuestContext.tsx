@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 interface GuestContextType {
   guestName: string;
@@ -9,7 +9,14 @@ interface GuestContextType {
 const GuestContext = createContext<GuestContextType | undefined>(undefined);
 
 export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [guestName, setGuestName] = useState<string>('');
+  const [guestName, setGuestName] = useState<string>('Agrim');
+
+  // Initialize with default guest name
+  useEffect(() => {
+    if (!guestName) {
+      setGuestName('Agrim');
+    }
+  }, [guestName]);
 
   return (
     <GuestContext.Provider value={{ guestName, setGuestName }}>
