@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&family=Playfair+Display:wght@400;500;700&family=Poppins:wght@400;500&display=swap');
 
 @tailwind base;
@@ -113,6 +112,7 @@
     opacity: 0.8;
     pointer-events: none;
     will-change: transform, opacity;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
   }
 
   .gold-highlight {
@@ -166,5 +166,101 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  @keyframes float-elements {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+  }
+
+  @keyframes ripple {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  @keyframes sparkle {
+    0% { opacity: 0; transform: scale(0.8) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+    100% { opacity: 0; transform: scale(0.8) rotate(360deg); }
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300;
+  }
+  
+  .hover-scale:hover {
+    @apply transform scale-105;
+  }
+
+  .animate-float {
+    animation: float-elements 5s ease-in-out infinite;
+  }
+
+  .shadow-inner-gold {
+    box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
+  }
+
+  .text-shadow-gold {
+    text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+  }
+
+  .ribbon-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ribbon-effect::before,
+  .ribbon-effect::after {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4), transparent);
+    animation: ribbon-slide 4s linear infinite;
+  }
+
+  .ribbon-effect::before {
+    top: 0;
+    transform: translateX(-100%);
+  }
+
+  .ribbon-effect::after {
+    bottom: 0;
+    transform: translateX(100%);
+  }
+
+  @keyframes ribbon-slide {
+    100% { transform: translateX(100%); }
+  }
+
+  .sparkle-element {
+    position: relative;
+  }
+
+  .sparkle-element::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: rgba(212, 175, 55, 0.8);
+    border-radius: 50%;
+    filter: blur(1px);
+    animation: sparkle 3s ease-in-out infinite;
+  }
+
+  .sparkle-element::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    filter: blur(1px);
+    animation: sparkle 3s ease-in-out 1.5s infinite;
   }
 }
