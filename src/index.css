@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&family=Playfair+Display:wght@400;500;700&family=Poppins:wght@400;500&display=swap');
 
 @tailwind base;
@@ -189,6 +190,11 @@
     100% { opacity: 0; transform: scale(0.8) rotate(360deg); }
   }
 
+  @keyframes fall-heart {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+    100% { transform: translateY(100vh) rotate(90deg); opacity: 0; }
+  }
+
   .hover-scale {
     @apply transition-transform duration-300;
   }
@@ -199,6 +205,10 @@
 
   .animate-float {
     animation: float-elements 5s ease-in-out infinite;
+  }
+
+  .animate-fall-heart {
+    animation: fall-heart 5s ease-in-out forwards;
   }
 
   .shadow-inner-gold {
@@ -263,4 +273,51 @@
     filter: blur(1px);
     animation: sparkle 3s ease-in-out 1.5s infinite;
   }
+
+  /* 3D Photo Effect */
+  .photo-3d-effect {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    transition: transform 0.5s;
+  }
+
+  .photo-3d-effect:hover {
+    transform: rotate3d(0.5, -0.5, 0, 15deg);
+  }
+
+  /* Photo Frame Effect */
+  .photo-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 8px solid white;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Glitter Effect */
+  .glitter-effect {
+    position: relative;
+  }
+  
+  .glitter-effect::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      45deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.8) 50%,
+      rgba(255,255,255,0) 100%
+    );
+    background-size: 200% 200%;
+    animation: glitter 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  
+  @keyframes glitter {
+    0% { background-position: -100% -100%; }
+    100% { background-position: 200% 200%; }
+  }
 }
+

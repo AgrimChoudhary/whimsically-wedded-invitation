@@ -5,20 +5,21 @@ import { useGuest } from '@/context/GuestContext';
 import { Button } from '@/components/ui/button';
 import InvitationHeader from '@/components/InvitationHeader';
 import CoupleSection from '@/components/CoupleSection';
+import CountdownTimer from '@/components/CountdownTimer';
 import FamilyDetails from '@/components/FamilyDetails';
 import EventTimeline from '@/components/EventTimeline';
 import PhotoGrid from '@/components/PhotoGrid';
-import CountdownTimer from '@/components/CountdownTimer';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, MusicPlayer, Confetti } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Sparkles, Heart, MapPin, Gift } from 'lucide-react';
+import { ArrowLeftCircle, Sparkles, Heart, MapPin, Gift, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const { guestName } = useGuest();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -27,7 +28,9 @@ const Invitation = () => {
     // Simulating page loading
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+      // Auto-play music after loading (with slight delay for better UX)
+      setTimeout(() => setIsMusicPlaying(true), 1000);
+    }, 1500);
     
     return () => clearTimeout(timer);
   }, []);
@@ -39,22 +42,45 @@ const Invitation = () => {
       setConfetti(false);
     }, 800);
   };
+  
+  const toggleMusic = () => {
+    setIsMusicPlaying(!isMusicPlaying);
+  };
 
   return (
     <div className="min-h-screen w-full pattern-background">
       {isLoading ? (
         <div className="loading-overlay flex flex-col items-center justify-center min-h-screen">
-          <div className="loading-spinner mb-4 w-12 h-12 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-wedding-maroon font-dancing-script text-xl">Preparing your invitation...</p>
+          <div className="relative">
+            <div className="loading-spinner mb-4 w-16 h-16 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-wedding-gold/10 rounded-full animate-pulse-soft"></div>
+          </div>
+          <p className="text-wedding-maroon font-dancing-script text-xl mb-1">Preparing your invitation...</p>
+          <p className="text-wedding-gold/70 text-sm">The celebration awaits!</p>
         </div>
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
           <FloatingPetals />
-          <MusicPlayer />
+          {isMusicPlaying && <MusicPlayer />}
           <Confetti isActive={confetti} />
           
           {/* Quick navigation buttons */}
           <div className="fixed bottom-20 right-4 z-30 flex flex-col gap-3">
+            {/* Music toggle button */}
+            <Button 
+              onClick={toggleMusic}
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
+              aria-label={isMusicPlaying ? "Mute music" : "Play music"}
+            >
+              {isMusicPlaying ? (
+                <Volume2 size={18} className="text-wedding-maroon" />
+              ) : (
+                <VolumeX size={18} className="text-wedding-maroon" />
+              )}
+            </Button>
+            
             {!isMobile && (
               <Button 
                 onClick={() => navigate('/')}
@@ -63,7 +89,7 @@ const Invitation = () => {
                 className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
                 aria-label="Go back"
               >
-                <ArrowLeftCircle size={20} className="text-wedding-maroon" />
+                <ArrowLeftCircle size={18} className="text-wedding-maroon" />
               </Button>
             )}
           </div>
@@ -82,14 +108,14 @@ const Invitation = () => {
           
           {/* Content */}
           <InvitationHeader />
+          <CountdownTimer />
           <CoupleSection />
           <FamilyDetails />
           <EventTimeline />
           <PhotoGrid />
-          <CountdownTimer />
           
           {/* Dashboard Button */}
-          <div className="py-12 w-full text-center">
+          <div className="py-12 w-full text-center bg-floral-pattern">
             <div className="relative inline-block">
               <Button
                 onClick={handleOpenDashboard}
@@ -97,7 +123,7 @@ const Invitation = () => {
               >
                 <span className="relative z-10 flex items-center font-medium">
                   <Sparkles size={18} className="mr-2" />
-                  Explore Our Event Dashboard
+                  Explore Event Dashboard
                 </span>
                 <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
                 

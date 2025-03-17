@@ -33,9 +33,9 @@ const InvitationHeader: React.FC = () => {
         <div className="flex flex-col items-center mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="relative mb-3">
             <img 
-              src="https://images.unsplash.com/photo-1566776254946-60a1ae191d1d" 
+              src="/lovable-uploads/b0b6e6c1-770d-4a6e-8f9c-7f3bdcd7c3a4.png" 
               alt="Lord Ganesha" 
-              className="w-20 h-20 object-cover rounded-full border-2 border-wedding-gold animate-glow-soft"
+              className="w-24 h-24 object-contain animate-glow-soft"
               loading="lazy"
             />
             <div className="absolute -inset-1 rounded-full border border-wedding-gold/30 animate-pulse-soft"></div>
@@ -47,8 +47,8 @@ const InvitationHeader: React.FC = () => {
             />
           </div>
           <div className="text-center">
-            <p className="font-devanagari text-sm text-wedding-gold mb-1">॥ शुभं करोति कल्याणं ॥</p>
-            <p className="text-xs text-gray-600 italic">May there be auspiciousness and well-being</p>
+            <p className="font-devanagari text-sm text-wedding-gold mb-1">॥ शुभं करोति कल्याणं आरोग्यं धनसंपदा ॥</p>
+            <p className="text-xs text-gray-600 italic">May there be auspiciousness, well-being, health and prosperity</p>
           </div>
         </div>
         
@@ -56,7 +56,7 @@ const InvitationHeader: React.FC = () => {
         <div className="text-center mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
             <h1 className="font-dancing-script text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-2 gold-highlight">
-              Dear {guestName || 'Guest'},
+              Dear {guestName || 'Agrim'},
             </h1>
             {!isMobile && (
               <div className="absolute -right-6 -top-6 opacity-30">
@@ -71,24 +71,36 @@ const InvitationHeader: React.FC = () => {
           </h2>
         </div>
         
-        {/* Couple Names */}
+        {/* Couple Names with wedding image */}
         <div 
-          className="text-center opacity-0 animate-fade-in-up cursor-pointer relative"
+          className="text-center relative opacity-0 animate-fade-in-up cursor-pointer"
           style={{ animationDelay: '0.9s' }}
           onClick={triggerHearts}
           title="Click for a surprise!"
         >
-          <h2 className={`font-great-vibes text-4xl sm:text-5xl md:text-6xl ${titleShimmer ? 'shimmer-text' : 'text-wedding-maroon'} leading-tight`}>
-            <span className="block sm:inline relative">
-              Ananya
-              {!isMobile && <Sparkles size={18} className="absolute -top-4 -left-4 text-wedding-gold" />}
-            </span>
-            <span className="inline-block mx-2 sm:mx-4 transform -translate-y-1">&</span>
-            <span className="block sm:inline relative">
-              Arjun
-              {!isMobile && <Sparkles size={18} className="absolute -top-4 -right-4 text-wedding-gold" />}
-            </span>
-          </h2>
+          <div className="flex flex-col items-center">
+            <div className="relative mb-6">
+              <img 
+                src="/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png" 
+                alt="Ananya and Arjun" 
+                className="w-48 h-auto sm:w-64 md:w-72 object-contain animate-float"
+                loading="lazy"
+              />
+              <div className="absolute -inset-2 rounded-full border border-wedding-gold/10"></div>
+            </div>
+            
+            <h2 className={`font-great-vibes text-4xl sm:text-5xl md:text-6xl ${titleShimmer ? 'shimmer-text' : 'text-wedding-maroon'} leading-tight mt-2`}>
+              <span className="block sm:inline relative">
+                Ananya
+                {!isMobile && <Sparkles size={18} className="absolute -top-4 -left-4 text-wedding-gold" />}
+              </span>
+              <span className="inline-block mx-2 sm:mx-4 transform -translate-y-1">&</span>
+              <span className="block sm:inline relative">
+                Arjun
+                {!isMobile && <Sparkles size={18} className="absolute -top-4 -right-4 text-wedding-gold" />}
+              </span>
+            </h2>
+          </div>
           
           {/* Decorative accents */}
           <div className="mt-4 flex items-center justify-center gap-4">
@@ -100,7 +112,7 @@ const InvitationHeader: React.FC = () => {
           </div>
           
           {/* Click hint */}
-          <p className="text-xs text-gray-400 mt-4 animate-pulse-soft">Click names for a surprise</p>
+          <p className="text-xs text-gray-400 mt-4 animate-pulse-soft">Click for a surprise</p>
         </div>
       </div>
       
