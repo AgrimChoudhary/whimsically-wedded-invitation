@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { TriangleRight, Maximize, Heart, Star } from 'lucide-react';
+import { TriangleRight, Maximize, Heart, Star, Image } from 'lucide-react';
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -14,35 +14,45 @@ import {
 
 const photos = [
   {
-    url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486',
+    url: '/lovable-uploads/photo1.jpg',
     caption: 'Our first date',
     description: 'Where our journey began, at that little café where time stood still.'
   },
   {
-    url: 'https://images.unsplash.com/photo-1529636798458-92182e662485',
+    url: '/lovable-uploads/photo2.jpg',
     caption: 'Beach vacation',
     description: 'Barefoot on the shore, chasing waves and building sandcastles.'
   },
   {
-    url: 'https://images.unsplash.com/photo-1537907510278-10acdb198d0f',
+    url: '/lovable-uploads/photo3.jpg',
     caption: 'City lights',
     description: 'Midnight strolls through the illuminated streets of our favorite city.'
   },
   {
-    url: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf',
+    url: '/lovable-uploads/photo4.jpg',
     caption: 'The proposal',
     description: 'When "Will you?" turned into "Yes, forever and always!"'
   },
   {
-    url: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a',
+    url: '/lovable-uploads/photo5.jpg',
     caption: 'Evening walk',
     description: 'Hand in hand, watching the sun paint the sky in hues of gold and pink.'
   },
   {
-    url: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999',
+    url: '/lovable-uploads/photo6.jpg',
     caption: 'Coffee date',
     description: 'Quiet conversations and stolen glances over steaming cups of coffee.'
   }
+];
+
+// Fallback images if user uploads aren't available
+const fallbackPhotos = [
+  'https://images.unsplash.com/photo-1522673607200-164d1b6ce486',
+  'https://images.unsplash.com/photo-1529636798458-92182e662485',
+  'https://images.unsplash.com/photo-1537907510278-10acdb198d0f',
+  'https://images.unsplash.com/photo-1520854221256-17451cc331bf',
+  'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a',
+  'https://images.unsplash.com/photo-1516589091380-5d8e87df6999'
 ];
 
 const PhotoGrid: React.FC = () => {
@@ -50,9 +60,18 @@ const PhotoGrid: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  
+  // Check if the user's photos exist, otherwise use fallbacks
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImagesLoaded(true);
+    img.onerror = () => setImagesLoaded(false);
+    img.src = photos[0].url;
+  }, []);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -95,13 +114,17 @@ const PhotoGrid: React.FC = () => {
     setSelectedPhoto(index);
     setIsDialogOpen(true);
   };
+  
+  const getPhotoUrl = (index: number) => {
+    return imagesLoaded ? photos[index].url : fallbackPhotos[index % fallbackPhotos.length];
+  };
 
   return (
     <section ref={sectionRef} className="w-full py-12 bg-wedding-cream/30">
       <div className="w-full max-w-5xl mx-auto px-4">
         <div className="text-center mb-8">
           <span className="inline-block py-1 px-3 bg-wedding-gold/10 rounded-full text-xs text-wedding-gold mb-2">
-            Our Journey Together
+            <Image size={12} className="inline mr-1" /> Our Journey Together
           </span>
           <h2 className="font-playfair text-3xl text-wedding-maroon">Photo Memories</h2>
         </div>
@@ -123,17 +146,20 @@ const PhotoGrid: React.FC = () => {
                     >
                       <AspectRatio ratio={4/3}>
                         <img 
-                          src={photo.url} 
+                          src={getPhotoUrl(index)} 
                           alt={photo.caption} 
                           className="w-full h-full object-cover"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                           <div className="transform scale-0 hover:scale-100 transition-transform duration-300 bg-white/80 p-2 rounded-full">
                             <Maximize size={18} className="text-wedding-maroon" />
                           </div>
                         </div>
                       </AspectRatio>
+                      
+                      {/* Photo frame effect */}
+                      <div className="absolute inset-0 border-[3px] border-white/70 shadow-lg pointer-events-none"></div>
                     </div>
                     <div className="text-center py-3">
                       <p className="text-sm font-medium text-wedding-maroon">{photo.caption}</p>
@@ -157,7 +183,7 @@ const PhotoGrid: React.FC = () => {
                 isVisible 
                   ? 'opacity-100 translate-y-0' 
                   : 'opacity-0 translate-y-10'
-              } hover:shadow-gold-glow`}
+              } hover:shadow-gold-glow photo-3d-effect`}
               style={{ transitionDelay: `${index * 100}ms` }}
             >
               <div 
@@ -166,7 +192,7 @@ const PhotoGrid: React.FC = () => {
               >
                 <AspectRatio ratio={4/3}>
                   <img 
-                    src={photo.url} 
+                    src={getPhotoUrl(index)} 
                     alt={photo.caption} 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
@@ -176,12 +202,19 @@ const PhotoGrid: React.FC = () => {
                       <Maximize size={18} className="text-wedding-maroon" />
                     </div>
                   </div>
+                  
+                  {/* Photo frame effect */}
+                  <div className="absolute inset-0 border-4 border-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                  
                   {/* Corner decorations */}
                   <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-white/0 group-hover:border-white/70 transition-all duration-300"></div>
                   <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-white/0 group-hover:border-white/70 transition-all duration-300"></div>
                   <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-white/0 group-hover:border-white/70 transition-all duration-300"></div>
                   <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-white/0 group-hover:border-white/70 transition-all duration-300"></div>
                 </AspectRatio>
+                
+                {/* Glitter effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 glitter-effect pointer-events-none"></div>
                 
                 {/* Random floating heart effect */}
                 {index % 2 === 0 && (
@@ -229,7 +262,7 @@ const PhotoGrid: React.FC = () => {
                 <>
                   <AspectRatio ratio={16/9}>
                     <img 
-                      src={photos[selectedPhoto].url} 
+                      src={getPhotoUrl(selectedPhoto)} 
                       alt={photos[selectedPhoto].caption} 
                       className="w-full h-full object-cover"
                     />

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -188,6 +187,19 @@ export default {
 						transform: 'translateY(100vh) rotate(720deg)',
 						opacity: '0'
 					}
+				},
+				'firework-explosion': {
+					'0%': {
+						transform: 'scale(0)',
+						opacity: '0'
+					},
+					'20%': {
+						opacity: '1'
+					},
+					'100%': {
+						transform: 'scale(2)',
+						opacity: '0'
+					}
 				}
 			},
 			animation: {
@@ -204,7 +216,8 @@ export default {
 				'float-petals': 'float-petals 10s ease-in-out forwards',
 				'glow-soft': 'glow-soft 3s infinite ease-in-out',
 				'bounce-light': 'bounce-light 2s infinite',
-				'confetti': 'confetti 5s linear forwards'
+				'confetti': 'confetti 5s linear forwards',
+				'firework': 'firework-explosion 1.5s ease-out forwards'
 			},
 			fontFamily: {
 				'great-vibes': ['"Great Vibes"', 'cursive'],

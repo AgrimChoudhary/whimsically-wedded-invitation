@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Music, Volume2, VolumeX } from 'lucide-react';
+import { Music, Volume2, VolumeX, Fireworks } from 'lucide-react';
 
 interface PetalProps {
   key: number;
@@ -12,6 +11,10 @@ interface ConfettiProps {
 }
 
 interface FallingHeartsProps {
+  isActive: boolean;
+}
+
+interface FireworksProps {
   isActive: boolean;
 }
 
@@ -34,18 +37,15 @@ export const FloatingPetals: React.FC = () => {
       
       setPetals(prev => [...prev, petal]);
       
-      // Remove petal after animation completes
       setTimeout(() => {
         setPetals(prev => prev.filter(p => p.key !== petal.key));
-      }, 25000); // Slightly longer than animation to ensure completion
+      }, 25000);
     };
     
-    // Create initial petals
     for (let i = 0; i < 15; i++) {
       createPetal();
     }
     
-    // Add new petals periodically
     const interval = setInterval(createPetal, 3000);
     
     return () => clearInterval(interval);
@@ -67,24 +67,20 @@ export const FloatingPetals: React.FC = () => {
 // Create music player component
 export const MusicPlayer: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
-  const [audio] = useState(new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"));
+  const [audio] = useState(new Audio("https://pagalfree.com/musics/128-Kudmayi%20(Film%20Version)%20-%20Rocky%20Aur%20Rani%20Kii%20Prem%20Kahaani%20128%20Kbps.mp3"));
   
   useEffect(() => {
-    // Set audio properties
     audio.loop = true;
     audio.volume = 0.3;
     
-    // Play audio
     const playPromise = audio.play();
     
-    // Handle play promise rejection (autoplay policies)
     if (playPromise !== undefined) {
       playPromise.catch(error => {
         console.log("Audio play prevented by browser", error);
       });
     }
     
-    // Hide music player after a few seconds
     const timer = setTimeout(() => {
       setIsVisible(false);
     }, 5000);
@@ -96,12 +92,10 @@ export const MusicPlayer: React.FC = () => {
   }, [audio]);
   
   useEffect(() => {
-    // Show music player on hover near the bottom right
     const handleMouseMove = (e: MouseEvent) => {
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       
-      // Show when mouse is near bottom right corner
       if (e.clientX > windowWidth - 200 && e.clientY > windowHeight - 200) {
         setIsVisible(true);
       }
@@ -149,7 +143,6 @@ export const Confetti: React.FC<ConfettiProps> = ({ isActive }) => {
       
       setConfetti(newConfetti);
       
-      // Clear confetti after animations
       const timer = setTimeout(() => {
         setConfetti([]);
       }, 6000);
@@ -193,7 +186,6 @@ export const FallingHearts: React.FC<FallingHeartsProps> = ({ isActive }) => {
       
       setHearts(newHearts);
       
-      // Clear hearts after animations
       const timer = setTimeout(() => {
         setHearts([]);
       }, 7000);
@@ -214,6 +206,62 @@ export const FallingHearts: React.FC<FallingHeartsProps> = ({ isActive }) => {
         >
           ❤
         </div>
+      ))}
+    </div>
+  );
+};
+
+// Create fireworks component with sound
+export const Fireworks: React.FC<FireworksProps> = ({ isActive }) => {
+  const [fireworks, setFireworks] = useState<{ id: number; style: React.CSSProperties }[]>([]);
+  const [audio] = useState(new Audio("/sounds/firework-sound.mp3"));
+  
+  useEffect(() => {
+    if (isActive) {
+      audio.volume = 0.3;
+      audio.currentTime = 0;
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log("Audio play prevented by browser", error);
+        });
+      }
+      
+      const newFireworks = Array.from({ length: 40 }, (_, i) => ({
+        id: i,
+        style: {
+          left: `${40 + Math.random() * 20}vw`,
+          top: `${20 + Math.random() * 20}vh`,
+          backgroundColor: `hsl(${Math.random() * 360}, 100%, 70%)`,
+          width: `${Math.random() * 5 + 3}px`,
+          height: `${Math.random() * 5 + 3}px`,
+          animationDuration: `${Math.random() * 2 + 1}s`,
+          animationDelay: `${Math.random() * 0.3}s`,
+          opacity: 0,
+        },
+      }));
+      
+      setFireworks(newFireworks);
+      
+      const timer = setTimeout(() => {
+        setFireworks([]);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+    
+    return undefined;
+  }, [isActive, audio]);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
+      {fireworks.map((item) => (
+        <div
+          key={item.id}
+          className="firework absolute animate-firework"
+          style={item.style}
+        />
       ))}
     </div>
   );

@@ -1,19 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
-import { FallingHearts } from './AnimatedElements';
+import { FallingHearts, Fireworks } from './AnimatedElements';
 import { Sparkles, Star, Music } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const InvitationHeader: React.FC = () => {
   const { guestName } = useGuest();
   const [showHearts, setShowHearts] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
   const [titleShimmer, setTitleShimmer] = useState(false);
   const isMobile = useIsMobile();
   
   const triggerHearts = () => {
     setShowHearts(true);
     setTimeout(() => setShowHearts(false), 3000);
+  };
+  
+  const triggerFireworks = () => {
+    setShowFireworks(true);
+    setTimeout(() => setShowFireworks(false), 3000);
   };
   
   useEffect(() => {
@@ -75,7 +81,10 @@ const InvitationHeader: React.FC = () => {
         <div 
           className="text-center relative opacity-0 animate-fade-in-up cursor-pointer"
           style={{ animationDelay: '0.9s' }}
-          onClick={triggerHearts}
+          onClick={() => {
+            triggerHearts();
+            triggerFireworks();
+          }}
           title="Click for a surprise!"
         >
           <div className="flex flex-col items-center">
@@ -117,6 +126,7 @@ const InvitationHeader: React.FC = () => {
       </div>
       
       <FallingHearts isActive={showHearts} />
+      <Fireworks isActive={showFireworks} />
     </header>
   );
 };
