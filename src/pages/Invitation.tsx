@@ -11,7 +11,7 @@ import EventTimeline from '@/components/EventTimeline';
 import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
-import { FloatingPetals, MusicPlayer, Confetti } from '@/components/AnimatedElements';
+import { FloatingPetals, MusicPlayer, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
 import { ArrowLeftCircle, Sparkles, Heart, MapPin, Gift, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 

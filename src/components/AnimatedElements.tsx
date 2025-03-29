@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Music, Volume2, VolumeX, Fireworks } from 'lucide-react';
+import { Music, Volume2, VolumeX, Sparkles } from 'lucide-react';
 
 interface PetalProps {
   key: number;
@@ -14,7 +15,7 @@ interface FallingHeartsProps {
   isActive: boolean;
 }
 
-interface FireworksProps {
+interface FireworksDisplayProps {
   isActive: boolean;
 }
 
@@ -212,7 +213,7 @@ export const FallingHearts: React.FC<FallingHeartsProps> = ({ isActive }) => {
 };
 
 // Create fireworks component with sound
-export const Fireworks: React.FC<FireworksProps> = ({ isActive }) => {
+export const FireworksDisplay: React.FC<FireworksDisplayProps> = ({ isActive }) => {
   const [fireworks, setFireworks] = useState<{ id: number; style: React.CSSProperties }[]>([]);
   const [audio] = useState(new Audio("/sounds/firework-sound.mp3"));
   

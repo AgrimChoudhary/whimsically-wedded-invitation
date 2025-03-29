@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Clock, Heart, Calendar, Music, Sparkles } from 'lucide-react';
+import { FireworksDisplay } from './AnimatedElements';
 
 interface TimeLeft {
   days: number;
@@ -12,6 +13,7 @@ interface TimeLeft {
 const CountdownTimer: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isVisible, setIsVisible] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
   
   // Wedding date - February 14, 2025
   const weddingDate = new Date('2025-02-14T11:00:00').getTime();
@@ -56,6 +58,22 @@ const CountdownTimer: React.FC = () => {
     };
   }, [weddingDate]);
   
+  // Effect to hide fireworks after a few seconds
+  useEffect(() => {
+    if (showFireworks) {
+      const timer = setTimeout(() => {
+        setShowFireworks(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [showFireworks]);
+  
+  const handleTimerClick = () => {
+    setShowFireworks(true);
+  };
+  
   const timeUnits = [
     { label: 'Days', value: timeLeft.days },
     { label: 'Hours', value: timeLeft.hours },
@@ -75,7 +93,10 @@ const CountdownTimer: React.FC = () => {
           </h3>
         </div>
         
-        <div className={`glass-card py-3 px-2 border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div 
+          className={`glass-card py-3 px-2 border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} cursor-pointer`}
+          onClick={handleTimerClick}
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {timeUnits.map((unit, index) => (
               <div 
@@ -121,8 +142,16 @@ const CountdownTimer: React.FC = () => {
               <span>February 14, 2025 at 11:00 AM</span>
             </span>
           </div>
+          
+          {/* Tooltip hint for clicking */}
+          <div className="mt-2 text-xs text-wedding-gold text-center opacity-70">
+            Click for a surprise!
+          </div>
         </div>
       </div>
+      
+      {/* Fireworks animation */}
+      <FireworksDisplay isActive={showFireworks} />
     </section>
   );
 };

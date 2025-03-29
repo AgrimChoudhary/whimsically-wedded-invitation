@@ -67,7 +67,7 @@ const PhotoGrid: React.FC = () => {
   
   // Check if the user's photos exist, otherwise use fallbacks
   useEffect(() => {
-    const img = new Image();
+    const img = document.createElement('img');
     img.onload = () => setImagesLoaded(true);
     img.onerror = () => setImagesLoaded(false);
     img.src = photos[0].url;
