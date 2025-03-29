@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
-import { FallingHearts, Fireworks } from './AnimatedElements';
+import { FallingHearts, FireworksDisplay } from './AnimatedElements';
 import { Sparkles, Star, Music } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -23,7 +22,6 @@ const InvitationHeader: React.FC = () => {
   };
   
   useEffect(() => {
-    // Add title shimmer effect at intervals
     const shimmerInterval = setInterval(() => {
       setTitleShimmer(true);
       setTimeout(() => setTitleShimmer(false), 2000);
@@ -35,7 +33,6 @@ const InvitationHeader: React.FC = () => {
   return (
     <header className="relative w-full flex flex-col items-center pt-8 pb-6 overflow-hidden">
       <div className="w-full max-w-4xl px-4">
-        {/* Ganesh Ji Image and Sanskrit Shloka */}
         <div className="flex flex-col items-center mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="relative mb-3">
             <img 
@@ -58,7 +55,6 @@ const InvitationHeader: React.FC = () => {
           </div>
         </div>
         
-        {/* Personalized greeting */}
         <div className="text-center mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
             <h1 className="font-dancing-script text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-2 gold-highlight">
@@ -77,7 +73,6 @@ const InvitationHeader: React.FC = () => {
           </h2>
         </div>
         
-        {/* Couple Names with wedding image */}
         <div 
           className="text-center relative opacity-0 animate-fade-in-up cursor-pointer"
           style={{ animationDelay: '0.9s' }}
@@ -111,7 +106,6 @@ const InvitationHeader: React.FC = () => {
             </h2>
           </div>
           
-          {/* Decorative accents */}
           <div className="mt-4 flex items-center justify-center gap-4">
             <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-r from-transparent to-wedding-gold/70"></div>
             <div className="w-3 h-3 rounded-full bg-wedding-gold/20 relative">
@@ -120,13 +114,12 @@ const InvitationHeader: React.FC = () => {
             <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-l from-transparent to-wedding-gold/70"></div>
           </div>
           
-          {/* Click hint */}
           <p className="text-xs text-gray-400 mt-4 animate-pulse-soft">Click for a surprise</p>
         </div>
       </div>
       
       <FallingHearts isActive={showHearts} />
-      <Fireworks isActive={showFireworks} />
+      <FireworksDisplay isActive={showFireworks} />
     </header>
   );
 };
