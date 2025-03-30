@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { TriangleRight, Maximize, Heart, Star, Image } from 'lucide-react';
+import { TriangleRight, Maximize, Heart, Star, Image, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -61,13 +61,14 @@ const PhotoGrid: React.FC = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
   // Check if the user's photos exist, otherwise use fallbacks
   useEffect(() => {
-    const img = document.createElement('img');
+    const img = new Image();
     img.onload = () => setImagesLoaded(true);
     img.onerror = () => setImagesLoaded(false);
     img.src = photos[0].url;
@@ -112,6 +113,7 @@ const PhotoGrid: React.FC = () => {
   
   const openPhotoDialog = (index: number) => {
     setSelectedPhoto(index);
+    setCarouselIndex(index);
     setIsDialogOpen(true);
   };
   
@@ -120,18 +122,18 @@ const PhotoGrid: React.FC = () => {
   };
 
   return (
-    <section ref={sectionRef} className="w-full py-12 bg-wedding-cream/30">
+    <section ref={sectionRef} className="w-full py-10 bg-wedding-cream/30">
       <div className="w-full max-w-5xl mx-auto px-4">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <span className="inline-block py-1 px-3 bg-wedding-gold/10 rounded-full text-xs text-wedding-gold mb-2">
             <Image size={12} className="inline mr-1" /> Our Journey Together
           </span>
-          <h2 className="font-playfair text-3xl text-wedding-maroon">Photo Memories</h2>
+          <h2 className="font-playfair text-2xl sm:text-3xl text-wedding-maroon">Photo Memories</h2>
         </div>
         
-        {/* Mobile carousel */}
-        <div className="relative md:hidden mb-8">
-          <Carousel className="w-full">
+        {/* Mobile carousel with enhanced navigation */}
+        <div className="relative md:hidden mb-6">
+          <Carousel className="w-full" setApi={api => api && api.scrollTo(carouselIndex)}>
             <CarouselContent>
               {photos.map((photo, index) => (
                 <CarouselItem key={index}>
@@ -151,6 +153,21 @@ const PhotoGrid: React.FC = () => {
                           className="w-full h-full object-cover"
                           loading="lazy"
                         />
+                        
+                        {/* View button overlay */}
+                        <div className="absolute top-2 right-2 z-10">
+                          <button 
+                            className="bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-2 rounded-full transition-all duration-300 transform hover:scale-110"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openPhotoDialog(index);
+                            }}
+                            aria-label="View photo"
+                          >
+                            <Eye size={16} />
+                          </button>
+                        </div>
+                        
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                           <div className="transform scale-0 hover:scale-100 transition-transform duration-300 bg-white/80 p-2 rounded-full">
                             <Maximize size={18} className="text-wedding-maroon" />
@@ -172,10 +189,29 @@ const PhotoGrid: React.FC = () => {
             <CarouselPrevious className="left-2 bg-white/70 hover:bg-white" />
             <CarouselNext className="right-2 bg-white/70 hover:bg-white" />
           </Carousel>
+          
+          {/* Improved mobile indicators */}
+          <div className="flex justify-center gap-1 mt-2">
+            {photos.map((_, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === activeIndex 
+                    ? 'bg-wedding-gold w-4' 
+                    : 'bg-wedding-gold/30'
+                }`}
+                onClick={() => {
+                  setActiveIndex(index);
+                  setCarouselIndex(index);
+                }}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
         
-        {/* Desktop grid */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Enhanced desktop grid */}
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5">
           {photos.map((photo, index) => (
             <div 
               key={index} 
@@ -197,6 +233,21 @@ const PhotoGrid: React.FC = () => {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
                   />
+                  
+                  {/* Transparent view button */}
+                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button 
+                      className="bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-2 rounded-full transition-all duration-300 transform hover:scale-110"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPhotoDialog(index);
+                      }}
+                      aria-label="View photo"
+                    >
+                      <Eye size={18} />
+                    </button>
+                  </div>
+                  
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end p-4">
                     <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 bg-white/80 p-2 rounded-full mb-2">
                       <Maximize size={18} className="text-wedding-maroon" />
@@ -252,7 +303,7 @@ const PhotoGrid: React.FC = () => {
           ))}
         </div>
         
-        {/* Photo Dialog */}
+        {/* Enhanced Photo Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-0">
             <DialogClose className="absolute right-4 top-4 z-10 bg-white/70 p-2 rounded-full hover:bg-white transition-colors duration-300" />
@@ -271,6 +322,32 @@ const PhotoGrid: React.FC = () => {
                     <h3 className="font-dancing-script text-2xl mb-1">{photos[selectedPhoto].caption}</h3>
                     <p className="text-white/90 text-sm">{photos[selectedPhoto].description}</p>
                   </div>
+                  
+                  {/* Navigation arrows for the dialog */}
+                  <button 
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 p-2 rounded-full text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const newIndex = (selectedPhoto - 1 + photos.length) % photos.length;
+                      setSelectedPhoto(newIndex);
+                    }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button 
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 p-2 rounded-full text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const newIndex = (selectedPhoto + 1) % photos.length;
+                      setSelectedPhoto(newIndex);
+                    }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
                 </>
               )}
             </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -12,30 +11,27 @@ import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, MusicPlayer, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Sparkles, Heart, MapPin, Gift, Music, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(true);
   const { guestName } = useGuest();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
   useEffect(() => {
-    // Simulating page loading
     const timer = setTimeout(() => {
       setIsLoading(false);
-      // Auto-play music after loading (with slight delay for better UX)
-      setTimeout(() => setIsMusicPlaying(true), 1000);
     }, 1500);
     
     return () => clearTimeout(timer);
   }, []);
   
-  const handleOpenDashboard = () => {
+  const handleOpenRSVP = () => {
     setConfetti(true);
     setTimeout(() => {
       setShowRSVP(true);
@@ -64,9 +60,7 @@ const Invitation = () => {
           {isMusicPlaying && <MusicPlayer />}
           <Confetti isActive={confetti} />
           
-          {/* Quick navigation buttons */}
           <div className="fixed bottom-20 right-4 z-30 flex flex-col gap-3">
-            {/* Music toggle button */}
             <Button 
               onClick={toggleMusic}
               variant="outline"
@@ -94,7 +88,6 @@ const Invitation = () => {
             )}
           </div>
           
-          {/* Back button for mobile */}
           {isMobile && (
             <button 
               onClick={() => navigate('/')}
@@ -106,7 +99,6 @@ const Invitation = () => {
             </button>
           )}
           
-          {/* Content */}
           <InvitationHeader />
           <CountdownTimer />
           <CoupleSection />
@@ -114,29 +106,26 @@ const Invitation = () => {
           <EventTimeline />
           <PhotoGrid />
           
-          {/* Dashboard Button */}
           <div className="py-12 w-full text-center bg-floral-pattern">
             <div className="relative inline-block">
               <Button
-                onClick={handleOpenDashboard}
+                onClick={handleOpenRSVP}
                 className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
               >
                 <span className="relative z-10 flex items-center font-medium">
-                  <Sparkles size={18} className="mr-2" />
-                  Explore Event Dashboard
+                  <Heart size={18} className="mr-2" />
+                  Accept Invitation
                 </span>
                 <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
                 
-                {/* Decorative elements */}
                 <span className="absolute -top-6 -left-6 text-white/10">
-                  <Gift size={24} />
+                  <User size={24} />
                 </span>
                 <span className="absolute -bottom-6 -right-6 text-white/10">
                   <Heart size={24} />
                 </span>
               </Button>
               
-              {/* Animated embellishments */}
               <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-wedding-blush/40 rounded-tl-lg"></div>
               <div className="absolute -right-4 -top-4 w-8 h-8 border-t-2 border-r-2 border-wedding-blush/40 rounded-tr-lg"></div>
               <div className="absolute -left-4 -bottom-4 w-8 h-8 border-b-2 border-l-2 border-wedding-blush/40 rounded-bl-lg"></div>
@@ -146,7 +135,6 @@ const Invitation = () => {
           
           <Footer />
           
-          {/* RSVP Modal */}
           <RSVPModal isOpen={showRSVP} onClose={() => setShowRSVP(false)} />
         </div>
       )}

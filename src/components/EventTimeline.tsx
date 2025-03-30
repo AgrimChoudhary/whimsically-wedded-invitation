@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Calendar, Music, Heart, PartyPopper, MapPin, ExternalLink } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,7 +22,7 @@ const EventTimeline: React.FC = () => {
   const events: Event[] = [
     {
       name: "Mehndi Ceremony",
-      date: "12th February 2025",
+      date: "8th April 2025",
       time: "10:00 AM - 3:00 PM",
       venue: "Sharma Residence",
       address: "123 Lotus Lane, New Delhi",
@@ -37,7 +36,7 @@ const EventTimeline: React.FC = () => {
     },
     {
       name: "Sangeet Night",
-      date: "13th February 2025",
+      date: "9th April 2025",
       time: "6:00 PM - 11:00 PM",
       venue: "Grand Pavilion",
       address: "456 Harmony Road, New Delhi",
@@ -47,7 +46,7 @@ const EventTimeline: React.FC = () => {
     },
     {
       name: "Wedding Ceremony",
-      date: "14th February 2025",
+      date: "10th April 2025",
       time: "11:00 AM - 3:00 PM",
       venue: "Divine Gardens",
       address: "789 Blessing Avenue, New Delhi",
@@ -57,7 +56,7 @@ const EventTimeline: React.FC = () => {
     },
     {
       name: "Reception",
-      date: "14th February 2025",
+      date: "10th April 2025",
       time: "7:00 PM - 12:00 AM",
       venue: "Royal Banquet Hall",
       address: "101 Celebration Street, New Delhi",
@@ -96,27 +95,26 @@ const EventTimeline: React.FC = () => {
   };
 
   return (
-    <section className="w-full py-12 bg-wedding-cream bg-opacity-40">
+    <section className="w-full py-10 bg-wedding-cream bg-opacity-40">
       <div className="w-full max-w-5xl mx-auto px-4">
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <span className="inline-block py-1 px-3 bg-wedding-gold/10 rounded-full text-xs text-wedding-gold mb-2">
             Join Us For
           </span>
-          <h2 className="font-playfair text-3xl text-wedding-maroon">Wedding Events</h2>
+          <h2 className="font-playfair text-2xl sm:text-3xl text-wedding-maroon">Wedding Events</h2>
         </div>
         
         <div className="relative">
-          {/* Vertical line */}
           <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-wedding-gold/10 via-wedding-gold/30 to-wedding-gold/10 transform -translate-x-1/2"></div>
           
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {events.map((event, index) => (
               <div 
                 key={index}
                 ref={el => eventRefs.current[index] = el}
                 className={`relative flex flex-col md:flex-row ${
                   index % 2 === 0 ? 'md:flex-row-reverse' : ''
-                } items-center md:items-start gap-6 ${
+                } items-center md:items-start gap-4 md:gap-6 ${
                   visibleEvents.includes(index) 
                     ? 'opacity-100 transform translate-y-0 transition-all duration-700' 
                     : 'opacity-0 transform translate-y-10'
@@ -127,24 +125,22 @@ const EventTimeline: React.FC = () => {
                 onTouchStart={() => handleEventHover(index)}
                 onTouchEnd={handleEventLeave}
               >
-                {/* Timeline dot - visible on md+ screens */}
                 <div className="hidden md:flex absolute left-1/2 w-8 h-8 bg-wedding-gold/80 rounded-full transform -translate-x-1/2 items-center justify-center z-10 transition-all duration-300 shadow-gold-soft">
                   <div className={`w-4 h-4 bg-wedding-cream rounded-full transition-all duration-300 ${activeEvent === index ? 'scale-75' : 'scale-100'}`}></div>
                 </div>
                 
-                {/* Event card */}
                 <div 
-                  className={`glass-card border md:w-5/12 p-5 transition-all duration-300 hover:shadow-gold-glow ${
-                    activeEvent === index ? 'shadow-gold-glow border-wedding-gold/40 transform scale-105 md:scale-[1.03]' : 'shadow-gold-soft'
+                  className={`glass-card border md:w-5/12 p-4 sm:p-5 transition-all duration-300 hover:shadow-gold-glow ${
+                    activeEvent === index ? 'shadow-gold-glow border-wedding-gold/40 transform scale-102 md:scale-[1.02]' : 'shadow-gold-soft'
                   } ${event.color}`}
                 >
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
                     <div className={`transition-all duration-300 ${activeEvent === index ? 'transform scale-110' : ''}`}>
                       {event.icon}
                     </div>
                     <div>
-                      <h3 className="font-playfair text-xl text-wedding-maroon">{event.name}</h3>
-                      <div className="mt-2 space-y-1 text-sm">
+                      <h3 className="font-playfair text-lg sm:text-xl text-wedding-maroon">{event.name}</h3>
+                      <div className="mt-1 sm:mt-2 space-y-1 text-xs sm:text-sm">
                         <div className="flex items-center text-gray-600">
                           <Calendar size={14} className="mr-2" />
                           <span>{event.date}</span>
@@ -159,7 +155,7 @@ const EventTimeline: React.FC = () => {
                           className="flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 pl-5 mt-2"
                         >
                           <MapPin size={14} className="mr-1" />
-                          <span className="text-sm underline-grow">{event.address}</span>
+                          <span className="text-xs sm:text-sm underline-grow">{event.address}</span>
                           <ExternalLink size={12} className="ml-1" />
                         </a>
                       </div>
@@ -167,7 +163,6 @@ const EventTimeline: React.FC = () => {
                   </div>
                 </div>
                 
-                {/* Empty space for alignment on opposite side */}
                 <div className="hidden md:block md:w-5/12"></div>
               </div>
             ))}

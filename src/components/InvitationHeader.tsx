@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
@@ -27,18 +28,27 @@ const InvitationHeader: React.FC = () => {
       setTimeout(() => setTitleShimmer(false), 2000);
     }, 7000);
     
-    return () => clearInterval(shimmerInterval);
+    // Auto-play visual effects on load for a more immersive experience
+    const initialTimer = setTimeout(() => {
+      triggerHearts();
+      setTimeout(() => triggerFireworks(), 1500);
+    }, 2000);
+    
+    return () => {
+      clearInterval(shimmerInterval);
+      clearTimeout(initialTimer);
+    };
   }, []);
 
   return (
-    <header className="relative w-full flex flex-col items-center pt-8 pb-6 overflow-hidden">
+    <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
       <div className="w-full max-w-4xl px-4">
-        <div className="flex flex-col items-center mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <div className="flex flex-col items-center mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="relative mb-3">
             <img 
               src="/lovable-uploads/b0b6e6c1-770d-4a6e-8f9c-7f3bdcd7c3a4.png" 
               alt="Lord Ganesha" 
-              className="w-24 h-24 object-contain animate-glow-soft"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain animate-glow-soft"
               loading="lazy"
             />
             <div className="absolute -inset-1 rounded-full border border-wedding-gold/30 animate-pulse-soft"></div>
@@ -55,10 +65,10 @@ const InvitationHeader: React.FC = () => {
           </div>
         </div>
         
-        <div className="text-center mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+        <div className="text-center mb-6 sm:mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
-            <h1 className="font-dancing-script text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-2 gold-highlight">
-              Dear {guestName || 'Agrim'},
+            <h1 className="font-dancing-script text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
+              Dear {guestName || 'Friend'},
             </h1>
             {!isMobile && (
               <div className="absolute -right-6 -top-6 opacity-30">
@@ -68,7 +78,7 @@ const InvitationHeader: React.FC = () => {
               </div>
             )}
           </div>
-          <h2 className="font-great-vibes text-3xl sm:text-4xl text-wedding-gold animate-bounce-light">
+          <h2 className="font-great-vibes text-2xl sm:text-3xl text-wedding-gold animate-bounce-light">
             You're Cordially Invited!
           </h2>
         </div>
@@ -83,17 +93,17 @@ const InvitationHeader: React.FC = () => {
           title="Click for a surprise!"
         >
           <div className="flex flex-col items-center">
-            <div className="relative mb-6">
+            <div className="relative mb-4 sm:mb-6">
               <img 
                 src="/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png" 
                 alt="Ananya and Arjun" 
-                className="w-48 h-auto sm:w-64 md:w-72 object-contain animate-float"
+                className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-float"
                 loading="lazy"
               />
               <div className="absolute -inset-2 rounded-full border border-wedding-gold/10"></div>
             </div>
             
-            <h2 className={`font-great-vibes text-4xl sm:text-5xl md:text-6xl ${titleShimmer ? 'shimmer-text' : 'text-wedding-maroon'} leading-tight mt-2`}>
+            <h2 className={`font-great-vibes text-3xl sm:text-4xl md:text-5xl ${titleShimmer ? 'shimmer-text' : 'text-wedding-maroon'} leading-tight mt-2`}>
               <span className="block sm:inline relative">
                 Ananya
                 {!isMobile && <Sparkles size={18} className="absolute -top-4 -left-4 text-wedding-gold" />}
