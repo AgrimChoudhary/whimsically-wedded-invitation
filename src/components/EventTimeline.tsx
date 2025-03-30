@@ -1,6 +1,8 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { Calendar, Music, Heart, PartyPopper, MapPin, ExternalLink } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { motion } from 'framer-motion';
 
 interface Event {
   name: string;
@@ -130,8 +132,8 @@ const EventTimeline: React.FC = () => {
                 </div>
                 
                 <div 
-                  className={`glass-card border md:w-5/12 p-4 sm:p-5 transition-all duration-300 hover:shadow-gold-glow ${
-                    activeEvent === index ? 'shadow-gold-glow border-wedding-gold/40 transform scale-102 md:scale-[1.02]' : 'shadow-gold-soft'
+                  className={`glass-card border md:w-5/12 p-4 sm:p-5 transition-all duration-300 ${
+                    activeEvent === index ? 'shadow-gold-glow border-wedding-gold/40 transform scale-105' : 'shadow-gold-soft hover:shadow-gold-glow hover:scale-[1.01]'
                   } ${event.color}`}
                 >
                   <div className="flex items-start space-x-3 sm:space-x-4">

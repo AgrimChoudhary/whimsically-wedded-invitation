@@ -25,6 +25,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (audioRef.current) {
         audioRef.current.loop = true;
         audioRef.current.volume = 0.3;
+        audioRef.current.preload = "auto";
       }
     }
 
@@ -48,6 +49,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => {
       document.removeEventListener('click', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
+      
+      // Cleanup audio when component unmounts
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, [audioInitialized]);
 
@@ -68,7 +75,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [isPlaying]);
 
   const toggleMusic = () => {
-    setIsPlaying(!isPlaying);
+    setIsPlaying(prevState => !prevState);
   };
 
   return (

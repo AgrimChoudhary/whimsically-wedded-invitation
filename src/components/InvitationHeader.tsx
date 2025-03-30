@@ -46,7 +46,7 @@ const InvitationHeader: React.FC = () => {
         <div className="flex flex-col items-center mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="relative mb-3">
             <img 
-              src="/lovable-uploads/b0b6e6c1-770d-4a6e-8f9c-7f3bdcd7c3a4.png" 
+              src="/lovable-uploads/1024cb0f-4b55-46bf-b962-14a4aaa68344.png" 
               alt="Lord Ganesha" 
               className="w-20 h-20 sm:w-24 sm:h-24 object-contain animate-glow-soft"
               loading="lazy"
