@@ -3,13 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
 import { Button } from "@/components/ui/button";
-import { Heart, Sparkles, Calendar, MapPin, Gift } from 'lucide-react';
+import { Heart, Sparkles, Calendar, MapPin, Gift, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showIcon, setShowIcon] = useState(0);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(true);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const { guestName } = useGuest();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -30,6 +32,64 @@ const WelcomeForm: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Initialize audio
+    const newAudio = new Audio("https://pagalfree.com/musics/128-Kudmayi%20(Film%20Version)%20-%20Rocky%20Aur%20Rani%20Kii%20Prem%20Kahaani%20128%20Kbps.mp3");
+    newAudio.loop = true;
+    newAudio.volume = 0.3;
+    setAudio(newAudio);
+    
+    // Attempt to play audio (might be blocked)
+    const tryPlayAudio = () => {
+      if (newAudio) {
+        const playPromise = newAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Audio play prevented by browser, waiting for user interaction", error);
+          });
+        }
+      }
+    };
+    
+    // Set up event listeners for user interaction
+    const handleUserInteraction = () => {
+      if (newAudio && isMusicPlaying) {
+        tryPlayAudio();
+      }
+    };
+    
+    // Try to play immediately (might be blocked)
+    tryPlayAudio();
+    
+    // Add event listeners to play on first interaction
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+    
+    return () => {
+      if (newAudio) {
+        newAudio.pause();
+      }
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+  }, []);
+  
+  // Handle music toggle
+  useEffect(() => {
+    if (audio) {
+      if (isMusicPlaying) {
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Audio play prevented by browser", error);
+          });
+        }
+      } else {
+        audio.pause();
+      }
+    }
+  }, [isMusicPlaying, audio]);
+
   const handleOpenInvitation = () => {
     setIsLoading(true);
     
@@ -37,6 +97,10 @@ const WelcomeForm: React.FC = () => {
     setTimeout(() => {
       navigate('/invitation');
     }, 1000);
+  };
+  
+  const toggleMusic = () => {
+    setIsMusicPlaying(!isMusicPlaying);
   };
 
   return (
@@ -47,6 +111,14 @@ const WelcomeForm: React.FC = () => {
         <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-wedding-gold/50 rounded-tr-lg"></div>
         <div className="absolute bottom-0 left-0 w-16 h-16 border-b-2 border-l-2 border-wedding-gold/50 rounded-bl-lg"></div>
         <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-wedding-gold/50 rounded-br-lg"></div>
+        
+        {/* Hindu wedding decorative elements */}
+        <div className="absolute left-2 top-2 w-12 h-12 opacity-20">
+          <img src="https://i.imgur.com/eK7BXjh.png" alt="Kalash" className="w-full h-full" />
+        </div>
+        <div className="absolute right-2 top-2 w-12 h-12 opacity-20">
+          <img src="https://i.imgur.com/MsS23jz.png" alt="Om" className="w-full h-full" />
+        </div>
         
         {/* Floating icons */}
         <div className="absolute -left-2 top-1/4 opacity-20 animate-float">
@@ -127,6 +199,16 @@ const WelcomeForm: React.FC = () => {
           </Button>
         </div>
         
+        {/* Music control button */}
+        <div className="absolute bottom-3 right-3">
+          <button
+            onClick={toggleMusic}
+            className="p-2 rounded-full bg-wedding-cream/80 border border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream transition-colors duration-300"
+          >
+            {isMusicPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          </button>
+        </div>
+        
         {/* Bottom decorative element */}
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1">
           <div className="w-full h-full bg-gradient-to-r from-transparent via-wedding-gold/30 to-transparent"></div>
@@ -137,7 +219,7 @@ const WelcomeForm: React.FC = () => {
       <div className="mt-8 text-center opacity-0 animate-fade-in" style={{ animationDelay: '1.4s' }}>
         <p className="text-sm text-gray-500 font-dancing-script">
           <span className="inline-block px-2 py-0.5 rounded-full bg-wedding-cream/50 text-wedding-maroon border border-wedding-gold/20">
-            Save the Date: February 14, 2025
+            Save the Date: April 10, 2025
           </span>
         </p>
       </div>

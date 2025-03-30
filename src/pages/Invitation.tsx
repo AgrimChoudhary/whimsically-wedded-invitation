@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -13,12 +14,14 @@ import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, MusicPlayer, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
 import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Badge } from '@/components/ui/badge';
 
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(true);
+  const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const { guestName } = useGuest();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -35,6 +38,14 @@ const Invitation = () => {
     setConfetti(true);
     setTimeout(() => {
       setShowRSVP(true);
+      setConfetti(false);
+    }, 800);
+  };
+
+  const handleAcceptInvitation = () => {
+    setConfetti(true);
+    setTimeout(() => {
+      setShowThankYouMessage(true);
       setConfetti(false);
     }, 800);
   };
@@ -57,7 +68,7 @@ const Invitation = () => {
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
           <FloatingPetals />
-          {isMusicPlaying && <MusicPlayer />}
+          {isMusicPlaying && <MusicPlayer autoplay={true} />}
           <Confetti isActive={confetti} />
           
           <div className="fixed bottom-20 right-4 z-30 flex flex-col gap-3">
@@ -106,25 +117,35 @@ const Invitation = () => {
           <EventTimeline />
           <PhotoGrid />
           
-          <div className="py-12 w-full text-center bg-floral-pattern">
+          <div className="py-10 w-full text-center bg-floral-pattern">
             <div className="relative inline-block">
-              <Button
-                onClick={handleOpenRSVP}
-                className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
-              >
-                <span className="relative z-10 flex items-center font-medium">
-                  <Heart size={18} className="mr-2" />
-                  Accept Invitation
-                </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
-                
-                <span className="absolute -top-6 -left-6 text-white/10">
-                  <User size={24} />
-                </span>
-                <span className="absolute -bottom-6 -right-6 text-white/10">
-                  <Heart size={24} />
-                </span>
-              </Button>
+              {showThankYouMessage ? (
+                <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
+                  <h3 className="text-xl font-playfair text-wedding-maroon mb-3">Thanks for Accepting Our Invitation</h3>
+                  <p className="text-gray-600 mb-4">We look forward to celebrating our special day with you!</p>
+                  <Badge variant="outline" className="bg-wedding-gold/10 text-wedding-gold animate-pulse-soft">
+                    More features coming soon...
+                  </Badge>
+                </div>
+              ) : (
+                <Button
+                  onClick={handleAcceptInvitation}
+                  className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
+                >
+                  <span className="relative z-10 flex items-center font-medium">
+                    <Heart size={18} className="mr-2" />
+                    Accept Invitation
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
+                  
+                  <span className="absolute -top-6 -left-6 text-white/10">
+                    <User size={24} />
+                  </span>
+                  <span className="absolute -bottom-6 -right-6 text-white/10">
+                    <Heart size={24} />
+                  </span>
+                </Button>
+              )}
               
               <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-wedding-blush/40 rounded-tl-lg"></div>
               <div className="absolute -right-4 -top-4 w-8 h-8 border-t-2 border-r-2 border-wedding-blush/40 rounded-tr-lg"></div>

@@ -60,8 +60,8 @@ const InvitationHeader: React.FC = () => {
             />
           </div>
           <div className="text-center">
-            <p className="font-devanagari text-sm text-wedding-gold mb-1">॥ शुभं करोति कल्याणं आरोग्यं धनसंपदा ॥</p>
-            <p className="text-xs text-gray-600 italic">May there be auspiciousness, well-being, health and prosperity</p>
+            <p className="font-devanagari text-sm text-wedding-gold mb-1">॥ श्री वक्रतुण्ड महाकाय सूर्य कोटी समप्रभा। निर्विघ्नं कुरु मे देव सर्व-कार्येशु सर्वदा॥</p>
+            <p className="text-xs text-gray-600 italic">O Lord Ganesha of the curved trunk and massive body, the one whose splendor is equal to millions of suns, please bless me so that there are no obstacles in my endeavors.</p>
           </div>
         </div>
         

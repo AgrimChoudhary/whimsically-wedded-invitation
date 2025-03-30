@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Music, Volume2, VolumeX, Sparkles } from 'lucide-react';
 
 interface PetalProps {
@@ -19,7 +18,11 @@ interface FireworksDisplayProps {
   isActive: boolean;
 }
 
-// Create floating petals component
+interface MusicPlayerProps {
+  autoplay?: boolean;
+}
+
+// Create floating petals component - optimized to use fewer elements
 export const FloatingPetals: React.FC = () => {
   const [petals, setPetals] = useState<PetalProps[]>([]);
   
@@ -36,18 +39,23 @@ export const FloatingPetals: React.FC = () => {
         },
       };
       
-      setPetals(prev => [...prev, petal]);
+      setPetals(prev => {
+        // Keep total petals limited to improve performance
+        const updatedPetals = [...prev, petal];
+        return updatedPetals.slice(-12); // Only keep the 12 most recent petals
+      });
       
       setTimeout(() => {
         setPetals(prev => prev.filter(p => p.key !== petal.key));
       }, 25000);
     };
     
-    for (let i = 0; i < 15; i++) {
+    // Start with fewer petals for better performance
+    for (let i = 0; i < 8; i++) {
       createPetal();
     }
     
-    const interval = setInterval(createPetal, 3000);
+    const interval = setInterval(createPetal, 4000); // Slower interval for better performance
     
     return () => clearInterval(interval);
   }, []);
@@ -65,21 +73,47 @@ export const FloatingPetals: React.FC = () => {
   );
 };
 
-// Create music player component
-export const MusicPlayer: React.FC = () => {
+// Create music player component with autoplay option
+export const MusicPlayer: React.FC<MusicPlayerProps> = ({ autoplay = false }) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [audio] = useState(new Audio("https://pagalfree.com/musics/128-Kudmayi%20(Film%20Version)%20-%20Rocky%20Aur%20Rani%20Kii%20Prem%20Kahaani%20128%20Kbps.mp3"));
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
-    audio.loop = true;
-    audio.volume = 0.3;
+    // Create audio element
+    audioRef.current = new Audio("https://pagalfree.com/musics/128-Kudmayi%20(Film%20Version)%20-%20Rocky%20Aur%20Rani%20Kii%20Prem%20Kahaani%20128%20Kbps.mp3");
     
-    const playPromise = audio.play();
-    
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        console.log("Audio play prevented by browser", error);
-      });
+    if (audioRef.current) {
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.3;
+      
+      // Handle autoplay
+      if (autoplay) {
+        // Add event listener for user interaction to enable autoplay
+        const handleUserInteraction = () => {
+          if (audioRef.current) {
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(error => {
+                console.log("Audio play prevented by browser", error);
+              });
+            }
+            // Remove the event listeners once played
+            document.removeEventListener('click', handleUserInteraction);
+            document.removeEventListener('touchstart', handleUserInteraction);
+          }
+        };
+        
+        // Try to play immediately (might be blocked)
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Audio autoplay prevented, waiting for user interaction", error);
+            // Add event listeners to play on first interaction
+            document.addEventListener('click', handleUserInteraction);
+            document.addEventListener('touchstart', handleUserInteraction);
+          });
+        }
+      }
     }
     
     const timer = setTimeout(() => {
@@ -87,10 +121,15 @@ export const MusicPlayer: React.FC = () => {
     }, 5000);
     
     return () => {
-      audio.pause();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       clearTimeout(timer);
+      document.removeEventListener('click', () => {});
+      document.removeEventListener('touchstart', () => {});
     };
-  }, [audio]);
+  }, [autoplay]);
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -123,13 +162,17 @@ export const MusicPlayer: React.FC = () => {
   );
 };
 
-// Create confetti component
+// Create confetti component - optimized for performance
 export const Confetti: React.FC<ConfettiProps> = ({ isActive }) => {
   const [confetti, setConfetti] = useState<{ id: number; style: React.CSSProperties }[]>([]);
   
   useEffect(() => {
     if (isActive) {
-      const newConfetti = Array.from({ length: 50 }, (_, i) => ({
+      // Reduce number of particles on mobile for better performance
+      const isMobile = window.innerWidth < 768;
+      const particleCount = isMobile ? 30 : 50;
+      
+      const newConfetti = Array.from({ length: particleCount }, (_, i) => ({
         id: i,
         style: {
           left: `${Math.random() * 100}vw`,
@@ -167,13 +210,17 @@ export const Confetti: React.FC<ConfettiProps> = ({ isActive }) => {
   );
 };
 
-// Create falling hearts component
+// Create falling hearts component - optimized for mobile
 export const FallingHearts: React.FC<FallingHeartsProps> = ({ isActive }) => {
   const [hearts, setHearts] = useState<{ id: number; style: React.CSSProperties }[]>([]);
   
   useEffect(() => {
     if (isActive) {
-      const newHearts = Array.from({ length: 30 }, (_, i) => ({
+      // Reduce number of hearts on mobile for better performance
+      const isMobile = window.innerWidth < 768;
+      const heartCount = isMobile ? 15 : 30;
+      
+      const newHearts = Array.from({ length: heartCount }, (_, i) => ({
         id: i,
         style: {
           left: `${Math.random() * 100}vw`,
@@ -212,24 +259,33 @@ export const FallingHearts: React.FC<FallingHeartsProps> = ({ isActive }) => {
   );
 };
 
-// Create fireworks component with sound
+// Create fireworks component with sound - optimized for performance
 export const FireworksDisplay: React.FC<FireworksDisplayProps> = ({ isActive }) => {
   const [fireworks, setFireworks] = useState<{ id: number; style: React.CSSProperties }[]>([]);
-  const [audio] = useState(new Audio("/sounds/firework-sound.mp3"));
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
     if (isActive) {
-      audio.volume = 0.3;
-      audio.currentTime = 0;
-      const playPromise = audio.play();
+      // Create and play audio
+      audioRef.current = new Audio("/sounds/firework-sound.mp3");
       
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.log("Audio play prevented by browser", error);
-        });
+      if (audioRef.current) {
+        audioRef.current.volume = 0.3;
+        audioRef.current.currentTime = 0;
+        const playPromise = audioRef.current.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Audio play prevented by browser", error);
+          });
+        }
       }
       
-      const newFireworks = Array.from({ length: 40 }, (_, i) => ({
+      // Reduce number of particles on mobile for better performance
+      const isMobile = window.innerWidth < 768;
+      const particleCount = isMobile ? 20 : 40;
+      
+      const newFireworks = Array.from({ length: particleCount }, (_, i) => ({
         id: i,
         style: {
           left: `${40 + Math.random() * 20}vw`,
@@ -247,13 +303,23 @@ export const FireworksDisplay: React.FC<FireworksDisplayProps> = ({ isActive }) 
       
       const timer = setTimeout(() => {
         setFireworks([]);
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
       }, 3000);
       
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
+      };
     }
     
     return undefined;
-  }, [isActive, audio]);
+  }, [isActive]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
