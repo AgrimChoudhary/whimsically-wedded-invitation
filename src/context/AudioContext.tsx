@@ -67,6 +67,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (playPromise !== undefined) {
         playPromise.catch(error => {
           console.log("Audio play prevented by browser", error);
+          // Reset isPlaying if play was prevented
+          setIsPlaying(false);
         });
       }
     } else {

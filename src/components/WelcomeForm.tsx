@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
 import { useAudio } from '../context/AudioContext';
 import { Button } from "@/components/ui/button";
-import { Heart, Sparkles, Calendar, MapPin, Gift, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Sparkles, Calendar, MapPin, Gift, Volume2, VolumeX, PenLine } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Link } from 'react-router-dom';
 
 const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -153,13 +154,21 @@ const WelcomeForm: React.FC = () => {
         </div>
       </div>
       
-      {/* Date teaser */}
+      {/* Date teaser and customization link */}
       <div className="mt-8 text-center opacity-0 animate-fade-in" style={{ animationDelay: '1.4s' }}>
-        <p className="text-sm text-gray-500 font-dancing-script">
+        <p className="text-sm text-gray-500 font-dancing-script mb-3">
           <span className="inline-block px-2 py-0.5 rounded-full bg-wedding-cream/50 text-wedding-maroon border border-wedding-gold/20">
             Save the Date: April 10, 2025
           </span>
         </p>
+        
+        <Link 
+          to="/create" 
+          className="inline-flex items-center gap-1 text-xs text-wedding-gold/80 hover:text-wedding-gold transition-colors duration-300 border-b border-dashed border-wedding-gold/30 px-2 py-1 hover:bg-wedding-gold/5 rounded"
+        >
+          <PenLine size={12} />
+          Customize for your own wedding
+        </Link>
       </div>
     </div>
   );
