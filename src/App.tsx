@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GuestProvider } from "./context/GuestContext";
+import { AudioProvider } from "./context/AudioContext";
 import Index from "./pages/Index";
 import Invitation from "./pages/Invitation";
 import NotFound from "./pages/NotFound";
@@ -17,14 +18,16 @@ const App = () => (
       <Toaster />
       <Sonner />
       <GuestProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/invitation" element={<Invitation />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AudioProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/invitation" element={<Invitation />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AudioProvider>
       </GuestProvider>
     </TooltipProvider>
   </QueryClientProvider>

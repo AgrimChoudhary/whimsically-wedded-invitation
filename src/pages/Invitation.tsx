@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
+import { useAudio } from '@/context/AudioContext';
 import { Button } from '@/components/ui/button';
 import InvitationHeader from '@/components/InvitationHeader';
 import CoupleSection from '@/components/CoupleSection';
@@ -11,7 +12,7 @@ import EventTimeline from '@/components/EventTimeline';
 import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
-import { FloatingPetals, MusicPlayer, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
+import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
 import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
@@ -20,9 +21,9 @@ const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
-  const [isMusicPlaying, setIsMusicPlaying] = useState(true);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const { guestName } = useGuest();
+  const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
@@ -49,10 +50,6 @@ const Invitation = () => {
       setConfetti(false);
     }, 800);
   };
-  
-  const toggleMusic = () => {
-    setIsMusicPlaying(!isMusicPlaying);
-  };
 
   return (
     <div className="min-h-screen w-full pattern-background">
@@ -68,7 +65,6 @@ const Invitation = () => {
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
           <FloatingPetals />
-          {isMusicPlaying && <MusicPlayer autoplay={true} />}
           <Confetti isActive={confetti} />
           
           <div className="fixed bottom-20 right-4 z-30 flex flex-col gap-3">
@@ -77,9 +73,9 @@ const Invitation = () => {
               variant="outline"
               size="icon"
               className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
-              aria-label={isMusicPlaying ? "Mute music" : "Play music"}
+              aria-label={isPlaying ? "Mute music" : "Play music"}
             >
-              {isMusicPlaying ? (
+              {isPlaying ? (
                 <Volume2 size={18} className="text-wedding-maroon" />
               ) : (
                 <VolumeX size={18} className="text-wedding-maroon" />
