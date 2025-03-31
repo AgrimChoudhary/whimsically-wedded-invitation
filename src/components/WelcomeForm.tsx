@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
@@ -5,11 +6,19 @@ import { useAudio } from '../context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { Heart, Sparkles, Calendar, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { supabase } from "@/integrations/supabase/client";
 
-const WelcomeForm: React.FC = () => {
+interface WelcomeFormProps {
+  invitationId?: string;
+}
+
+const WelcomeForm: React.FC<WelcomeFormProps> = ({ invitationId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showIcon, setShowIcon] = useState(0);
+  const [brideName, setBrideName] = useState("Ananya");
+  const [groomName, setGroomName] = useState("Arjun");
+  const [weddingDate, setWeddingDate] = useState("April 10, 2025");
   const { isPlaying, toggleMusic } = useAudio();
   const { guestName } = useGuest();
   const navigate = useNavigate();
@@ -29,12 +38,53 @@ const WelcomeForm: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Fetch invitation data if an ID is provided
+    if (invitationId) {
+      const fetchInvitationData = async () => {
+        try {
+          const { data: invitation, error } = await supabase
+            .from('wedding_invitations')
+            .select('bride_name, groom_name, wedding_date')
+            .eq('id', invitationId)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching invitation:', error);
+            return;
+          }
+          
+          if (invitation) {
+            setBrideName(invitation.bride_name);
+            setGroomName(invitation.groom_name);
+            if (invitation.wedding_date) {
+              const date = new Date(invitation.wedding_date);
+              setWeddingDate(date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              }));
+            }
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+      
+      fetchInvitationData();
+    }
+  }, [invitationId]);
+
   const handleOpenInvitation = () => {
     setIsLoading(true);
     
     // Simulate loading for better UX
     setTimeout(() => {
-      navigate('/invitation');
+      if (invitationId) {
+        navigate(`/invitation/${invitationId}`);
+      } else {
+        navigate('/invitation');
+      }
     }, 1000);
   };
 
@@ -74,14 +124,14 @@ const WelcomeForm: React.FC = () => {
             </div>
             <div className="w-10 h-[1px] bg-gradient-to-l from-transparent to-wedding-gold/70"></div>
           </div>
-          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">Welcome, {guestName}</h2>
+          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">Welcome, {guestName || "{ Guest Name Here }"}</h2>
           <p className="text-sm text-gray-600">Your special invitation awaits</p>
         </div>
         
         <div className="text-center opacity-0 animate-fade-in-up relative" style={{ animationDelay: '0.6s' }}>
           <div className="absolute -left-6 -top-6 text-6xl text-wedding-gold/10 font-great-vibes">"</div>
           <p className="text-wedding-gold font-dancing-script text-xl md:text-2xl mb-4 px-4 relative z-10">
-            Ananya & Arjun cordially invite you to celebrate their wedding
+            {brideName} & {groomName} cordially invite you to celebrate their wedding
           </p>
           <div className="absolute -right-6 -bottom-6 text-6xl text-wedding-gold/10 font-great-vibes">"</div>
         </div>
@@ -154,7 +204,7 @@ const WelcomeForm: React.FC = () => {
       <div className="mt-8 text-center opacity-0 animate-fade-in" style={{ animationDelay: '1.4s' }}>
         <p className="text-sm text-gray-500 font-dancing-script mb-3">
           <span className="inline-block px-2 py-0.5 rounded-full bg-wedding-cream/50 text-wedding-maroon border border-wedding-gold/20">
-            Save the Date: April 10, 2025
+            Save the Date: {weddingDate}
           </span>
         </p>
       </div>

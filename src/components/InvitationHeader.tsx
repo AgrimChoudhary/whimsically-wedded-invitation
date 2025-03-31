@@ -5,7 +5,17 @@ import { FallingHearts, FireworksDisplay } from './AnimatedElements';
 import { Sparkles, Star, Music } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const InvitationHeader: React.FC = () => {
+interface InvitationHeaderProps {
+  brideName?: string;
+  groomName?: string;
+  coupleImageUrl?: string;
+}
+
+const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
+  brideName = "Ananya", 
+  groomName = "Arjun",
+  coupleImageUrl
+}) => {
   const { guestName } = useGuest();
   const [showHearts, setShowHearts] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
@@ -32,6 +42,9 @@ const InvitationHeader: React.FC = () => {
       clearTimeout(initialTimer);
     };
   }, []);
+
+  // Default guest name if not provided
+  const displayGuestName = guestName || "{ Guest Name Here }";
 
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
@@ -60,7 +73,7 @@ const InvitationHeader: React.FC = () => {
         <div className="text-center mb-6 sm:mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
             <h1 className="font-dancing-script text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
-              Dear {guestName || 'Friend'},
+              Dear {displayGuestName},
             </h1>
             {!isMobile && (
               <div className="absolute -right-6 -top-6 opacity-30">
@@ -87,8 +100,8 @@ const InvitationHeader: React.FC = () => {
           <div className="flex flex-col items-center">
             <div className="relative mb-4 sm:mb-6">
               <img 
-                src="/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png" 
-                alt="Ananya and Arjun" 
+                src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
+                alt={`${brideName} and ${groomName}`}
                 className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-float"
                 loading="lazy"
               />
@@ -97,7 +110,7 @@ const InvitationHeader: React.FC = () => {
             
             <h2 className="font-great-vibes text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
               <span className="relative">
-                Ananya <span className="inline-block mx-2">&</span> Arjun
+                {brideName} <span className="inline-block mx-2">&</span> {groomName}
                 {!isMobile && (
                   <>
                     <Sparkles size={18} className="absolute -top-4 -left-4 text-wedding-gold" />

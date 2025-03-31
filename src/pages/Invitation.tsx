@@ -51,6 +51,9 @@ const Invitation = () => {
     }, 800);
   };
 
+  // Default wedding date - April 10, 2025
+  const weddingDate = new Date('2025-04-10T11:00:00');
+
   return (
     <div className="min-h-screen w-full pattern-background">
       {isLoading ? (
@@ -106,10 +109,67 @@ const Invitation = () => {
             </button>
           )}
           
-          <InvitationHeader />
-          <CountdownTimer />
+          <InvitationHeader 
+            brideName="Ananya"
+            groomName="Arjun"
+          />
+          
+          <CountdownTimer 
+            weddingDate={weddingDate} 
+            weddingTime="11:00 AM"
+          />
+          
           <CoupleSection />
-          <FamilyDetails />
+          
+          <FamilyDetails 
+            brideFamily={{
+              title: "Sharma Family",
+              members: [
+                { 
+                  name: "Rajesh & Priya Sharma", 
+                  relation: "Parents of the Bride",
+                  image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
+                  description: "Rajesh is a successful businessman who loves cricket and traveling. Priya is a dedicated homemaker with a passion for classical music and cooking traditional dishes."
+                },
+                { 
+                  name: "Ishaan Sharma", 
+                  relation: "Brother of the Bride",
+                  image: "https://images.unsplash.com/photo-1507081323647-4d250478b919",
+                  description: "Ishaan is a software engineer working in Bangalore. He enjoys gaming and photography in his free time."
+                },
+                { 
+                  name: "Meera Sharma", 
+                  relation: "Sister of the Bride",
+                  image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
+                  description: "Meera is pursuing her Masters in Psychology. She is an avid reader and loves to paint."
+                }
+              ]
+            }}
+            groomFamily={{
+              title: "Patel Family",
+              members: [
+                { 
+                  name: "Vikram & Nisha Patel", 
+                  relation: "Parents of the Groom",
+                  image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
+                  description: "Vikram is a retired professor who now mentors students. Nisha is a doctor specializing in pediatrics and loves gardening."
+                },
+                { 
+                  name: "Aditya Patel", 
+                  relation: "Brother of the Groom",
+                  image: "https://images.unsplash.com/photo-1502307100811-6bdc0981a85b",
+                  description: "Aditya is an entrepreneur who runs a successful startup. He's passionate about fitness and hiking."
+                },
+                { 
+                  name: "Riya Patel", 
+                  relation: "Sister of the Groom",
+                  image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df",
+                  description: "Riya is an architect with a love for sustainable design. She enjoys playing the violin and experimenting with fusion cooking."
+                }
+              ]
+            }}
+          />
+          
           <EventTimeline />
           <PhotoGrid />
           

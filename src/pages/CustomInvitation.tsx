@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import InvitationHeader from '@/components/InvitationHeader';
 import CoupleSection from '@/components/CoupleSection';
 import CountdownTimer from '@/components/CountdownTimer';
-import FamilyDetails from '@/components/FamilyDetails';
+import FamilyDetails, { FamilyMember } from '@/components/FamilyDetails';
 import EventTimeline from '@/components/EventTimeline';
 import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
@@ -57,6 +57,8 @@ const CustomInvitation = () => {
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const [invitationData, setInvitationData] = useState<InvitationData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [brideFamily, setBrideFamily] = useState<FamilyMember[]>([]);
+  const [groomFamily, setGroomFamily] = useState<FamilyMember[]>([]);
   
   const { guestName } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
@@ -93,6 +95,36 @@ const CustomInvitation = () => {
         if (eventsError) {
           throw eventsError;
         }
+        
+        // Process family member data
+        const parseBrideFamily = () => {
+          if (invitation.bride_family) {
+            try {
+              const familyData = JSON.parse(invitation.bride_family);
+              if (Array.isArray(familyData)) {
+                setBrideFamily(familyData);
+              }
+            } catch (e) {
+              console.error('Error parsing bride family data:', e);
+            }
+          }
+        };
+        
+        const parseGroomFamily = () => {
+          if (invitation.groom_family) {
+            try {
+              const familyData = JSON.parse(invitation.groom_family);
+              if (Array.isArray(familyData)) {
+                setGroomFamily(familyData);
+              }
+            } catch (e) {
+              console.error('Error parsing groom family data:', e);
+            }
+          }
+        };
+        
+        parseBrideFamily();
+        parseGroomFamily();
         
         // Combine the data and convert gallery_images from Json to string[]
         const galleryImages = invitation.gallery_images 
@@ -223,7 +255,14 @@ const CustomInvitation = () => {
               </div>
               
               <CountdownTimer 
-                weddingDate={new Date(invitationData.wedding_date)} 
+                weddingDate={new Date(invitationData.wedding_date)}
+                weddingTime={invitationData.wedding_time || undefined}
+              />
+              
+              <InvitationHeader 
+                brideName={invitationData.bride_name}
+                groomName={invitationData.groom_name}
+                coupleImageUrl={invitationData.couple_image_url || undefined}
               />
               
               <div className="w-full py-6">
@@ -258,6 +297,17 @@ const CustomInvitation = () => {
                   </div>
                 </div>
               </div>
+              
+              <FamilyDetails 
+                brideFamily={{
+                  title: `${invitationData.bride_name}'s Family`,
+                  members: brideFamily
+                }}
+                groomFamily={{
+                  title: `${invitationData.groom_name}'s Family`,
+                  members: groomFamily
+                }}
+              />
               
               {invitationData.events && invitationData.events.length > 0 && (
                 <div className="w-full py-6 bg-wedding-cream/20">
@@ -320,13 +370,19 @@ const CustomInvitation = () => {
                       
                       {invitationData.rsvp_email && (
                         <p className="text-gray-600">
-                          <span className="font-medium">Email:</span> {invitationData.rsvp_email}
+                          <span className="font-medium">Email:</span>{" "}
+                          <a href={`mailto:${invitationData.rsvp_email}`} className="text-wedding-maroon hover:underline">
+                            {invitationData.rsvp_email}
+                          </a>
                         </p>
                       )}
                       
                       {invitationData.rsvp_phone && (
                         <p className="text-gray-600">
-                          <span className="font-medium">Phone:</span> {invitationData.rsvp_phone}
+                          <span className="font-medium">Phone:</span>{" "}
+                          <a href={`tel:${invitationData.rsvp_phone}`} className="text-wedding-maroon hover:underline">
+                            {invitationData.rsvp_phone}
+                          </a>
                         </p>
                       )}
                       

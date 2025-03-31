@@ -13,9 +13,10 @@ interface TimeLeft {
 
 interface CountdownTimerProps {
   weddingDate?: Date;
+  weddingTime?: string;
 }
 
-const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate }) => {
+const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTime }) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isVisible, setIsVisible] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
@@ -87,6 +88,16 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate }) => {
     { label: 'Seconds', value: timeLeft.seconds }
   ];
 
+  // Format date and time for display
+  const displayDate = weddingDate ? 
+    weddingDate.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    }) : 'April 10, 2025';
+    
+  const displayTime = weddingTime || '11:00 AM';
+
   return (
     <section id="countdown-timer" className="w-full py-1 md:py-2 mb-1 md:mb-2">
       <div className="w-full max-w-3xl mx-auto px-4">
@@ -140,7 +151,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate }) => {
           <div className="text-center mt-1 text-xs text-gray-500">
             <span className="inline-flex items-center gap-1">
               <Clock size={12} className="text-wedding-gold" />
-              <span>April 10, 2025 at 11:00 AM</span>
+              <span>{displayDate} at {displayTime}</span>
             </span>
           </div>
         </div>
