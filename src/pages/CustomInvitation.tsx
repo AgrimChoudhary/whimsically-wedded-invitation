@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -13,26 +12,27 @@ import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Heart, User, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeftCircle, Heart, User, Volume2, VolumeX, MapPin } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 interface InvitationData {
   id: string;
   bride_name: string;
-  bride_about: string;
+  bride_about: string | null;
   groom_name: string;
-  groom_about: string;
-  couple_story: string;
+  groom_about: string | null;
+  couple_story: string | null;
   wedding_date: string;
-  wedding_time: string;
-  wedding_venue: string;
-  wedding_address: string;
+  wedding_time: string | null;
+  wedding_venue: string | null;
+  wedding_address: string | null;
   map_url: string | null;
-  bride_parents: string;
+  bride_parents: string | null;
   bride_family: string | null;
-  groom_parents: string;
+  groom_parents: string | null;
   groom_family: string | null;
   rsvp_email: string | null;
   rsvp_phone: string | null;
@@ -93,9 +93,12 @@ const CustomInvitation = () => {
           throw eventsError;
         }
         
-        // Combine the data
+        // Combine the data and convert gallery_images from Json to string[]
         setInvitationData({
           ...invitation,
+          gallery_images: Array.isArray(invitation.gallery_images) 
+            ? invitation.gallery_images 
+            : [],
           events: events || []
         });
       } catch (error) {
@@ -215,7 +218,7 @@ const CustomInvitation = () => {
               </div>
               
               <CountdownTimer 
-                targetDate={new Date(invitationData.wedding_date)} 
+                weddingDate={new Date(invitationData.wedding_date)} 
               />
               
               <div className="w-full py-6">
