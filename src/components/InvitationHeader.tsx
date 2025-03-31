@@ -44,7 +44,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   }, []);
 
   // Default guest name if not provided
-  const displayGuestName = guestName || "{ Guest Name Here }";
+  const displayGuestName = "{ Guest Name Here }";
 
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
