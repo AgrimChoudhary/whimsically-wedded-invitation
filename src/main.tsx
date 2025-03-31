@@ -6,7 +6,5 @@ import './index.css'
 import './components/custom-styles.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <App />
 )
