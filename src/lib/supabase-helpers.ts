@@ -36,6 +36,55 @@ export const uploadImageToSupabase = async (
   }
 };
 
+export const createWeddingInvitation = async (invitationData: any) => {
+  try {
+    // Convert arrays to JSON strings if needed
+    const formattedData = {
+      ...invitationData,
+      bride_family: Array.isArray(invitationData.bride_family) 
+        ? JSON.stringify(invitationData.bride_family) 
+        : invitationData.bride_family,
+      groom_family: Array.isArray(invitationData.groom_family) 
+        ? JSON.stringify(invitationData.groom_family) 
+        : invitationData.groom_family,
+      gallery_images: Array.isArray(invitationData.gallery_images) 
+        ? JSON.stringify(invitationData.gallery_images) 
+        : invitationData.gallery_images,
+    };
+
+    const { data, error } = await supabase
+      .from('wedding_invitations')
+      .insert(formattedData)
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    // If events are provided, insert them
+    if (invitationData.events && Array.isArray(invitationData.events) && invitationData.events.length > 0) {
+      const eventsWithInvitationId = invitationData.events.map((event: any) => ({
+        ...event,
+        invitation_id: data.id
+      }));
+
+      const { error: eventsError } = await supabase
+        .from('wedding_events')
+        .insert(eventsWithInvitationId);
+
+      if (eventsError) {
+        console.error('Error inserting events:', eventsError);
+      }
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error creating wedding invitation:', error);
+    throw error;
+  }
+};
+
 export const fetchInvitationById = async (id: string) => {
   try {
     // Fetch invitation details
@@ -108,4 +157,10 @@ export const formatInvitationData = (data: any) => {
   }
 
   return data;
+};
+
+export const generateUniqueInvitationLink = (id: string) => {
+  // Generate a link that includes the invitation ID
+  const baseUrl = window.location.origin;
+  return `${baseUrl}/invitation/${id}`;
 };
