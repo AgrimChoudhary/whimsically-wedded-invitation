@@ -56,6 +56,8 @@ export type Database = {
           bride_family: string | null
           bride_name: string
           bride_parents: string | null
+          contact_email: string | null
+          contact_phone: string | null
           couple_image_url: string | null
           couple_story: string | null
           created_at: string | null
@@ -79,6 +81,8 @@ export type Database = {
           bride_family?: string | null
           bride_name: string
           bride_parents?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           couple_image_url?: string | null
           couple_story?: string | null
           created_at?: string | null
@@ -102,6 +106,8 @@ export type Database = {
           bride_family?: string | null
           bride_name?: string
           bride_parents?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           couple_image_url?: string | null
           couple_story?: string | null
           created_at?: string | null
