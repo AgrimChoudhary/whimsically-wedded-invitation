@@ -11,19 +11,23 @@ interface TimeLeft {
   seconds: number;
 }
 
-const CountdownTimer: React.FC = () => {
+interface CountdownTimerProps {
+  weddingDate?: Date;
+}
+
+const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate }) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isVisible, setIsVisible] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
   const isMobile = useIsMobile();
   
-  // Wedding date - April 10, 2025
-  const weddingDate = new Date('2025-04-10T11:00:00').getTime();
+  // Wedding date - April 10, 2025 or use the prop if provided
+  const targetDate = weddingDate ? weddingDate.getTime() : new Date('2025-04-10T11:00:00').getTime();
   
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
-      const difference = weddingDate - now;
+      const difference = targetDate - now;
       
       if (difference > 0) {
         setTimeLeft({
@@ -58,7 +62,7 @@ const CountdownTimer: React.FC = () => {
       clearInterval(timer);
       observer.disconnect();
     };
-  }, [weddingDate]);
+  }, [targetDate]);
   
   // Effect to hide fireworks after a few seconds
   useEffect(() => {

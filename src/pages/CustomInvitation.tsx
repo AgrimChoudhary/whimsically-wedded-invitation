@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -94,11 +95,15 @@ const CustomInvitation = () => {
         }
         
         // Combine the data and convert gallery_images from Json to string[]
+        const galleryImages = invitation.gallery_images 
+          ? (Array.isArray(invitation.gallery_images) 
+              ? invitation.gallery_images.map(img => String(img)) 
+              : [])
+          : [];
+          
         setInvitationData({
           ...invitation,
-          gallery_images: Array.isArray(invitation.gallery_images) 
-            ? invitation.gallery_images 
-            : [],
+          gallery_images: galleryImages,
           events: events || []
         });
       } catch (error) {
