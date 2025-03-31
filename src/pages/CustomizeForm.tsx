@@ -10,9 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Copy, Heart, Info, Upload, User, Users, Image, MapPin, GraduationCap, CalendarRange, Sparkles } from 'lucide-react';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Calendar, Copy, Heart, Upload, User, Users, Image, MapPin, CalendarRange, Sparkles, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   // Couple Info
@@ -27,6 +27,7 @@ const formSchema = z.object({
   weddingTime: z.string().min(1, { message: "Wedding time is required" }),
   weddingVenue: z.string().min(5, { message: "Venue name must be at least 5 characters." }),
   weddingAddress: z.string().min(10, { message: "Address must be at least 10 characters." }),
+  mapUrl: z.string().url({ message: "Please enter a valid URL for the venue location" }).optional().or(z.literal('')),
   
   // Family Details
   brideParents: z.string().min(5, { message: "Please add bride's parents names." }),
@@ -48,7 +49,7 @@ const formSchema = z.object({
   customMessage: z.string().optional(),
   
   // RSVP Details
-  rsvpEmail: z.string().email({ message: "Please enter a valid email for RSVP." }).optional(),
+  rsvpEmail: z.string().email({ message: "Please enter a valid email for RSVP." }).optional().or(z.literal('')),
   rsvpPhone: z.string().optional(),
 });
 
@@ -57,6 +58,8 @@ type FormValues = z.infer<typeof formSchema>;
 const CustomizeForm: React.FC = () => {
   const [invitationLink, setInvitationLink] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [coupleImageFile, setCoupleImageFile] = useState<File | null>(null);
+  const [coupleImagePreview, setCoupleImagePreview] = useState<string | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -71,6 +74,7 @@ const CustomizeForm: React.FC = () => {
       weddingTime: '',
       weddingVenue: '',
       weddingAddress: '',
+      mapUrl: '',
       brideParents: '',
       brideFamily: '',
       groomParents: '',
@@ -89,29 +93,158 @@ const CustomizeForm: React.FC = () => {
     },
   });
 
+  const handleCoupleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setCoupleImageFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target) {
+          setCoupleImagePreview(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadCoupleImage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `couple_images/${fileName}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('wedding_images')
+        .upload(filePath, file);
+      
+      if (uploadError) {
+        throw uploadError;
+      }
+      
+      const { data } = supabase.storage
+        .from('wedding_images')
+        .getPublicUrl(filePath);
+      
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
+  };
+
+  const saveEvents = async (invitationId: string, data: FormValues) => {
+    const events = [];
+    
+    // Sangeet event
+    if (data.sangeethDate || data.sangeethVenue) {
+      events.push({
+        invitation_id: invitationId,
+        event_name: 'Sangeet Ceremony',
+        event_date: data.sangeethDate || null,
+        event_time: null,
+        event_venue: data.sangeethVenue || null,
+        event_address: null
+      });
+    }
+    
+    // Mehndi event
+    if (data.mehndiDate || data.mehndiVenue) {
+      events.push({
+        invitation_id: invitationId,
+        event_name: 'Mehndi Ceremony',
+        event_date: data.mehndiDate || null,
+        event_time: null,
+        event_venue: data.mehndiVenue || null,
+        event_address: null
+      });
+    }
+    
+    // Haldi event
+    if (data.haldiFunctionDate || data.haldiFunctionVenue) {
+      events.push({
+        invitation_id: invitationId,
+        event_name: 'Haldi Ceremony',
+        event_date: data.haldiFunctionDate || null,
+        event_time: null,
+        event_venue: data.haldiFunctionVenue || null,
+        event_address: null
+      });
+    }
+    
+    // Reception event
+    if (data.receptionDate || data.receptionVenue) {
+      events.push({
+        invitation_id: invitationId,
+        event_name: 'Reception',
+        event_date: data.receptionDate || null,
+        event_time: null,
+        event_venue: data.receptionVenue || null,
+        event_address: null
+      });
+    }
+    
+    // Save events to database if there are any
+    if (events.length > 0) {
+      const { error } = await supabase
+        .from('wedding_events')
+        .insert(events);
+      
+      if (error) {
+        console.error('Error saving events:', error);
+        throw error;
+      }
+    }
+  };
+
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Upload couple image if provided
+      let coupleImageUrl = null;
+      if (coupleImageFile) {
+        coupleImageUrl = await uploadCoupleImage(coupleImageFile);
+      }
       
-      // Create a unique ID for the invitation
-      const invitationId = Math.random().toString(36).substring(2, 15);
+      // Insert wedding invitation data
+      const { data: invitationData, error } = await supabase
+        .from('wedding_invitations')
+        .insert({
+          bride_name: data.brideName,
+          bride_about: data.brideAbout,
+          groom_name: data.groomName,
+          groom_about: data.groomAbout,
+          couple_story: data.coupleStory,
+          wedding_date: data.weddingDate,
+          wedding_time: data.weddingTime,
+          wedding_venue: data.weddingVenue,
+          wedding_address: data.weddingAddress,
+          map_url: data.mapUrl || null,
+          bride_parents: data.brideParents,
+          bride_family: data.brideFamily || null,
+          groom_parents: data.groomParents,
+          groom_family: data.groomFamily || null,
+          rsvp_email: data.rsvpEmail || null,
+          rsvp_phone: data.rsvpPhone || null,
+          custom_message: data.customMessage || null,
+          couple_image_url: coupleImageUrl,
+          gallery_images: []
+        })
+        .select('id')
+        .single();
       
-      // Create a query string with all form data
-      const params = new URLSearchParams();
+      if (error) {
+        throw error;
+      }
       
-      // Add all form data to the params
-      Object.entries(data).forEach(([key, value]) => {
-        if (value) params.append(key, encodeURIComponent(value));
-      });
+      // Save events
+      await saveEvents(invitationData.id, data);
       
-      // Add the unique ID
-      params.append('id', invitationId);
-      
-      // Generate the full link
-      const linkUrl = `${window.location.origin}/invitation?${params.toString()}`;
+      // Generate invitation link
+      const invitationId = invitationData.id;
+      const linkUrl = `${window.location.origin}/invitation/${invitationId}`;
       
       setInvitationLink(linkUrl);
       toast({
@@ -119,6 +252,7 @@ const CustomizeForm: React.FC = () => {
         description: "Your custom wedding invitation has been created successfully.",
       });
     } catch (error) {
+      console.error('Error saving invitation:', error);
       toast({
         title: "Something went wrong",
         description: "Could not create invitation. Please try again.",
@@ -143,8 +277,8 @@ const CustomizeForm: React.FC = () => {
     <div className="min-h-screen bg-wedding-cream/30 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="font-playfair text-3xl md:text-4xl text-wedding-maroon mb-2">Create Your Custom Wedding Invitation</h1>
-          <p className="text-gray-600">Fill in the details below to customize the wedding invitation for your clients</p>
+          <h1 className="font-playfair text-3xl md:text-4xl text-wedding-maroon mb-2">Create Custom Wedding Invitation</h1>
+          <p className="text-gray-600">Fill in the details below to create a personalized wedding invitation</p>
         </div>
         
         <Card className="border-wedding-gold/20 shadow-gold-soft">
@@ -184,6 +318,30 @@ const CustomizeForm: React.FC = () => {
                         <Sparkles size={16} className="text-wedding-gold" />
                         Couple Information
                       </h3>
+                      
+                      <div className="mb-6">
+                        <h4 className="text-sm font-medium text-wedding-maroon mb-3">Couple Photo</h4>
+                        <div className="flex items-center space-x-4">
+                          <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border border-wedding-gold/20 flex items-center justify-center">
+                            {coupleImagePreview ? (
+                              <img src={coupleImagePreview} alt="Couple Preview" className="w-full h-full object-cover" />
+                            ) : (
+                              <Users size={32} className="text-gray-400" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <Input 
+                              type="file" 
+                              accept="image/*" 
+                              onChange={handleCoupleImageChange}
+                              className="text-sm"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              Upload a photo of the couple (max 5MB)
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
@@ -368,6 +526,35 @@ const CustomizeForm: React.FC = () => {
                                   {...field} 
                                 />
                               </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div className="mt-4">
+                        <FormField
+                          control={form.control}
+                          name="mapUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-wedding-maroon">Google Maps URL (Optional)</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input 
+                                    placeholder="https://maps.google.com/..." 
+                                    {...field} 
+                                    className="pl-10"
+                                  />
+                                  <MapPin 
+                                    size={16} 
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormDescription>
+                                Paste a Google Maps link to the venue location
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -685,12 +872,12 @@ const CustomizeForm: React.FC = () => {
                       <div className="mt-6">
                         <h4 className="text-sm font-medium text-wedding-maroon mb-3 flex items-center gap-2">
                           <Image size={16} className="text-wedding-gold" />
-                          Photo Upload
+                          Gallery Photos
                         </h4>
                         <div className="bg-wedding-gold/5 border border-dashed border-wedding-gold/30 rounded-md p-6 text-center">
                           <Upload className="w-8 h-8 text-wedding-gold/50 mx-auto mb-3" />
                           <p className="text-sm text-gray-500">
-                            Photo upload functionality is coming soon. In the future, you'll be able to upload couple photos here.
+                            Multi-photo upload functionality is coming soon. You can upload the couple's main photo above.
                           </p>
                         </div>
                       </div>
@@ -704,13 +891,10 @@ const CustomizeForm: React.FC = () => {
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                    <span className="flex items-center">
+                      <Loader2 className="animate-spin mr-2 h-4 w-4" />
                       Creating Invitation...
-                    </>
+                    </span>
                   ) : (
                     "Create Wedding Invitation"
                   )}

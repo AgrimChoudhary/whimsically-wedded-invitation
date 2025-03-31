@@ -9,7 +9,119 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      wedding_events: {
+        Row: {
+          created_at: string | null
+          event_address: string | null
+          event_date: string | null
+          event_name: string
+          event_time: string | null
+          event_venue: string | null
+          id: string
+          invitation_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_address?: string | null
+          event_date?: string | null
+          event_name: string
+          event_time?: string | null
+          event_venue?: string | null
+          id?: string
+          invitation_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_address?: string | null
+          event_date?: string | null
+          event_name?: string
+          event_time?: string | null
+          event_venue?: string | null
+          id?: string
+          invitation_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wedding_events_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wedding_invitations: {
+        Row: {
+          bride_about: string | null
+          bride_family: string | null
+          bride_name: string
+          bride_parents: string | null
+          couple_image_url: string | null
+          couple_story: string | null
+          created_at: string | null
+          custom_message: string | null
+          gallery_images: Json | null
+          groom_about: string | null
+          groom_family: string | null
+          groom_name: string
+          groom_parents: string | null
+          id: string
+          map_url: string | null
+          rsvp_email: string | null
+          rsvp_phone: string | null
+          wedding_address: string | null
+          wedding_date: string
+          wedding_time: string | null
+          wedding_venue: string | null
+        }
+        Insert: {
+          bride_about?: string | null
+          bride_family?: string | null
+          bride_name: string
+          bride_parents?: string | null
+          couple_image_url?: string | null
+          couple_story?: string | null
+          created_at?: string | null
+          custom_message?: string | null
+          gallery_images?: Json | null
+          groom_about?: string | null
+          groom_family?: string | null
+          groom_name: string
+          groom_parents?: string | null
+          id?: string
+          map_url?: string | null
+          rsvp_email?: string | null
+          rsvp_phone?: string | null
+          wedding_address?: string | null
+          wedding_date: string
+          wedding_time?: string | null
+          wedding_venue?: string | null
+        }
+        Update: {
+          bride_about?: string | null
+          bride_family?: string | null
+          bride_name?: string
+          bride_parents?: string | null
+          couple_image_url?: string | null
+          couple_story?: string | null
+          created_at?: string | null
+          custom_message?: string | null
+          gallery_images?: Json | null
+          groom_about?: string | null
+          groom_family?: string | null
+          groom_name?: string
+          groom_parents?: string | null
+          id?: string
+          map_url?: string | null
+          rsvp_email?: string | null
+          rsvp_phone?: string | null
+          wedding_address?: string | null
+          wedding_date?: string
+          wedding_time?: string | null
+          wedding_venue?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
