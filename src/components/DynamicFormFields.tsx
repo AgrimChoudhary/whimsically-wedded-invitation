@@ -1,149 +1,152 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Plus, Image } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Button } from './ui/button';
 import FileUploader from './FileUploader';
 
+interface FieldConfig {
+  id: string;
+  name: string;
+  relation?: string;
+  description?: string;
+  image?: string;
+}
+
 interface DynamicFormFieldsProps {
-  fields: any[];
+  fields: FieldConfig[];
   onAdd: () => void;
   onRemove: (index: number) => void;
   onChange: (index: number, field: string, value: any) => void;
   type: 'familyMember' | 'event' | 'gallery';
 }
 
-const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({ 
-  fields, 
-  onAdd, 
-  onRemove, 
+const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
+  fields,
+  onAdd,
+  onRemove,
   onChange,
   type
 }) => {
-  const getFieldConfig = (type: string) => {
-    switch (type) {
-      case 'familyMember':
-        return {
-          title: 'Family Member',
-          fields: [
-            { name: 'name', label: 'Name', type: 'text', placeholder: 'E.g., Emma Miller' },
-            { name: 'relation', label: 'Relation', type: 'text', placeholder: 'E.g., Sister of the Bride' },
-            { name: 'description', label: 'Description', type: 'textarea', placeholder: 'Short description about this family member' },
-            { name: 'image', label: 'Photo (Optional)', type: 'image', placeholder: 'Upload a photo' }
-          ]
-        };
-      case 'event':
-        return {
-          title: 'Event',
-          fields: [
-            { name: 'name', label: 'Event Name', type: 'text', placeholder: 'E.g., Reception' },
-            { name: 'relation', label: 'Date', type: 'date', placeholder: 'Event date' },
-            { name: 'description', label: 'Time', type: 'text', placeholder: 'E.g., 6:00 PM - 10:00 PM' },
-            { name: 'image', label: 'Venue', type: 'text', placeholder: 'E.g., Crystal Pavilion' },
-            { name: 'address', label: 'Venue Address', type: 'textarea', placeholder: 'Full address of the venue' },
-            { name: 'mapLink', label: 'Venue Map Link (Optional)', type: 'text', placeholder: 'Google Maps link' }
-          ]
-        };
-      case 'gallery':
-        return {
-          title: 'Gallery Photo',
-          fields: [
-            { name: 'image', label: 'Photo', type: 'image', placeholder: 'Upload a photo' },
-            { name: 'name', label: 'Title', type: 'text', placeholder: 'E.g., Engagement Photoshoot' },
-            { name: 'description', label: 'Description (Optional)', type: 'textarea', placeholder: 'Short description about this photo' }
-          ]
-        };
-      default:
-        return { title: 'Item', fields: [] };
-    }
-  };
-
-  const config = getFieldConfig(type);
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {fields.map((field, index) => (
-        <div 
-          key={field.id || index} 
-          className="p-4 border border-gray-200 rounded-md bg-white/50 space-y-4 relative"
-        >
-          <div className="absolute top-2 right-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => onRemove(index)}
-              className="h-8 w-8 text-gray-400 hover:text-red-500"
-            >
-              <Trash2 size={16} />
-            </Button>
-          </div>
-          
-          <h4 className="font-medium text-sm text-gray-700">
-            {config.title} #{index + 1}
-          </h4>
+        <div key={field.id} className="p-4 border rounded-md relative">
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            className="absolute top-2 right-2 p-1 bg-red-50 text-red-500 rounded-full hover:bg-red-100"
+            aria-label="Remove item"
+          >
+            <X size={16} />
+          </button>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {config.fields.map((configField) => {
-              if (configField.type === 'image') {
-                return (
-                  <div key={configField.name} className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {configField.label}
-                    </label>
-                    <FileUploader
-                      onFileUpload={(url) => onChange(index, configField.name, url)}
-                      defaultImageUrl={field[configField.name] || ''}
-                      bucket={type === 'familyMember' ? 'family_photos' : type === 'gallery' ? 'gallery_photos' : 'wedding_photos'}
-                      label={configField.placeholder}
-                    />
-                  </div>
-                );
-              }
-              
-              if (configField.type === 'textarea') {
-                return (
-                  <div key={configField.name} className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {configField.label}
-                    </label>
-                    <Textarea
-                      placeholder={configField.placeholder}
-                      value={field[configField.name] || ''}
-                      onChange={(e) => onChange(index, configField.name, e.target.value)}
-                      className="resize-none"
-                    />
-                  </div>
-                );
-              }
-              
-              return (
-                <div key={configField.name}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {configField.label}
-                  </label>
-                  <Input
-                    type={configField.type}
-                    placeholder={configField.placeholder}
-                    value={field[configField.name] || ''}
-                    onChange={(e) => onChange(index, configField.name, e.target.value)}
-                  />
-                </div>
-              );
-            })}
+            {type === 'familyMember' && (
+              <>
+                <Input
+                  label="Name"
+                  placeholder="E.g., Emma Miller"
+                  value={field.name}
+                  onChange={(e) => onChange(index, 'name', e.target.value)}
+                  required
+                />
+                <Input
+                  label="Relation"
+                  placeholder="E.g., Sister of the Bride"
+                  value={field.relation}
+                  onChange={(e) => onChange(index, 'relation', e.target.value)}
+                  required
+                />
+                <Textarea
+                  label="Description"
+                  placeholder="E.g., Artist, loves painting"
+                  value={field.description}
+                  onChange={(e) => onChange(index, 'description', e.target.value)}
+                  className="md:col-span-2"
+                />
+                <FileUploader
+                  label="Photo (Optional)"
+                  onFileUpload={(url) => onChange(index, 'image', url)}
+                  defaultImageUrl={field.image}
+                  bucket="family_members"
+                  className="md:col-span-2"
+                />
+              </>
+            )}
+            
+            {type === 'event' && (
+              <>
+                <Input
+                  label="Event Name"
+                  placeholder="E.g., Reception"
+                  value={field.name}
+                  onChange={(e) => onChange(index, 'name', e.target.value)}
+                  required
+                />
+                <Input
+                  label="Date"
+                  type="date"
+                  value={field.relation} // Using relation field for date
+                  onChange={(e) => onChange(index, 'relation', e.target.value)}
+                  required
+                />
+                <Input
+                  label="Time"
+                  placeholder="E.g., 6:00 PM - 10:00 PM"
+                  value={field.description} // Using description field for time
+                  onChange={(e) => onChange(index, 'description', e.target.value)}
+                />
+                <Input
+                  label="Venue Name"
+                  placeholder="E.g., Crystal Pavilion"
+                  value={field.image} // Using image field for venue name
+                  onChange={(e) => onChange(index, 'image', e.target.value)}
+                />
+              </>
+            )}
+            
+            {type === 'gallery' && (
+              <>
+                <FileUploader
+                  label="Photo"
+                  onFileUpload={(url) => onChange(index, 'image', url)}
+                  defaultImageUrl={field.image}
+                  bucket="gallery"
+                  className="md:col-span-2"
+                />
+                <Input
+                  label="Title (Optional)"
+                  placeholder="E.g., Our Engagement"
+                  value={field.name}
+                  onChange={(e) => onChange(index, 'name', e.target.value)}
+                />
+                <Textarea
+                  label="Description (Optional)"
+                  placeholder="E.g., The day we got engaged at the beach"
+                  value={field.description}
+                  onChange={(e) => onChange(index, 'description', e.target.value)}
+                  className="md:col-span-2"
+                />
+              </>
+            )}
           </div>
         </div>
       ))}
       
-      <Button
-        type="button"
-        variant="outline"
+      <Button 
+        type="button" 
+        variant="outline" 
         onClick={onAdd}
-        className="w-full flex items-center justify-center py-2 border-dashed"
+        className="w-full flex items-center justify-center gap-2"
       >
-        <Plus size={16} className="mr-2" />
-        Add {config.title}
+        <Plus size={16} />
+        <span>
+          {type === 'familyMember' && 'Add Family Member'}
+          {type === 'event' && 'Add Event'}
+          {type === 'gallery' && 'Add Photo'}
+        </span>
       </Button>
     </div>
   );
