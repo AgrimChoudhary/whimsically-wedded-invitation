@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import WelcomeForm from '@/components/WelcomeForm';
 import { FloatingPetals } from '@/components/AnimatedElements';
 import { Sparkles } from 'lucide-react';
@@ -10,11 +9,6 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showSparkle, setShowSparkle] = useState(false);
   const isMobile = useIsMobile();
-  const location = useLocation();
-  
-  // Extract the invitation ID from the URL query parameters if present
-  const queryParams = new URLSearchParams(location.search);
-  const invitationId = queryParams.get('id');
   
   useEffect(() => {
     // Simulating assets loading
@@ -49,7 +43,7 @@ const Index = () => {
           
           <div className="relative z-10 text-center mb-8">
             <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
-              {invitationId ? "Welcome" : "Ananya & Arjun"}
+              Ananya & Arjun
               {showSparkle && (
                 <Sparkles 
                   size={isMobile ? 16 : 24} 
@@ -73,7 +67,7 @@ const Index = () => {
             </div>
           </div>
           
-          <WelcomeForm invitationId={invitationId || undefined} />
+          <WelcomeForm />
           
           {/* Background decorative elements */}
           <div className="absolute bottom-8 left-8 w-16 h-16 border-b border-l border-wedding-gold/20 rounded-bl-3xl opacity-30"></div>

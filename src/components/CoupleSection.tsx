@@ -25,7 +25,7 @@ const CoupleSection: React.FC = () => {
             <AspectRatio ratio={isMobile ? 4/3 : 21/9} className="bg-wedding-cream">
               <div className="absolute inset-0 overflow-hidden">
                 <img 
-                  src="/lovable-uploads/fb376b9f-16e7-4db8-9da1-ef6c458b10fb.png" 
+                  src="/lovable-uploads/7f492c44-762e-4c64-86d8-d52fc38e8e39.png" 
                   alt="Ananya and Arjun Wedding" 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"
@@ -36,14 +36,14 @@ const CoupleSection: React.FC = () => {
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute top-3 left-3 w-16 h-16 md:w-24 md:h-24">
                     <img 
-                      src="https://i.imgur.com/eK7BXjh.png" 
+                      src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
                       alt="Kalash decoration" 
                       className="w-full h-full object-contain opacity-40"
                     />
                   </div>
                   <div className="absolute top-3 right-3 w-16 h-16 md:w-24 md:h-24">
                     <img 
-                      src="https://i.imgur.com/MsS23jz.png" 
+                      src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
                       alt="Om symbol" 
                       className="w-full h-full object-contain opacity-40"
                     />
