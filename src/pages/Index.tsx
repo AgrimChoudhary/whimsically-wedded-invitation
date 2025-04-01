@@ -1,14 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import WelcomeForm from '@/components/WelcomeForm';
 import { FloatingPetals } from '@/components/AnimatedElements';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Pencil } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showSparkle, setShowSparkle] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Simulating assets loading
@@ -68,6 +71,17 @@ const Index = () => {
           </div>
           
           <WelcomeForm />
+          
+          <div className="mt-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <Button
+              onClick={() => navigate('/customize')}
+              variant="outline"
+              className="bg-transparent border-wedding-gold/30 text-wedding-gold hover:bg-wedding-gold/10"
+            >
+              <Pencil size={16} className="mr-2" />
+              Create Your Own Invitation
+            </Button>
+          </div>
           
           {/* Background decorative elements */}
           <div className="absolute bottom-8 left-8 w-16 h-16 border-b border-l border-wedding-gold/20 rounded-bl-3xl opacity-30"></div>

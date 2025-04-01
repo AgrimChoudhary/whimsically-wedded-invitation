@@ -1,534 +1,560 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import * as z from 'zod';
+import { toast } from '@/hooks/use-toast';
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from '@/hooks/use-toast';
-import { Calendar, Copy, Heart, Upload, User, Users, Image, MapPin, CalendarRange, Sparkles, Loader2, Plus, X, Check } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import { supabase } from "@/integrations/supabase/client";
+import { Button } from '@/components/ui/button';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import {
+  Calendar,
+  Camera,
+  Clock,
+  CopyCheck,
+  Heart,
+  Link,
+  MapPin,
+  PlusCircle,
+  Trash2,
+  Upload,
+  Users,
+  User,
+  X
+} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { createInvitation, uploadImage, InvitationData, FamilyMember, EventData, GalleryPhoto } from '@/lib/invitation-helpers';
 
-const familyMemberSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  relation: z.string().min(2, { message: "Relation must be at least 2 characters." }),
-  description: z.string().optional(),
-  photoUrl: z.string().optional(),
-});
-
-const galleryPhotoSchema = z.object({
-  photoUrl: z.string().optional(),
-  title: z.string().min(2, { message: "Title must be at least 2 characters." }).optional(),
-  description: z.string().optional(),
-});
-
+// Form validation schema
 const formSchema = z.object({
-  // Couple Info
-  brideName: z.string().min(2, { message: "Bride's name must be at least 2 characters." }),
-  brideAbout: z.string().min(10, { message: "Please provide a short description about the bride." }),
-  groomName: z.string().min(2, { message: "Groom's name must be at least 2 characters." }),
-  groomAbout: z.string().min(10, { message: "Please provide a short description about the groom." }),
-  coupleStory: z.string().min(20, { message: "The love story should be at least 20 characters." }),
-  
-  // Wedding Details
-  weddingDate: z.string().min(1, { message: "Wedding date is required" }),
-  weddingTime: z.string().min(1, { message: "Wedding time is required" }),
-  weddingVenue: z.string().min(5, { message: "Venue name must be at least 5 characters." }),
-  weddingAddress: z.string().min(10, { message: "Address must be at least 10 characters." }),
-  mapUrl: z.string().url({ message: "Please enter a valid URL for the venue location" }).optional().or(z.literal('')),
-  
-  // Family Details
-  brideParents: z.string().min(5, { message: "Please add bride's parents names." }),
-  brideFamily: z.string().optional(),
-  brideExtendedFamily: z.array(familyMemberSchema).optional().default([]),
-  groomParents: z.string().min(5, { message: "Please add groom's parents names." }),
-  groomFamily: z.string().optional(),
-  groomExtendedFamily: z.array(familyMemberSchema).optional().default([]),
-  
-  // Events
-  events: z.array(z.object({
-    eventName: z.string().min(2, { message: "Event name is required" }),
-    eventDate: z.string().optional(),
-    eventTime: z.string().optional(),
-    eventVenue: z.string().optional(),
-    eventAddress: z.string().optional(),
-    venueLink: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal('')),
-  })).default([]),
-  
-  // Gallery Photos
-  galleryPhotos: z.array(galleryPhotoSchema).max(6, { message: "Maximum 6 photos allowed" }).default([]),
-  
-  // Custom Message
-  customMessage: z.string().optional(),
-  
-  // Contact Details
-  contactPhone: z.string().min(10, { message: "Please enter a valid phone number" }).optional().or(z.literal('')),
-  contactEmail: z.string().email({ message: "Please enter a valid email" }).optional().or(z.literal('')),
-  
-  // RSVP Details
-  rsvpEmail: z.string().email({ message: "Please enter a valid email for RSVP." }).optional().or(z.literal('')),
-  rsvpPhone: z.string().optional(),
+  brideFirstName: z.string().min(1, 'Bride\'s first name is required'),
+  brideLastName: z.string().min(1, 'Bride\'s last name is required'),
+  groomFirstName: z.string().min(1, 'Groom\'s first name is required'),
+  groomLastName: z.string().min(1, 'Groom\'s last name is required'),
+  weddingDate: z.string().min(1, 'Wedding date is required'),
+  weddingTime: z.string().min(1, 'Wedding time is required'),
+  venueName: z.string().min(1, 'Venue name is required'),
+  venueAddress: z.string().min(1, 'Venue address is required'),
+  venueMapLink: z.string().url().optional().or(z.literal('')),
+  phoneNumber: z.string().min(10, 'Valid phone number is required'),
+  email: z.string().email('Valid email is required'),
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+type FormData = z.infer<typeof formSchema>;
 
 const CustomizeForm: React.FC = () => {
-  const [invitationLink, setInvitationLink] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('couple');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [coupleImageFile, setCoupleImageFile] = useState<File | null>(null);
-  const [coupleImagePreview, setCoupleImagePreview] = useState<string | null>(null);
-  const [brideExtendedFamilyFiles, setBrideExtendedFamilyFiles] = useState<Record<number, File>>({});
-  const [groomExtendedFamilyFiles, setGroomExtendedFamilyFiles] = useState<Record<number, File>>({});
-  const [galleryFiles, setGalleryFiles] = useState<Record<number, File>>({});
-  const { toast } = useToast();
-
-  const form = useForm<FormValues>({
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [copied, setCopied] = useState(false);
+  
+  // State for family members
+  const [brideFamilyMembers, setBrideFamilyMembers] = useState<FamilyMember[]>([
+    { name: '', relation: 'Father', description: '', image_url: '', family_type: 'bride', is_parent: true },
+    { name: '', relation: 'Mother', description: '', image_url: '', family_type: 'bride', is_parent: true }
+  ]);
+  
+  const [groomFamilyMembers, setGroomFamilyMembers] = useState<FamilyMember[]>([
+    { name: '', relation: 'Father', description: '', image_url: '', family_type: 'groom', is_parent: true },
+    { name: '', relation: 'Mother', description: '', image_url: '', family_type: 'groom', is_parent: true }
+  ]);
+  
+  // State for additional family members
+  const [additionalBrideFamily, setAdditionalBrideFamily] = useState<FamilyMember[]>([]);
+  const [additionalGroomFamily, setAdditionalGroomFamily] = useState<FamilyMember[]>([]);
+  
+  // State for events
+  const [events, setEvents] = useState<EventData[]>([
+    { name: '', date: '', time: '', venue_name: '', venue_address: '', venue_map_link: '' }
+  ]);
+  
+  // State for uploaded images
+  const [couplePhotoFile, setCouplePhotoFile] = useState<File | null>(null);
+  const [couplePhotoPreview, setCouplePhotoPreview] = useState<string>('');
+  const [familyPhotoFiles, setFamilyPhotoFiles] = useState<Record<string, File>>({});
+  const [galleryPhotoFiles, setGalleryPhotoFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      brideName: '',
-      brideAbout: '',
-      groomName: '',
-      groomAbout: '',
-      coupleStory: '',
+      brideFirstName: '',
+      brideLastName: '',
+      groomFirstName: '',
+      groomLastName: '',
       weddingDate: '',
       weddingTime: '',
-      weddingVenue: '',
-      weddingAddress: '',
-      mapUrl: '',
-      brideParents: '',
-      brideFamily: '',
-      brideExtendedFamily: [],
-      groomParents: '',
-      groomFamily: '',
-      groomExtendedFamily: [],
-      events: [{ 
-        eventName: 'Sangeet Ceremony', 
-        eventDate: '', 
-        eventTime: '', 
-        eventVenue: '', 
-        eventAddress: '',
-        venueLink: ''
-      }],
-      galleryPhotos: [{ photoUrl: '', title: '', description: '' }],
-      customMessage: '',
-      contactPhone: '',
-      contactEmail: '',
-      rsvpEmail: '',
-      rsvpPhone: '',
-    },
+      venueName: '',
+      venueAddress: '',
+      venueMapLink: '',
+      phoneNumber: '',
+      email: '',
+    }
   });
-
-  const brideExtendedFamilyFields = useFieldArray({
-    control: form.control,
-    name: "brideExtendedFamily"
-  });
-
-  const groomExtendedFamilyFields = useFieldArray({
-    control: form.control,
-    name: "groomExtendedFamily"
-  });
-
-  const eventFields = useFieldArray({
-    control: form.control,
-    name: "events"
-  });
-
-  const galleryFields = useFieldArray({
-    control: form.control,
-    name: "galleryPhotos"
-  });
-
-  const handleCoupleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  
+  // Handler for couple photo upload
+  const handleCouplePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.size > MAX_FILE_SIZE) {
-        toast({
-          title: "File too large",
-          description: "Image must be less than 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      setCoupleImageFile(file);
+      setCouplePhotoFile(file);
       
       // Create preview
       const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target) {
-          setCoupleImagePreview(event.target.result as string);
+      reader.onload = () => {
+        if (reader.result) {
+          setCouplePhotoPreview(reader.result.toString());
         }
       };
       reader.readAsDataURL(file);
     }
   };
-
-  const handleFamilyMemberImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number, isBride: boolean) => {
+  
+  // Handler for family photo upload
+  const handleFamilyPhotoChange = (e: React.ChangeEvent<HTMLInputElement>, familyType: 'bride' | 'groom', index: number, isAdditional: boolean = false) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.size > MAX_FILE_SIZE) {
-        toast({
-          title: "File too large",
-          description: "Image must be less than 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
+      const key = `${familyType}-${index}-${isAdditional ? 'add' : 'main'}`;
       
-      if (isBride) {
-        setBrideExtendedFamilyFiles({
-          ...brideExtendedFamilyFiles,
-          [index]: file
-        });
-      } else {
-        setGroomExtendedFamilyFiles({
-          ...groomExtendedFamilyFiles,
-          [index]: file
-        });
-      }
+      setFamilyPhotoFiles(prev => ({
+        ...prev,
+        [key]: file
+      }));
       
-      // Show preview directly in the form
+      // Create preview and update state
       const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target) {
-          const familyMembers = isBride 
-            ? [...form.getValues().brideExtendedFamily] 
-            : [...form.getValues().groomExtendedFamily];
-          
-          familyMembers[index] = {
-            ...familyMembers[index],
-            photoUrl: event.target.result as string
-          };
-          
-          if (isBride) {
-            form.setValue('brideExtendedFamily', familyMembers);
+      reader.onload = () => {
+        if (reader.result) {
+          if (familyType === 'bride') {
+            if (isAdditional) {
+              const newAdditionalBrideFamily = [...additionalBrideFamily];
+              newAdditionalBrideFamily[index] = {
+                ...newAdditionalBrideFamily[index],
+                image_url: reader.result.toString()
+              };
+              setAdditionalBrideFamily(newAdditionalBrideFamily);
+            } else {
+              const newBrideFamilyMembers = [...brideFamilyMembers];
+              newBrideFamilyMembers[index] = {
+                ...newBrideFamilyMembers[index],
+                image_url: reader.result.toString()
+              };
+              setBrideFamilyMembers(newBrideFamilyMembers);
+            }
           } else {
-            form.setValue('groomExtendedFamily', familyMembers);
+            if (isAdditional) {
+              const newAdditionalGroomFamily = [...additionalGroomFamily];
+              newAdditionalGroomFamily[index] = {
+                ...newAdditionalGroomFamily[index],
+                image_url: reader.result.toString()
+              };
+              setAdditionalGroomFamily(newAdditionalGroomFamily);
+            } else {
+              const newGroomFamilyMembers = [...groomFamilyMembers];
+              newGroomFamilyMembers[index] = {
+                ...newGroomFamilyMembers[index],
+                image_url: reader.result.toString()
+              };
+              setGroomFamilyMembers(newGroomFamilyMembers);
+            }
           }
         }
       };
       reader.readAsDataURL(file);
     }
   };
-
-  const handleGalleryImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.size > MAX_FILE_SIZE) {
-        toast({
-          title: "File too large",
-          description: "Image must be less than 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
+  
+  // Handler for gallery photo upload
+  const handleGalleryPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      const maxFiles = 5 - galleryPhotoFiles.length;
+      const selectedFiles = files.slice(0, maxFiles);
       
-      setGalleryFiles({
-        ...galleryFiles,
-        [index]: file
+      setGalleryPhotoFiles(prev => [...prev, ...selectedFiles]);
+      
+      // Create previews
+      selectedFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (reader.result) {
+            setGalleryPreviews(prev => [...prev, reader.result.toString()]);
+          }
+        };
+        reader.readAsDataURL(file);
       });
-      
-      // Show preview directly in the form
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target) {
-          const photos = [...form.getValues().galleryPhotos];
-          photos[index] = {
-            ...photos[index],
-            photoUrl: event.target.result as string
-          };
-          form.setValue('galleryPhotos', photos);
-        }
-      };
-      reader.readAsDataURL(file);
     }
   };
-
-  const uploadImage = async (file: File, path: string): Promise<string | null> => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `${path}/${fileName}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('wedding_images')
-        .upload(filePath, file);
-      
-      if (uploadError) {
-        throw uploadError;
-      }
-      
-      const { data } = supabase.storage
-        .from('wedding_images')
-        .getPublicUrl(filePath);
-      
-      return data.publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      return null;
+  
+  // Handler for adding a bride family member
+  const addBrideFamilyMember = () => {
+    setAdditionalBrideFamily(prev => [
+      ...prev,
+      { name: '', relation: '', description: '', image_url: '', family_type: 'bride', is_parent: false }
+    ]);
+  };
+  
+  // Handler for removing a bride family member
+  const removeBrideFamilyMember = (index: number) => {
+    setAdditionalBrideFamily(prev => prev.filter((_, i) => i !== index));
+    
+    // Remove the associated photo file
+    const key = `bride-${index}-add`;
+    setFamilyPhotoFiles(prev => {
+      const newFiles = { ...prev };
+      delete newFiles[key];
+      return newFiles;
+    });
+  };
+  
+  // Handler for updating a bride family member
+  const updateBrideFamilyMember = (index: number, field: keyof FamilyMember, value: string) => {
+    setAdditionalBrideFamily(prev => 
+      prev.map((member, i) => 
+        i === index ? { ...member, [field]: value } : member
+      )
+    );
+  };
+  
+  // Handler for updating a bride parent
+  const updateBrideParent = (index: number, field: keyof FamilyMember, value: string) => {
+    setBrideFamilyMembers(prev => 
+      prev.map((member, i) => 
+        i === index ? { ...member, [field]: value } : member
+      )
+    );
+  };
+  
+  // Handler for adding a groom family member
+  const addGroomFamilyMember = () => {
+    setAdditionalGroomFamily(prev => [
+      ...prev,
+      { name: '', relation: '', description: '', image_url: '', family_type: 'groom', is_parent: false }
+    ]);
+  };
+  
+  // Handler for removing a groom family member
+  const removeGroomFamilyMember = (index: number) => {
+    setAdditionalGroomFamily(prev => prev.filter((_, i) => i !== index));
+    
+    // Remove the associated photo file
+    const key = `groom-${index}-add`;
+    setFamilyPhotoFiles(prev => {
+      const newFiles = { ...prev };
+      delete newFiles[key];
+      return newFiles;
+    });
+  };
+  
+  // Handler for updating a groom family member
+  const updateGroomFamilyMember = (index: number, field: keyof FamilyMember, value: string) => {
+    setAdditionalGroomFamily(prev => 
+      prev.map((member, i) => 
+        i === index ? { ...member, [field]: value } : member
+      )
+    );
+  };
+  
+  // Handler for updating a groom parent
+  const updateGroomParent = (index: number, field: keyof FamilyMember, value: string) => {
+    setGroomFamilyMembers(prev => 
+      prev.map((member, i) => 
+        i === index ? { ...member, [field]: value } : member
+      )
+    );
+  };
+  
+  // Handler for adding an event
+  const addEvent = () => {
+    setEvents(prev => [
+      ...prev,
+      { name: '', date: '', time: '', venue_name: '', venue_address: '', venue_map_link: '' }
+    ]);
+  };
+  
+  // Handler for removing an event
+  const removeEvent = (index: number) => {
+    if (events.length > 1) {
+      setEvents(prev => prev.filter((_, i) => i !== index));
     }
   };
-
-  const uploadAllImages = async () => {
-    // Upload couple image
-    let coupleImageUrl = null;
-    if (coupleImageFile) {
-      coupleImageUrl = await uploadImage(coupleImageFile, 'couple_images');
-    }
-    
-    // Upload bride family member images
-    const brideExtendedFamilyUrls: Record<number, string> = {};
-    for (const [index, file] of Object.entries(brideExtendedFamilyFiles)) {
-      const url = await uploadImage(file, 'family_images');
-      if (url) {
-        brideExtendedFamilyUrls[Number(index)] = url;
-      }
-    }
-    
-    // Upload groom family member images
-    const groomExtendedFamilyUrls: Record<number, string> = {};
-    for (const [index, file] of Object.entries(groomExtendedFamilyFiles)) {
-      const url = await uploadImage(file, 'family_images');
-      if (url) {
-        groomExtendedFamilyUrls[Number(index)] = url;
-      }
-    }
-    
-    // Upload gallery images
-    const galleryPhotoUrls: Record<number, string> = {};
-    for (const [index, file] of Object.entries(galleryFiles)) {
-      const url = await uploadImage(file, 'gallery_images');
-      if (url) {
-        galleryPhotoUrls[Number(index)] = url;
-      }
-    }
-    
-    return { 
-      coupleImageUrl, 
-      brideExtendedFamilyUrls, 
-      groomExtendedFamilyUrls, 
-      galleryPhotoUrls 
-    };
+  
+  // Handler for updating an event
+  const updateEvent = (index: number, field: keyof EventData, value: string) => {
+    setEvents(prev => 
+      prev.map((event, i) => 
+        i === index ? { ...event, [field]: value } : event
+      )
+    );
   };
-
-  const saveEvents = async (invitationId: string, events: FormValues['events']) => {
-    if (events.length === 0) return;
-    
-    const formattedEvents = events.map(event => ({
-      invitation_id: invitationId,
-      event_name: event.eventName,
-      event_date: event.eventDate || null,
-      event_time: event.eventTime || null,
-      event_venue: event.eventVenue || null,
-      event_address: event.eventAddress || null
-    }));
-    
-    const { error } = await supabase
-      .from('wedding_events')
-      .insert(formattedEvents);
-    
-    if (error) {
-      console.error('Error saving events:', error);
-      throw error;
-    }
+  
+  // Handler for removing a gallery photo
+  const removeGalleryPhoto = (index: number) => {
+    setGalleryPhotoFiles(prev => prev.filter((_, i) => i !== index));
+    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
   };
-
-  const onSubmit = async (data: FormValues) => {
+  
+  // Handler for copying the generated link
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  
+  // Handler for form submission
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     setIsSubmitting(true);
     
     try {
-      // Upload all images
-      const { 
-        coupleImageUrl, 
-        brideExtendedFamilyUrls, 
-        groomExtendedFamilyUrls, 
-        galleryPhotoUrls 
-      } = await uploadAllImages();
-      
-      // Update family members with actual image URLs
-      const brideExtendedFamilyWithUrls = data.brideExtendedFamily?.map((member, index) => ({
-        ...member,
-        photoUrl: brideExtendedFamilyUrls[index] || member.photoUrl || null
-      }));
-      
-      const groomExtendedFamilyWithUrls = data.groomExtendedFamily?.map((member, index) => ({
-        ...member,
-        photoUrl: groomExtendedFamilyUrls[index] || member.photoUrl || null
-      }));
-      
-      // Update gallery photos with actual image URLs
-      const galleryPhotosWithUrls = data.galleryPhotos.map((photo, index) => ({
-        ...photo,
-        photoUrl: galleryPhotoUrls[index] || photo.photoUrl || null
-      }));
-      
-      // Format gallery images as JSON array of strings for storage
-      const galleryImages = galleryPhotosWithUrls
-        .filter(p => p.photoUrl)
-        .map(p => ({
-          url: p.photoUrl,
-          title: p.title || '',
-          description: p.description || ''
-        }));
-      
-      // Insert wedding invitation data
-      const { data: invitationData, error } = await supabase
-        .from('wedding_invitations')
-        .insert({
-          bride_name: data.brideName,
-          bride_about: data.brideAbout,
-          groom_name: data.groomName,
-          groom_about: data.groomAbout,
-          couple_story: data.coupleStory,
-          wedding_date: data.weddingDate,
-          wedding_time: data.weddingTime,
-          wedding_venue: data.weddingVenue,
-          wedding_address: data.weddingAddress,
-          map_url: data.mapUrl || null,
-          bride_parents: data.brideParents,
-          bride_family: JSON.stringify(brideExtendedFamilyWithUrls),
-          groom_parents: data.groomParents,
-          groom_family: JSON.stringify(groomExtendedFamilyWithUrls),
-          rsvp_email: data.rsvpEmail || null,
-          rsvp_phone: data.rsvpPhone || null,
-          custom_message: data.customMessage || null,
-          couple_image_url: coupleImageUrl,
-          gallery_images: galleryImages,
-          contact_phone: data.contactPhone || null,
-          contact_email: data.contactEmail || null
-        })
-        .select('id')
-        .single();
-      
-      if (error) {
-        throw error;
+      // Upload couple photo if provided
+      let couplePhotoUrl = '';
+      if (couplePhotoFile) {
+        const uploadedUrl = await uploadImage(couplePhotoFile, 'couple');
+        if (uploadedUrl) {
+          couplePhotoUrl = uploadedUrl;
+        }
       }
       
-      // Save events
-      await saveEvents(invitationData.id, data.events);
+      // Upload family photos
+      for (const key in familyPhotoFiles) {
+        const [familyType, index, type] = key.split('-');
+        const file = familyPhotoFiles[key];
+        const uploadedUrl = await uploadImage(file, 'family');
+        
+        if (uploadedUrl) {
+          if (familyType === 'bride') {
+            if (type === 'add') {
+              const newAdditionalBrideFamily = [...additionalBrideFamily];
+              newAdditionalBrideFamily[parseInt(index)] = {
+                ...newAdditionalBrideFamily[parseInt(index)],
+                image_url: uploadedUrl
+              };
+              setAdditionalBrideFamily(newAdditionalBrideFamily);
+            } else {
+              const newBrideFamilyMembers = [...brideFamilyMembers];
+              newBrideFamilyMembers[parseInt(index)] = {
+                ...newBrideFamilyMembers[parseInt(index)],
+                image_url: uploadedUrl
+              };
+              setBrideFamilyMembers(newBrideFamilyMembers);
+            }
+          } else if (familyType === 'groom') {
+            if (type === 'add') {
+              const newAdditionalGroomFamily = [...additionalGroomFamily];
+              newAdditionalGroomFamily[parseInt(index)] = {
+                ...newAdditionalGroomFamily[parseInt(index)],
+                image_url: uploadedUrl
+              };
+              setAdditionalGroomFamily(newAdditionalGroomFamily);
+            } else {
+              const newGroomFamilyMembers = [...groomFamilyMembers];
+              newGroomFamilyMembers[parseInt(index)] = {
+                ...newGroomFamilyMembers[parseInt(index)],
+                image_url: uploadedUrl
+              };
+              setGroomFamilyMembers(newGroomFamilyMembers);
+            }
+          }
+        }
+      }
       
-      // Generate invitation link
-      const invitationId = invitationData.id;
-      const linkUrl = `${window.location.origin}/?id=${invitationId}`;
+      // Upload gallery photos
+      const galleryPhotos: GalleryPhoto[] = [];
+      for (const file of galleryPhotoFiles) {
+        const uploadedUrl = await uploadImage(file, 'gallery');
+        if (uploadedUrl) {
+          galleryPhotos.push({ photo_url: uploadedUrl });
+        }
+      }
       
-      setInvitationLink(linkUrl);
-      toast({
-        title: "Invitation Created!",
-        description: "Your custom wedding invitation has been created successfully.",
-      });
+      // Prepare invitation data
+      const invitationData: InvitationData = {
+        bride_first_name: data.brideFirstName,
+        bride_last_name: data.brideLastName,
+        groom_first_name: data.groomFirstName,
+        groom_last_name: data.groomLastName,
+        wedding_date: data.weddingDate,
+        wedding_time: data.weddingTime,
+        venue_name: data.venueName,
+        venue_address: data.venueAddress,
+        venue_map_link: data.venueMapLink,
+        phone_number: data.phoneNumber,
+        email: data.email,
+        couple_photo_url: couplePhotoUrl
+      };
+      
+      // Combine all family members
+      const allFamilyMembers = [
+        ...brideFamilyMembers.filter(member => member.name.trim() !== ''),
+        ...additionalBrideFamily.filter(member => member.name.trim() !== ''),
+        ...groomFamilyMembers.filter(member => member.name.trim() !== ''),
+        ...additionalGroomFamily.filter(member => member.name.trim() !== '')
+      ];
+      
+      // Filter valid events
+      const validEvents = events.filter(event => 
+        event.name.trim() !== '' && 
+        event.date.trim() !== '' && 
+        event.time.trim() !== '' && 
+        event.venue_name.trim() !== '' && 
+        event.venue_address.trim() !== ''
+      );
+      
+      // Create the invitation
+      const invitationId = await createInvitation(
+        invitationData,
+        allFamilyMembers,
+        validEvents,
+        galleryPhotos
+      );
+      
+      if (invitationId) {
+        // Generate invitation link
+        const link = `${window.location.origin}/invitation/${invitationId}`;
+        setGeneratedLink(link);
+        
+        toast({
+          title: "Success!",
+          description: "Your wedding invitation has been created successfully."
+        });
+        
+        setActiveTab('result');
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create invitation. Please try again.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
-      console.error('Error saving invitation:', error);
+      console.error('Error creating invitation:', error);
       toast({
-        title: "Something went wrong",
-        description: "Could not create invitation. Please try again.",
-        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const copyToClipboard = () => {
-    if (invitationLink) {
-      navigator.clipboard.writeText(invitationLink);
-      toast({
-        title: "Link Copied!",
-        description: "Invitation link copied to clipboard.",
-      });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-wedding-cream/30 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="font-playfair text-3xl md:text-4xl text-wedding-maroon mb-2">Create Custom Wedding Invitation</h1>
-          <p className="text-gray-600">Fill in the details below to create a personalized wedding invitation</p>
-        </div>
-        
-        <Card className="border-wedding-gold/20 shadow-gold-soft">
+    <div className="min-h-screen bg-wedding-cream/20 pattern-background py-8 px-4">
+      <div className="max-w-5xl mx-auto">
+        <Card className="border-wedding-gold/20 shadow-md">
           <CardHeader className="bg-wedding-gold/5">
-            <CardTitle className="flex items-center gap-2 text-wedding-maroon">
-              <Heart className="text-wedding-gold" size={18} />
-              Wedding Invitation Customization
+            <CardTitle className="text-2xl font-great-vibes text-wedding-maroon flex items-center gap-2">
+              <Heart className="text-wedding-gold" size={20} />
+              Customize Your Wedding Invitation
             </CardTitle>
             <CardDescription>
-              Create a personalized wedding invitation by filling in all the details
+              Fill in all the details to create your personalized wedding invitation
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="pt-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <Tabs defaultValue="couple-info" className="w-full">
-                  <TabsList className="grid grid-cols-2 sm:grid-cols-5 mb-4 overflow-x-auto">
-                    <TabsTrigger value="couple-info" className="flex gap-1 items-center">
-                      <Users size={16} /> Couple
-                    </TabsTrigger>
-                    <TabsTrigger value="wedding-details" className="flex gap-1 items-center">
-                      <Calendar size={16} /> Wedding
-                    </TabsTrigger>
-                    <TabsTrigger value="family-details" className="flex gap-1 items-center">
-                      <User size={16} /> Family
-                    </TabsTrigger>
-                    <TabsTrigger value="events" className="flex gap-1 items-center">
-                      <CalendarRange size={16} /> Events
-                    </TabsTrigger>
-                    <TabsTrigger value="gallery" className="flex gap-1 items-center">
-                      <Image size={16} /> Gallery
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  {/* Couple Information */}
-                  <TabsContent value="couple-info" className="space-y-6">
-                    <div className="bg-wedding-gold/5 p-4 rounded-lg mb-4">
-                      <h3 className="text-wedding-maroon font-medium flex items-center gap-2 mb-4">
-                        <Sparkles size={16} className="text-wedding-gold" />
-                        Couple Information
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid grid-cols-2 md:grid-cols-5 mx-4 mt-4 bg-wedding-cream/50">
+                  <TabsTrigger value="couple" className="data-[state=active]:bg-wedding-maroon/10">
+                    <Users size={16} className="mr-2" /> Couple
+                  </TabsTrigger>
+                  <TabsTrigger value="wedding" className="data-[state=active]:bg-wedding-maroon/10">
+                    <Calendar size={16} className="mr-2" /> Wedding
+                  </TabsTrigger>
+                  <TabsTrigger value="family" className="data-[state=active]:bg-wedding-maroon/10">
+                    <User size={16} className="mr-2" /> Family
+                  </TabsTrigger>
+                  <TabsTrigger value="photos" className="data-[state=active]:bg-wedding-maroon/10">
+                    <Camera size={16} className="mr-2" /> Photos
+                  </TabsTrigger>
+                  <TabsTrigger value="result" className="data-[state=active]:bg-wedding-maroon/10" disabled={!generatedLink}>
+                    <CopyCheck size={16} className="mr-2" /> Result
+                  </TabsTrigger>
+                </TabsList>
+                
+                {/* Couple Details Tab */}
+                <TabsContent value="couple">
+                  <CardContent className="space-y-6">
+                    <div className="p-4 rounded-lg bg-wedding-gold/5 border border-wedding-gold/10">
+                      <h3 className="text-lg font-medium text-wedding-maroon mb-4 flex items-center">
+                        <Heart className="mr-2 text-wedding-gold" size={18} />
+                        Couple Photo
                       </h3>
                       
-                      <div className="mb-6">
-                        <h4 className="text-sm font-medium text-wedding-maroon mb-3">Couple Photo</h4>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border border-wedding-gold/20 flex items-center justify-center">
-                            {coupleImagePreview ? (
-                              <img src={coupleImagePreview} alt="Couple Preview" className="w-full h-full object-cover" />
-                            ) : (
-                              <Users size={32} className="text-gray-400" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <Input 
-                              type="file" 
-                              accept="image/*" 
-                              onChange={handleCoupleImageChange}
-                              className="text-sm"
+                      <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+                        <div className="w-40 h-40 rounded-full overflow-hidden bg-wedding-cream/50 border-2 border-wedding-gold/20 flex items-center justify-center">
+                          {couplePhotoPreview ? (
+                            <img 
+                              src={couplePhotoPreview} 
+                              alt="Couple" 
+                              className="w-full h-full object-cover" 
                             />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Upload a photo of the couple (max 5MB)
-                            </p>
+                          ) : (
+                            <Users size={48} className="text-wedding-gold/30" />
+                          )}
+                        </div>
+                        
+                        <div className="flex-1">
+                          <label className="block text-sm font-medium text-wedding-maroon mb-2">
+                            Upload Couple Photo
+                          </label>
+                          <div className="flex items-center">
+                            <label className="flex-1 cursor-pointer bg-wedding-cream hover:bg-wedding-cream/70 text-wedding-maroon py-2 px-4 rounded-lg border border-wedding-gold/20 transition-colors">
+                              <div className="flex items-center justify-center">
+                                <Upload size={18} className="mr-2" />
+                                <span>Choose Photo</span>
+                              </div>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleCouplePhotoChange}
+                              />
+                            </label>
                           </div>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Recommended: Square image, max 5MB
+                          </p>
                         </div>
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
+                          <h3 className="text-lg font-medium text-wedding-maroon mb-2">Bride's Details</h3>
+                          
                           <FormField
                             control={form.control}
-                            name="brideName"
+                            name="brideFirstName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-wedding-maroon">Bride's Name</FormLabel>
+                                <FormLabel>First Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Enter bride's name" {...field} />
+                                  <Input placeholder="Ananya" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -537,21 +563,13 @@ const CustomizeForm: React.FC = () => {
                           
                           <FormField
                             control={form.control}
-                            name="brideAbout"
+                            name="brideLastName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-wedding-maroon">About the Bride</FormLabel>
+                                <FormLabel>Last Name</FormLabel>
                                 <FormControl>
-                                  <Textarea 
-                                    placeholder="A short description about the bride" 
-                                    className="resize-none" 
-                                    rows={3}
-                                    {...field} 
-                                  />
+                                  <Input placeholder="Sharma" {...field} />
                                 </FormControl>
-                                <FormDescription>
-                                  Education, profession, hobbies, etc.
-                                </FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -559,14 +577,16 @@ const CustomizeForm: React.FC = () => {
                         </div>
                         
                         <div className="space-y-4">
+                          <h3 className="text-lg font-medium text-wedding-maroon mb-2">Groom's Details</h3>
+                          
                           <FormField
                             control={form.control}
-                            name="groomName"
+                            name="groomFirstName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-wedding-maroon">Groom's Name</FormLabel>
+                                <FormLabel>First Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Enter groom's name" {...field} />
+                                  <Input placeholder="Arjun" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -575,59 +595,39 @@ const CustomizeForm: React.FC = () => {
                           
                           <FormField
                             control={form.control}
-                            name="groomAbout"
+                            name="groomLastName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-wedding-maroon">About the Groom</FormLabel>
+                                <FormLabel>Last Name</FormLabel>
                                 <FormControl>
-                                  <Textarea 
-                                    placeholder="A short description about the groom" 
-                                    className="resize-none" 
-                                    rows={3}
-                                    {...field} 
-                                  />
+                                  <Input placeholder="Patel" {...field} />
                                 </FormControl>
-                                <FormDescription>
-                                  Education, profession, hobbies, etc.
-                                </FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
                         </div>
                       </div>
-                      
-                      <div className="mt-6">
-                        <FormField
-                          control={form.control}
-                          name="coupleStory"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-wedding-maroon">Love Story</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  placeholder="Share how the couple met and their journey together" 
-                                  className="resize-none" 
-                                  rows={4}
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                This will be displayed in the couple's section of the invitation.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
                     </div>
-                  </TabsContent>
-                  
-                  {/* Wedding Details */}
-                  <TabsContent value="wedding-details" className="space-y-6">
-                    <div className="bg-wedding-gold/5 p-4 rounded-lg mb-4">
-                      <h3 className="text-wedding-maroon font-medium flex items-center gap-2 mb-4">
-                        <Calendar size={16} className="text-wedding-gold" />
+                    
+                    <div className="flex justify-end">
+                      <Button 
+                        type="button" 
+                        onClick={() => setActiveTab('wedding')}
+                        className="bg-wedding-maroon hover:bg-wedding-maroon/80"
+                      >
+                        Next: Wedding Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </TabsContent>
+                
+                {/* Wedding Details Tab */}
+                <TabsContent value="wedding">
+                  <CardContent className="space-y-6">
+                    <div className="p-4 rounded-lg bg-wedding-gold/5 border border-wedding-gold/10">
+                      <h3 className="text-lg font-medium text-wedding-maroon mb-4 flex items-center">
+                        <Calendar className="mr-2 text-wedding-gold" size={18} />
                         Wedding Details
                       </h3>
                       
@@ -637,16 +637,15 @@ const CustomizeForm: React.FC = () => {
                           name="weddingDate"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-wedding-maroon">Wedding Date</FormLabel>
+                              <FormLabel>Wedding Date</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Input
-                                    type="date"
-                                    placeholder="DD/MM/YYYY"
-                                    {...field}
-                                    className="pr-10"
+                                  <Input 
+                                    type="date" 
+                                    placeholder="Wedding Date" 
+                                    {...field} 
                                   />
-                                  <Calendar size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                  <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-wedding-gold/50" size={16} />
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -659,13 +658,16 @@ const CustomizeForm: React.FC = () => {
                           name="weddingTime"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-wedding-maroon">Wedding Time</FormLabel>
+                              <FormLabel>Wedding Time</FormLabel>
                               <FormControl>
-                                <Input
-                                  type="time"
-                                  placeholder="HH:MM"
-                                  {...field}
-                                />
+                                <div className="relative">
+                                  <Input 
+                                    type="time" 
+                                    placeholder="Wedding Time" 
+                                    {...field} 
+                                  />
+                                  <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-wedding-gold/50" size={16} />
+                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -675,12 +677,12 @@ const CustomizeForm: React.FC = () => {
                       
                       <FormField
                         control={form.control}
-                        name="weddingVenue"
+                        name="venueName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-wedding-maroon">Wedding Venue</FormLabel>
+                            <FormLabel>Venue Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter venue name (e.g. Grand Pavilion)" {...field} />
+                              <Input placeholder="The Grand Pavilion" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -690,15 +692,13 @@ const CustomizeForm: React.FC = () => {
                       <div className="mt-4">
                         <FormField
                           control={form.control}
-                          name="weddingAddress"
+                          name="venueAddress"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-wedding-maroon">Venue Address</FormLabel>
+                              <FormLabel>Venue Address</FormLabel>
                               <FormControl>
                                 <Textarea 
-                                  placeholder="Enter complete venue address" 
-                                  className="resize-none" 
-                                  rows={3}
+                                  placeholder="123 Wedding Lane, Mumbai, Maharashtra, 400001" 
                                   {...field} 
                                 />
                               </FormControl>
@@ -711,783 +711,738 @@ const CustomizeForm: React.FC = () => {
                       <div className="mt-4">
                         <FormField
                           control={form.control}
-                          name="mapUrl"
+                          name="venueMapLink"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-wedding-maroon">Google Maps URL (Optional)</FormLabel>
+                              <FormLabel>Google Maps Link (Optional)</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <Input 
                                     placeholder="https://maps.google.com/..." 
                                     {...field} 
-                                    className="pl-10"
                                   />
-                                  <MapPin 
-                                    size={16} 
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormDescription>
-                                Paste a Google Maps link to the venue location
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <div className="mt-6">
-                        <h4 className="text-sm font-medium text-wedding-maroon mb-3">Contact Information</h4>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <FormField
-                            control={form.control}
-                            name="contactPhone"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-wedding-maroon">Contact Phone</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Contact phone number" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                  Will be displayed with click-to-call feature
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="contactEmail"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-wedding-maroon">Contact Email</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Contact email address" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                  Will be displayed with click-to-email feature
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <FormField
-                          control={form.control}
-                          name="rsvpEmail"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-wedding-maroon">RSVP Email (Optional)</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Email for RSVPs" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="rsvpPhone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-wedding-maroon">RSVP Phone (Optional)</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Phone number for RSVPs" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  {/* Family Details */}
-                  <TabsContent value="family-details" className="space-y-6">
-                    <div className="bg-wedding-gold/5 p-4 rounded-lg mb-4">
-                      <h3 className="text-wedding-maroon font-medium flex items-center gap-2 mb-4">
-                        <Users size={16} className="text-wedding-gold" />
-                        Family Details
-                      </h3>
-                      
-                      <div className="space-y-6">
-                        <div>
-                          <h4 className="text-sm font-medium text-wedding-maroon mb-3">Bride's Family</h4>
-                          <FormField
-                            control={form.control}
-                            name="brideParents"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-wedding-maroon">Bride's Parents</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="e.g. Daughter of Mr. & Mrs. Sharma" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <div className="mt-4">
-                            <FormField
-                              control={form.control}
-                              name="brideFamily"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-wedding-maroon">General Family Description (Optional)</FormLabel>
-                                  <FormControl>
-                                    <Textarea 
-                                      placeholder="General description of bride's family" 
-                                      className="resize-none" 
-                                      rows={3}
-                                      {...field} 
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          
-                          <div className="mt-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h5 className="text-sm font-medium text-wedding-maroon">Extended Family Members</h5>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="h-8 gap-1 border-wedding-gold/30 text-wedding-gold hover:bg-wedding-gold/10"
-                                onClick={() => brideExtendedFamilyFields.append({
-                                  name: '',
-                                  relation: '',
-                                  description: '',
-                                  photoUrl: ''
-                                })}
-                              >
-                                <Plus size={14} /> Add Member
-                              </Button>
-                            </div>
-                            
-                            {brideExtendedFamilyFields.fields.length === 0 && (
-                              <p className="text-sm text-gray-500 italic mb-3">
-                                No family members added yet. Click "Add Member" to include.
-                              </p>
-                            )}
-                            
-                            <div className="space-y-4">
-                              {brideExtendedFamilyFields.fields.map((field, index) => (
-                                <div key={field.id} className="p-3 border border-wedding-gold/20 rounded-md relative">
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-6 w-6 absolute -top-2 -right-2 rounded-full bg-red-100 hover:bg-red-200 text-red-500"
-                                    onClick={() => brideExtendedFamilyFields.remove(index)}
-                                  >
-                                    <X size={14} />
-                                  </Button>
-                                  
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="md:col-span-2 space-y-4">
-                                      <FormField
-                                        control={form.control}
-                                        name={`brideExtendedFamily.${index}.name`}
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-wedding-maroon">Name</FormLabel>
-                                            <FormControl>
-                                              <Input placeholder="Full name" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                      
-                                      <FormField
-                                        control={form.control}
-                                        name={`brideExtendedFamily.${index}.relation`}
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-wedding-maroon">Relation</FormLabel>
-                                            <FormControl>
-                                              <Input placeholder="e.g. Sister, Brother, Grandmother" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                      
-                                      <FormField
-                                        control={form.control}
-                                        name={`brideExtendedFamily.${index}.description`}
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-wedding-maroon">Description (Optional)</FormLabel>
-                                            <FormControl>
-                                              <Textarea 
-                                                placeholder="Short description" 
-                                                className="resize-none" 
-                                                rows={2}
-                                                {...field} 
-                                              />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                    
-                                    <div className="flex flex-col items-center justify-center">
-                                      <FormField
-                                        control={form.control}
-                                        name={`brideExtendedFamily.${index}.photoUrl`}
-                                        render={({ field }) => (
-                                          <FormItem className="w-full">
-                                            <FormLabel className="text-wedding-maroon">Photo</FormLabel>
-                                            <div className="flex flex-col items-center gap-2">
-                                              <Avatar className="h-24 w-24 border-2 border-wedding-gold/20">
-                                                {field.value ? (
-                                                  <AvatarImage src={field.value} alt="Preview" className="object-cover" />
-                                                ) : (
-                                                  <AvatarFallback className="bg-wedding-blush/20 text-wedding-maroon">
-                                                    {index + 1}
-                                                  </AvatarFallback>
-                                                )}
-                                              </Avatar>
-                                              <Input 
-                                                type="file" 
-                                                accept="image/*" 
-                                                className="w-full text-xs"
-                                                onChange={(e) => handleFamilyMemberImageChange(e, index, true)} 
-                                              />
-                                            </div>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
+                                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-wedding-gold/50" size={16} />
+                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-sm text-gray-500 pl-6">
+                                      https://
+                                    </span>
                                   </div>
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <Separator className="my-4" />
-                        
-                        <div>
-                          <h4 className="text-sm font-medium text-wedding-maroon mb-3">Groom's Family</h4>
-                          <FormField
-                            control={form.control}
-                            name="groomParents"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-wedding-maroon">Groom's Parents</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="e.g. Son of Mr. & Mrs. Patel" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <div className="mt-4">
-                            <FormField
-                              control={form.control}
-                              name="groomFamily"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-wedding-maroon">General Family Description (Optional)</FormLabel>
-                                  <FormControl>
-                                    <Textarea 
-                                      placeholder="General description of groom's family" 
-                                      className="resize-none" 
-                                      rows={3}
-                                      {...field} 
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          
-                          <div className="mt-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h5 className="text-sm font-medium text-wedding-maroon">Extended Family Members</h5>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="h-8 gap-1 border-wedding-gold/30 text-wedding-gold hover:bg-wedding-gold/10"
-                                onClick={() => groomExtendedFamilyFields.append({
-                                  name: '',
-                                  relation: '',
-                                  description: '',
-                                  photoUrl: ''
-                                })}
-                              >
-                                <Plus size={14} /> Add Member
-                              </Button>
-                            </div>
-                            
-                            {groomExtendedFamilyFields.fields.length === 0 && (
-                              <p className="text-sm text-gray-500 italic mb-3">
-                                No family members added yet. Click "Add Member" to include.
+                              </FormControl>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Add a Google Maps link to help guests find your venue
                               </p>
-                            )}
-                            
-                            <div className="space-y-4">
-                              {groomExtendedFamilyFields.fields.map((field, index) => (
-                                <div key={field.id} className="p-3 border border-wedding-gold/20 rounded-md relative">
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-6 w-6 absolute -top-2 -right-2 rounded-full bg-red-100 hover:bg-red-200 text-red-500"
-                                    onClick={() => groomExtendedFamilyFields.remove(index)}
-                                  >
-                                    <X size={14} />
-                                  </Button>
-                                  
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="md:col-span-2 space-y-4">
-                                      <FormField
-                                        control={form.control}
-                                        name={`groomExtendedFamily.${index}.name`}
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-wedding-maroon">Name</FormLabel>
-                                            <FormControl>
-                                              <Input placeholder="Full name" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                      
-                                      <FormField
-                                        control={form.control}
-                                        name={`groomExtendedFamily.${index}.relation`}
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-wedding-maroon">Relation</FormLabel>
-                                            <FormControl>
-                                              <Input placeholder="e.g. Brother, Sister, Grandfather" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                      
-                                      <FormField
-                                        control={form.control}
-                                        name={`groomExtendedFamily.${index}.description`}
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-wedding-maroon">Description (Optional)</FormLabel>
-                                            <FormControl>
-                                              <Textarea 
-                                                placeholder="Short description" 
-                                                className="resize-none" 
-                                                rows={2}
-                                                {...field} 
-                                              />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                    
-                                    <div className="flex flex-col items-center justify-center">
-                                      <FormField
-                                        control={form.control}
-                                        name={`groomExtendedFamily.${index}.photoUrl`}
-                                        render={({ field }) => (
-                                          <FormItem className="w-full">
-                                            <FormLabel className="text-wedding-maroon">Photo</FormLabel>
-                                            <div className="flex flex-col items-center gap-2">
-                                              <Avatar className="h-24 w-24 border-2 border-wedding-gold/20">
-                                                {field.value ? (
-                                                  <AvatarImage src={field.value} alt="Preview" className="object-cover" />
-                                                ) : (
-                                                  <AvatarFallback className="bg-wedding-blush/20 text-wedding-maroon">
-                                                    {index + 1}
-                                                  </AvatarFallback>
-                                                )}
-                                              </Avatar>
-                                              <Input 
-                                                type="file" 
-                                                accept="image/*" 
-                                                className="w-full text-xs"
-                                                onChange={(e) => handleFamilyMemberImageChange(e, index, false)} 
-                                              />
-                                            </div>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  {/* Events */}
-                  <TabsContent value="events" className="space-y-6">
-                    <div className="bg-wedding-gold/5 p-4 rounded-lg mb-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-wedding-maroon font-medium flex items-center gap-2">
-                          <CalendarRange size={16} className="text-wedding-gold" />
-                          Wedding Events
-                        </h3>
-                        
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-8 gap-1 border-wedding-gold/30 text-wedding-gold hover:bg-wedding-gold/10"
-                          onClick={() => eventFields.append({
-                            eventName: '',
-                            eventDate: '',
-                            eventTime: '',
-                            eventVenue: '',
-                            eventAddress: '',
-                            venueLink: ''
-                          })}
-                        >
-                          <Plus size={14} /> Add Event
-                        </Button>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                       
-                      <div className="space-y-6">
-                        {eventFields.fields.map((field, index) => (
-                          <div key={field.id} className="p-4 border border-wedding-gold/20 rounded-md relative">
-                            {eventFields.fields.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6 absolute -top-2 -right-2 rounded-full bg-red-100 hover:bg-red-200 text-red-500"
-                                onClick={() => eventFields.remove(index)}
-                              >
-                                <X size={14} />
-                              </Button>
-                            )}
-                            
-                            <div className="space-y-4">
-                              <FormField
-                                control={form.control}
-                                name={`events.${index}.eventName`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-wedding-maroon">Event Name</FormLabel>
-                                    <FormControl>
-                                      <Input placeholder="e.g. Mehndi, Sangeet, Reception" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                      <Separator className="my-6" />
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-medium text-wedding-maroon flex items-center">
+                            <Calendar className="mr-2 text-wedding-gold" size={18} />
+                            Custom Events
+                          </h3>
+                          
+                          <Button
+                            type="button"
+                            onClick={addEvent}
+                            size="sm"
+                            variant="outline"
+                            className="text-wedding-gold border-wedding-gold/30 hover:bg-wedding-gold/10"
+                          >
+                            <PlusCircle size={16} className="mr-1" />
+                            Add Event
+                          </Button>
+                        </div>
+                        
+                        <div className="space-y-6">
+                          {events.map((event, index) => (
+                            <div 
+                              key={index} 
+                              className="p-4 border border-wedding-gold/20 rounded-md relative bg-white/20 backdrop-blur-sm"
+                            >
+                              {events.length > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => removeEvent(index)}
+                                  className="absolute -top-3 -right-3 h-7 w-7 rounded-full bg-red-100 hover:bg-red-200 text-red-500"
+                                >
+                                  <X size={14} />
+                                </Button>
+                              )}
                               
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField
-                                  control={form.control}
-                                  name={`events.${index}.eventDate`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-wedding-maroon">Date</FormLabel>
-                                      <FormControl>
-                                        <Input type="date" {...field} />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Event Name
+                                  </label>
+                                  <Input
+                                    placeholder="E.g., Sangeet Ceremony"
+                                    value={event.name}
+                                    onChange={(e) => updateEvent(index, 'name', e.target.value)}
+                                  />
+                                </div>
                                 
-                                <FormField
-                                  control={form.control}
-                                  name={`events.${index}.eventTime`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-wedding-maroon">Time</FormLabel>
-                                      <FormControl>
-                                        <Input type="time" {...field} />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                      Date
+                                    </label>
+                                    <Input
+                                      type="date"
+                                      value={event.date}
+                                      onChange={(e) => updateEvent(index, 'date', e.target.value)}
+                                    />
+                                  </div>
+                                  
+                                  <div>
+                                    <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                      Time
+                                    </label>
+                                    <Input
+                                      type="time"
+                                      value={event.time}
+                                      onChange={(e) => updateEvent(index, 'time', e.target.value)}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="mb-4">
+                                <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                  Venue Name
+                                </label>
+                                <Input
+                                  placeholder="E.g., Golden Garden"
+                                  value={event.venue_name}
+                                  onChange={(e) => updateEvent(index, 'venue_name', e.target.value)}
                                 />
                               </div>
                               
-                              <FormField
-                                control={form.control}
-                                name={`events.${index}.eventVenue`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-wedding-maroon">Venue Name</FormLabel>
-                                    <FormControl>
-                                      <Input placeholder="Venue name" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                              <div className="mb-4">
+                                <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                  Venue Address
+                                </label>
+                                <Textarea
+                                  placeholder="Enter full address"
+                                  value={event.venue_address}
+                                  onChange={(e) => updateEvent(index, 'venue_address', e.target.value)}
+                                />
+                              </div>
                               
-                              <FormField
-                                control={form.control}
-                                name={`events.${index}.eventAddress`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-wedding-maroon">Venue Address</FormLabel>
-                                    <FormControl>
-                                      <Textarea 
-                                        placeholder="Full address of the venue" 
-                                        className="resize-none" 
-                                        rows={2}
-                                        {...field} 
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                              <div>
+                                <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                  Google Maps Link (Optional)
+                                </label>
+                                <div className="relative">
+                                  <Input 
+                                    placeholder="https://maps.google.com/..."
+                                    value={event.venue_map_link}
+                                    onChange={(e) => updateEvent(index, 'venue_map_link', e.target.value)}
+                                  />
+                                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-wedding-gold/50" size={16} />
+                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-sm text-gray-500 pl-6">
+                                      https://
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <Separator className="my-6" />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="phoneNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Contact Phone Number</FormLabel>
+                              <FormControl>
+                                <Input placeholder="+91 98765 43210" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Contact Email</FormLabel>
+                              <FormControl>
+                                <Input placeholder="ananya.arjun@example.com" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => setActiveTab('couple')}
+                      >
+                        Back: Couple Details
+                      </Button>
+                      
+                      <Button 
+                        type="button" 
+                        onClick={() => setActiveTab('family')}
+                        className="bg-wedding-maroon hover:bg-wedding-maroon/80"
+                      >
+                        Next: Family Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </TabsContent>
+                
+                {/* Family Details Tab */}
+                <TabsContent value="family">
+                  <CardContent className="space-y-6">
+                    <div className="p-4 rounded-lg bg-wedding-gold/5 border border-wedding-gold/10">
+                      <h3 className="text-lg font-medium text-wedding-maroon mb-4 flex items-center">
+                        <Users className="mr-2 text-wedding-gold" size={18} />
+                        Bride's Family
+                      </h3>
+                      
+                      <div className="space-y-6">
+                        {/* Bride's Parents */}
+                        {brideFamilyMembers.map((member, index) => (
+                          <div 
+                            key={index}
+                            className="p-4 border border-wedding-gold/20 rounded-md bg-white/20 backdrop-blur-sm"
+                          >
+                            <h4 className="text-sm font-medium text-wedding-maroon mb-3">
+                              {member.relation}
+                            </h4>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="md:col-span-2 space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Name
+                                  </label>
+                                  <Input
+                                    placeholder={`Bride's ${member.relation}`}
+                                    value={member.name}
+                                    onChange={(e) => updateBrideParent(index, 'name', e.target.value)}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Description (Optional)
+                                  </label>
+                                  <Textarea
+                                    placeholder="Short description"
+                                    value={member.description || ''}
+                                    onChange={(e) => updateBrideParent(index, 'description', e.target.value)}
+                                  />
+                                </div>
+                              </div>
                               
-                              <FormField
-                                control={form.control}
-                                name={`events.${index}.venueLink`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-wedding-maroon">Venue Map Link (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Input placeholder="https://maps.google.com/..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                              <div className="flex flex-col items-center justify-center">
+                                <Avatar className="w-24 h-24 border-2 border-wedding-gold/20">
+                                  {member.image_url ? (
+                                    <AvatarImage src={member.image_url} alt={member.name} />
+                                  ) : (
+                                    <AvatarFallback className="bg-wedding-cream text-wedding-gold">
+                                      {member.relation.charAt(0)}
+                                    </AvatarFallback>
+                                  )}
+                                </Avatar>
+                                
+                                <label className="cursor-pointer mt-2 text-xs text-center bg-wedding-cream hover:bg-wedding-cream/70 text-wedding-maroon py-1 px-2 rounded border border-wedding-gold/20 transition-colors">
+                                  <div className="flex items-center justify-center">
+                                    <Upload size={12} className="mr-1" />
+                                    <span>Upload Photo</span>
+                                  </div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => handleFamilyPhotoChange(e, 'bride', index)}
+                                  />
+                                </label>
+                              </div>
                             </div>
                           </div>
                         ))}
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  {/* Gallery Photos */}
-                  <TabsContent value="gallery" className="space-y-6">
-                    <div className="bg-wedding-gold/5 p-4 rounded-lg mb-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-wedding-maroon font-medium flex items-center gap-2">
-                          <Image size={16} className="text-wedding-gold" />
-                          Gallery Photos (Max 6)
-                        </h3>
                         
-                        {galleryFields.fields.length < 6 && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-8 gap-1 border-wedding-gold/30 text-wedding-gold hover:bg-wedding-gold/10"
-                            onClick={() => galleryFields.append({
-                              photoUrl: '',
-                              title: '',
-                              description: ''
-                            })}
+                        {/* Additional Bride Family Members */}
+                        {additionalBrideFamily.map((member, index) => (
+                          <div 
+                            key={index}
+                            className="p-4 border border-wedding-gold/20 rounded-md relative bg-white/20 backdrop-blur-sm"
                           >
-                            <Plus size={14} /> Add Photo
-                          </Button>
-                        )}
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {galleryFields.fields.map((field, index) => (
-                          <Card key={field.id} className="bg-white/70 overflow-hidden relative">
                             <Button
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 absolute top-1 right-1 z-10 rounded-full bg-red-100 hover:bg-red-200 text-red-500"
-                              onClick={() => galleryFields.remove(index)}
+                              onClick={() => removeBrideFamilyMember(index)}
+                              className="absolute -top-3 -right-3 h-7 w-7 rounded-full bg-red-100 hover:bg-red-200 text-red-500"
                             >
                               <X size={14} />
                             </Button>
                             
-                            <CardContent className="pt-4 pb-4 px-4">
-                              <div className="space-y-4">
-                                <div className="relative aspect-square w-full bg-gray-100 mb-4 border border-wedding-gold/20 rounded-md overflow-hidden flex items-center justify-center">
-                                  {form.watch(`galleryPhotos.${index}.photoUrl`) ? (
-                                    <img 
-                                      src={form.watch(`galleryPhotos.${index}.photoUrl`)} 
-                                      alt="Gallery preview" 
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <Image size={24} className="text-gray-400" />
-                                  )}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="md:col-span-2 space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Name
+                                  </label>
+                                  <Input
+                                    placeholder="Family Member Name"
+                                    value={member.name}
+                                    onChange={(e) => updateBrideFamilyMember(index, 'name', e.target.value)}
+                                  />
                                 </div>
                                 
-                                <Input 
-                                  type="file" 
-                                  accept="image/*" 
-                                  className="text-xs mb-3"
-                                  onChange={(e) => handleGalleryImageChange(e, index)} 
-                                />
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Relation
+                                  </label>
+                                  <Input
+                                    placeholder="E.g., Sister, Brother"
+                                    value={member.relation}
+                                    onChange={(e) => updateBrideFamilyMember(index, 'relation', e.target.value)}
+                                  />
+                                </div>
                                 
-                                <FormField
-                                  control={form.control}
-                                  name={`galleryPhotos.${index}.title`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-wedding-maroon">Title/Caption</FormLabel>
-                                      <FormControl>
-                                        <Input placeholder="e.g. Engagement Ceremony" {...field} />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                
-                                <FormField
-                                  control={form.control}
-                                  name={`galleryPhotos.${index}.description`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="text-wedding-maroon">Description (Optional)</FormLabel>
-                                      <FormControl>
-                                        <Textarea 
-                                          placeholder="Short description of the photo" 
-                                          className="resize-none" 
-                                          rows={3}
-                                          {...field} 
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Description (Optional)
+                                  </label>
+                                  <Textarea
+                                    placeholder="Short description"
+                                    value={member.description || ''}
+                                    onChange={(e) => updateBrideFamilyMember(index, 'description', e.target.value)}
+                                  />
+                                </div>
                               </div>
-                            </CardContent>
-                          </Card>
+                              
+                              <div className="flex flex-col items-center justify-center">
+                                <Avatar className="w-24 h-24 border-2 border-wedding-gold/20">
+                                  {member.image_url ? (
+                                    <AvatarImage src={member.image_url} alt={member.name} />
+                                  ) : (
+                                    <AvatarFallback className="bg-wedding-cream text-wedding-gold">
+                                      {member.name.charAt(0) || 'F'}
+                                    </AvatarFallback>
+                                  )}
+                                </Avatar>
+                                
+                                <label className="cursor-pointer mt-2 text-xs text-center bg-wedding-cream hover:bg-wedding-cream/70 text-wedding-maroon py-1 px-2 rounded border border-wedding-gold/20 transition-colors">
+                                  <div className="flex items-center justify-center">
+                                    <Upload size={12} className="mr-1" />
+                                    <span>Upload Photo</span>
+                                  </div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => handleFamilyPhotoChange(e, 'bride', index, true)}
+                                  />
+                                </label>
+                              </div>
+                            </div>
+                          </div>
                         ))}
+                        
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={addBrideFamilyMember}
+                          className="w-full mt-2 text-wedding-gold border-wedding-gold/30 hover:bg-wedding-gold/10"
+                        >
+                          <PlusCircle size={16} className="mr-2" />
+                          Add Family Member
+                        </Button>
                       </div>
                       
-                      {galleryFields.fields.length === 0 && (
-                        <div className="bg-wedding-gold/5 border border-dashed border-wedding-gold/30 rounded-md p-6 text-center">
-                          <Upload className="w-8 h-8 text-wedding-gold/50 mx-auto mb-3" />
-                          <p className="text-sm text-gray-500">
-                            Add up to 6 pre-wedding or engagement photos to display in the gallery
-                          </p>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="mt-3 gap-1 border-wedding-gold/30 text-wedding-gold hover:bg-wedding-gold/10"
-                            onClick={() => galleryFields.append({
-                              photoUrl: '',
-                              title: '',
-                              description: ''
-                            })}
+                      <Separator className="my-8" />
+                      
+                      <h3 className="text-lg font-medium text-wedding-maroon mb-4 flex items-center">
+                        <Users className="mr-2 text-wedding-gold" size={18} />
+                        Groom's Family
+                      </h3>
+                      
+                      <div className="space-y-6">
+                        {/* Groom's Parents */}
+                        {groomFamilyMembers.map((member, index) => (
+                          <div 
+                            key={index}
+                            className="p-4 border border-wedding-gold/20 rounded-md bg-white/20 backdrop-blur-sm"
                           >
-                            <Plus size={14} /> Add First Photo
-                          </Button>
-                        </div>
-                      )}
+                            <h4 className="text-sm font-medium text-wedding-maroon mb-3">
+                              {member.relation}
+                            </h4>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="md:col-span-2 space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Name
+                                  </label>
+                                  <Input
+                                    placeholder={`Groom's ${member.relation}`}
+                                    value={member.name}
+                                    onChange={(e) => updateGroomParent(index, 'name', e.target.value)}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Description (Optional)
+                                  </label>
+                                  <Textarea
+                                    placeholder="Short description"
+                                    value={member.description || ''}
+                                    onChange={(e) => updateGroomParent(index, 'description', e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="flex flex-col items-center justify-center">
+                                <Avatar className="w-24 h-24 border-2 border-wedding-gold/20">
+                                  {member.image_url ? (
+                                    <AvatarImage src={member.image_url} alt={member.name} />
+                                  ) : (
+                                    <AvatarFallback className="bg-wedding-cream text-wedding-gold">
+                                      {member.relation.charAt(0)}
+                                    </AvatarFallback>
+                                  )}
+                                </Avatar>
+                                
+                                <label className="cursor-pointer mt-2 text-xs text-center bg-wedding-cream hover:bg-wedding-cream/70 text-wedding-maroon py-1 px-2 rounded border border-wedding-gold/20 transition-colors">
+                                  <div className="flex items-center justify-center">
+                                    <Upload size={12} className="mr-1" />
+                                    <span>Upload Photo</span>
+                                  </div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => handleFamilyPhotoChange(e, 'groom', index)}
+                                  />
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Additional Groom Family Members */}
+                        {additionalGroomFamily.map((member, index) => (
+                          <div 
+                            key={index}
+                            className="p-4 border border-wedding-gold/20 rounded-md relative bg-white/20 backdrop-blur-sm"
+                          >
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeGroomFamilyMember(index)}
+                              className="absolute -top-3 -right-3 h-7 w-7 rounded-full bg-red-100 hover:bg-red-200 text-red-500"
+                            >
+                              <X size={14} />
+                            </Button>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="md:col-span-2 space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Name
+                                  </label>
+                                  <Input
+                                    placeholder="Family Member Name"
+                                    value={member.name}
+                                    onChange={(e) => updateGroomFamilyMember(index, 'name', e.target.value)}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Relation
+                                  </label>
+                                  <Input
+                                    placeholder="E.g., Sister, Brother"
+                                    value={member.relation}
+                                    onChange={(e) => updateGroomFamilyMember(index, 'relation', e.target.value)}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-wedding-maroon mb-1">
+                                    Description (Optional)
+                                  </label>
+                                  <Textarea
+                                    placeholder="Short description"
+                                    value={member.description || ''}
+                                    onChange={(e) => updateGroomFamilyMember(index, 'description', e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="flex flex-col items-center justify-center">
+                                <Avatar className="w-24 h-24 border-2 border-wedding-gold/20">
+                                  {member.image_url ? (
+                                    <AvatarImage src={member.image_url} alt={member.name} />
+                                  ) : (
+                                    <AvatarFallback className="bg-wedding-cream text-wedding-gold">
+                                      {member.name.charAt(0) || 'F'}
+                                    </AvatarFallback>
+                                  )}
+                                </Avatar>
+                                
+                                <label className="cursor-pointer mt-2 text-xs text-center bg-wedding-cream hover:bg-wedding-cream/70 text-wedding-maroon py-1 px-2 rounded border border-wedding-gold/20 transition-colors">
+                                  <div className="flex items-center justify-center">
+                                    <Upload size={12} className="mr-1" />
+                                    <span>Upload Photo</span>
+                                  </div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => handleFamilyPhotoChange(e, 'groom', index, true)}
+                                  />
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={addGroomFamilyMember}
+                          className="w-full mt-2 text-wedding-gold border-wedding-gold/30 hover:bg-wedding-gold/10"
+                        >
+                          <PlusCircle size={16} className="mr-2" />
+                          Add Family Member
+                        </Button>
+                      </div>
                     </div>
                     
-                    <div className="bg-wedding-gold/5 p-4 rounded-lg">
-                      <FormField
-                        control={form.control}
-                        name="customMessage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-wedding-maroon">Custom Message (Optional)</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Enter a custom message for the invitation" 
-                                className="resize-none" 
-                                rows={4}
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              This message will appear at the bottom of the invitation.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <div className="flex justify-between">
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => setActiveTab('wedding')}
+                      >
+                        Back: Wedding Details
+                      </Button>
+                      
+                      <Button 
+                        type="button" 
+                        onClick={() => setActiveTab('photos')}
+                        className="bg-wedding-maroon hover:bg-wedding-maroon/80"
+                      >
+                        Next: Gallery Photos
+                      </Button>
                     </div>
-                  </TabsContent>
-                </Tabs>
+                  </CardContent>
+                </TabsContent>
                 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-wedding-gold hover:bg-wedding-deep-gold text-white"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center">
-                      <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                      Creating Invitation...
-                    </span>
-                  ) : (
-                    "Create Wedding Invitation"
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-          
-          {invitationLink && (
-            <CardFooter className="flex flex-col space-y-4 border-t border-wedding-gold/20 bg-wedding-gold/5 p-6">
-              <div className="w-full">
-                <h3 className="text-wedding-maroon font-medium mb-2 flex items-center gap-2">
-                  <Check size={16} className="text-green-500" /> Your Invitation is Ready!
-                </h3>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={invitationLink}
-                    readOnly
-                    className="w-full p-2 border border-wedding-gold/30 rounded bg-white/80 text-sm"
-                  />
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    onClick={copyToClipboard}
-                    className="border-wedding-gold/30 hover:bg-wedding-gold/10"
-                  >
-                    <Copy size={16} />
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Share this link to view the personalized invitation
-                </p>
-                <div className="mt-4 flex justify-center">
-                  <Button
-                    variant="outline"
-                    className="gap-2 border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-gold/10"
-                    onClick={() => window.open(invitationLink, '_blank')}
-                  >
-                    <Heart size={16} className="text-wedding-gold" /> 
-                    View Invitation
-                  </Button>
-                </div>
-              </div>
-            </CardFooter>
-          )}
+                {/* Photos Tab */}
+                <TabsContent value="photos">
+                  <CardContent className="space-y-6">
+                    <div className="p-4 rounded-lg bg-wedding-gold/5 border border-wedding-gold/10">
+                      <h3 className="text-lg font-medium text-wedding-maroon mb-4 flex items-center">
+                        <Camera className="mr-2 text-wedding-gold" size={18} />
+                        Photo Gallery
+                      </h3>
+                      
+                      <p className="text-sm text-gray-600 mb-4">
+                        Add up to 5 photos to your gallery (engagement photos, pre-wedding memories, etc.)
+                      </p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+                        {/* Gallery Preview */}
+                        {galleryPreviews.map((preview, index) => (
+                          <div key={index} className="relative group">
+                            <div className="aspect-square rounded-md overflow-hidden border border-wedding-gold/20">
+                              <img 
+                                src={preview} 
+                                alt={`Gallery ${index + 1}`} 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeGalleryPhoto(index)}
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-100 hover:bg-red-200 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X size={12} />
+                            </Button>
+                          </div>
+                        ))}
+                        
+                        {/* Upload More Photos Button */}
+                        {galleryPreviews.length < 5 && (
+                          <div>
+                            <label className="flex flex-col items-center justify-center w-full h-full aspect-square cursor-pointer bg-wedding-cream/50 hover:bg-wedding-cream rounded-md border-2 border-dashed border-wedding-gold/30 transition-colors">
+                              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                <Camera size={24} className="text-wedding-gold mb-2" />
+                                <p className="text-xs text-center text-gray-600">
+                                  Click to add photos
+                                  <br />
+                                  <span className="text-xs text-gray-500">
+                                    {galleryPreviews.length}/5 photos
+                                  </span>
+                                </p>
+                              </div>
+                              <input 
+                                type="file" 
+                                className="hidden" 
+                                onChange={handleGalleryPhotoChange}
+                                accept="image/*"
+                                multiple={true}
+                              />
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => setActiveTab('family')}
+                      >
+                        Back: Family Details
+                      </Button>
+                      
+                      <Button 
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="bg-wedding-maroon hover:bg-wedding-maroon/80"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <span className="animate-spin mr-2">&#8981;</span>
+                            Creating Invitation...
+                          </>
+                        ) : (
+                          'Create Invitation'
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </TabsContent>
+                
+                {/* Result Tab */}
+                <TabsContent value="result">
+                  <CardContent className="space-y-6">
+                    <div className="p-6 rounded-lg bg-wedding-gold/5 border border-wedding-gold/10 text-center">
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <CopyCheck size={24} className="text-green-600" />
+                      </div>
+                      
+                      <h3 className="text-xl font-medium text-wedding-maroon mb-2">
+                        Invitation Created Successfully!
+                      </h3>
+                      
+                      <p className="text-gray-600 mb-6">
+                        Your wedding invitation has been created. Share this link with your guests:
+                      </p>
+                      
+                      <div className="flex items-center mb-6 max-w-xl mx-auto">
+                        <div className="bg-white flex-1 p-3 border border-wedding-gold/20 rounded-l-md truncate font-mono text-sm">
+                          {generatedLink}
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={copyToClipboard}
+                          className="rounded-l-none bg-wedding-gold hover:bg-wedding-gold/80"
+                        >
+                          {copied ? (
+                            <>
+                              <CopyCheck size={16} className="mr-2" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Link size={16} className="mr-2" />
+                              Copy Link
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          onClick={() => {
+                            // Reset form
+                            form.reset();
+                            setCouplePhotoFile(null);
+                            setCouplePhotoPreview('');
+                            setBrideFamilyMembers([
+                              { name: '', relation: 'Father', description: '', image_url: '', family_type: 'bride', is_parent: true },
+                              { name: '', relation: 'Mother', description: '', image_url: '', family_type: 'bride', is_parent: true }
+                            ]);
+                            setGroomFamilyMembers([
+                              { name: '', relation: 'Father', description: '', image_url: '', family_type: 'groom', is_parent: true },
+                              { name: '', relation: 'Mother', description: '', image_url: '', family_type: 'groom', is_parent: true }
+                            ]);
+                            setAdditionalBrideFamily([]);
+                            setAdditionalGroomFamily([]);
+                            setEvents([
+                              { name: '', date: '', time: '', venue_name: '', venue_address: '', venue_map_link: '' }
+                            ]);
+                            setFamilyPhotoFiles({});
+                            setGalleryPhotoFiles([]);
+                            setGalleryPreviews([]);
+                            setGeneratedLink('');
+                            setActiveTab('couple');
+                          }}
+                          className="w-full sm:w-auto"
+                        >
+                          Create Another Invitation
+                        </Button>
+                        
+                        <Button 
+                          type="button" 
+                          onClick={() => navigate('/invitations')}
+                          className="w-full sm:w-auto bg-wedding-maroon hover:bg-wedding-maroon/80"
+                        >
+                          Manage Invitations
+                        </Button>
+                        
+                        <Button 
+                          type="button" 
+                          onClick={() => window.open(generatedLink, '_blank')}
+                          className="w-full sm:w-auto bg-wedding-gold hover:bg-wedding-gold/80"
+                        >
+                          View Invitation
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </TabsContent>
+              </Tabs>
+            </form>
+          </Form>
         </Card>
       </div>
     </div>
