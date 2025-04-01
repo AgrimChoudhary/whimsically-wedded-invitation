@@ -199,7 +199,7 @@ export const getInvitationById = async (id: string): Promise<{
     }
     
     // Get family members
-    const { data: familyMembers, error: familyError } = await supabase
+    const { data: familyMembersData, error: familyError } = await supabase
       .from('family_members')
       .select('*')
       .eq('invitation_id', id);
@@ -207,6 +207,12 @@ export const getInvitationById = async (id: string): Promise<{
     if (familyError) {
       console.error('Error fetching family members:', familyError);
     }
+    
+    // Convert any string family_type to the expected union type
+    const familyMembers: FamilyMember[] = (familyMembersData || []).map(member => ({
+      ...member,
+      family_type: member.family_type === 'bride' ? 'bride' : 'groom'
+    }));
     
     // Get events
     const { data: events, error: eventsError } = await supabase

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -12,7 +13,7 @@ import {
   MapPin, 
   Heart, 
   Music, 
-  Music2Off, 
+  MicOff, 
   Phone, 
   Mail, 
   Users, 
@@ -135,7 +136,7 @@ const Invitation = () => {
         className="fixed top-4 right-4 z-50 rounded-full bg-white/80 backdrop-blur-sm border-wedding-gold/30 text-wedding-gold hover:bg-wedding-gold/10"
         onClick={toggleMusic}
       >
-        {isPlaying ? <Music size={18} /> : <Music2Off size={18} />}
+        {isPlaying ? <Music size={18} /> : <MicOff size={18} />}
       </Button>
       
       <FloatingPetals />
