@@ -1,11 +1,13 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
 import { useAudio } from '../context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { Heart, Sparkles, Calendar, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useQuery } from '@tanstack/react-query';
+import { fetchInvitationById } from '@/lib/supabase-helpers';
 
 const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +20,7 @@ const WelcomeForm: React.FC = () => {
   const { guestName } = useGuest();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { id } = useParams();
 
   const icons = [
     <Heart key="heart" className="text-wedding-blush" />,
@@ -25,7 +28,35 @@ const WelcomeForm: React.FC = () => {
     <Calendar key="calendar" className="text-wedding-maroon" />
   ];
 
-  React.useEffect(() => {
+  // Fetch invitation data if ID is provided
+  const { isLoading: isDataLoading } = useQuery({
+    queryKey: ['welcome-invitation', id],
+    queryFn: () => fetchInvitationById(id || ''),
+    enabled: !!id,
+    onSuccess: (data) => {
+      if (data?.invitation) {
+        // Set names and date from invitation data
+        const brideFullName = data.invitation.bride_name || "Ananya";
+        const groomFullName = data.invitation.groom_name || "Arjun";
+        
+        // Extract first names for display
+        setBrideName(brideFullName.split(' ')[0]);
+        setGroomName(groomFullName.split(' ')[0]);
+        
+        // Format wedding date
+        if (data.invitation.wedding_date) {
+          const date = new Date(data.invitation.wedding_date);
+          setWeddingDate(date.toLocaleDateString('en-US', { 
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric' 
+          }));
+        }
+      }
+    }
+  });
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setShowIcon((prev) => (prev + 1) % icons.length);
     }, 2000);
@@ -36,9 +67,9 @@ const WelcomeForm: React.FC = () => {
   const handleOpenInvitation = () => {
     setIsLoading(true);
     
-    // Simulate loading for better UX
+    // Navigate to the invitation page, preserving the ID parameter if it exists
     setTimeout(() => {
-      navigate('/invitation');
+      navigate(id ? `/invitation/${id}` : '/invitation');
     }, 1000);
   };
 

@@ -10,6 +10,7 @@ import { AudioProvider } from "./context/AudioContext";
 import Index from "./pages/Index";
 import Invitation from "./pages/Invitation";
 import NotFound from "./pages/NotFound";
+import CustomizeForm from "./pages/CustomizeForm";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -33,6 +34,8 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/invitation" element={<Invitation />} />
+                <Route path="/customize" element={<CustomizeForm />} />
+                <Route path="/invitation/:id" element={<Invitation />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,119 +1,166 @@
 
-import React, { useState } from 'react';
-import { validateFileSize, uploadImageToSupabase } from '@/lib/supabase-helpers';
-import { X, Upload, Check } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Button } from "@/components/ui/button";
+import { Image, Upload, X, Check, Loader2 } from 'lucide-react';
+import { uploadImageToSupabase, validateFileSize } from '@/lib/supabase-helpers';
+import { toast } from '@/hooks/use-toast';
 
 interface FileUploaderProps {
   onFileUpload: (url: string) => void;
   defaultImageUrl?: string;
   bucket: string;
   label?: string;
-  className?: string;
 }
 
 const FileUploader: React.FC<FileUploaderProps> = ({ 
   onFileUpload, 
-  defaultImageUrl, 
-  bucket,
-  label,
-  className 
+  defaultImageUrl = '',
+  bucket = 'images',
+  label = 'Upload an image (Max 5MB)'
 }) => {
+  const [imageUrl, setImageUrl] = useState<string>(defaultImageUrl);
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(defaultImageUrl || null);
-  const [isSuccess, setIsSuccess] = useState(false);
-
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
+    
+    // Validate file size
     if (!validateFileSize(file)) {
-      setError('File size exceeds the maximum limit of 5MB');
+      toast({
+        title: "Error",
+        description: "File size must be less than 5MB",
+        variant: "destructive"
+      });
       return;
     }
-
-    // Create a local preview
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
+    
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Only image files are allowed",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsUploading(true);
-    setError(null);
     
     try {
-      const imageUrl = await uploadImageToSupabase(file, bucket);
-      if (imageUrl) {
-        onFileUpload(imageUrl);
-        setIsSuccess(true);
-        setTimeout(() => setIsSuccess(false), 2000);
+      const url = await uploadImageToSupabase(file, bucket);
+      
+      if (url) {
+        setImageUrl(url);
+        onFileUpload(url);
+        setUploadSuccess(true);
+        
+        // Reset success indicator after a moment
+        setTimeout(() => {
+          setUploadSuccess(false);
+        }, 2000);
       } else {
-        setError('Failed to upload image');
+        toast({
+          title: "Upload Failed",
+          description: "Failed to upload the image. Please try again.",
+          variant: "destructive"
+        });
       }
-    } catch (err) {
-      console.error('Error uploading file:', err);
-      setError('An error occurred while uploading the file');
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({
+        title: "Upload Error",
+        description: "An error occurred while uploading the image.",
+        variant: "destructive"
+      });
     } finally {
       setIsUploading(false);
     }
   };
-
-  const handleReset = () => {
-    setPreviewUrl(null);
-    setError(null);
+  
+  const handleRemoveImage = () => {
+    setImageUrl('');
     onFileUpload('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+  
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   return (
-    <div className={`w-full ${className}`}>
-      {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {label}
-        </label>
-      )}
-      <div className="relative">
-        {previewUrl ? (
-          <div className="relative rounded-md overflow-hidden border border-input">
-            <img 
-              src={previewUrl} 
-              alt="Preview" 
-              className="w-full h-40 object-cover"
-            />
-            <button
-              type="button"
-              onClick={handleReset}
-              className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white"
-              aria-label="Remove image"
-            >
-              <X size={16} />
-            </button>
-            {isSuccess && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                <div className="bg-white p-2 rounded-full">
-                  <Check className="text-green-500" size={24} />
-                </div>
-              </div>
-            )}
+    <div className="w-full">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+      
+      {!imageUrl ? (
+        <div 
+          onClick={triggerFileInput}
+          className="border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center space-y-2 hover:bg-gray-50 transition-colors cursor-pointer"
+        >
+          <div className="p-2 rounded-full bg-gray-100">
+            <Image size={24} className="text-gray-400" />
           </div>
-        ) : (
-          <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition-colors">
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <Upload className="w-8 h-8 mb-2 text-gray-500" />
-              <p className="mb-1 text-sm text-gray-500">
-                <span className="font-medium">Click to upload</span> or drag and drop
-              </p>
-              <p className="text-xs text-gray-500">PNG, JPG (MAX. 5MB)</p>
-              {isUploading && <p className="text-xs text-blue-500 mt-2">Uploading...</p>}
+          <div className="text-center">
+            <p className="text-sm text-gray-500">{label}</p>
+            <p className="text-xs text-gray-400 mt-1">Click to browse</p>
+          </div>
+        </div>
+      ) : (
+        <div className="relative rounded-md overflow-hidden border border-gray-200">
+          <img 
+            src={imageUrl} 
+            alt="Uploaded preview" 
+            className="w-full h-48 object-cover" 
+          />
+          
+          <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+            <Button 
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={triggerFileInput}
+              className="bg-white/90 hover:bg-white"
+            >
+              <Upload size={16} className="mr-1" />
+              Change
+            </Button>
+            <Button 
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleRemoveImage}
+              className="bg-white/90 hover:bg-white text-red-500 hover:text-red-600"
+            >
+              <X size={16} className="mr-1" />
+              Remove
+            </Button>
+          </div>
+          
+          {isUploading && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <Loader2 size={24} className="animate-spin text-white" />
             </div>
-            <input 
-              type="file" 
-              className="hidden" 
-              onChange={handleFileChange}
-              accept="image/png, image/jpeg, image/jpg"
-              disabled={isUploading}
-            />
-          </label>
-        )}
-        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-      </div>
+          )}
+          
+          {uploadSuccess && (
+            <div className="absolute top-2 right-2 p-1 bg-green-500 rounded-full">
+              <Check size={16} className="text-white" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

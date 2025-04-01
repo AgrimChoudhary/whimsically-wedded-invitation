@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,12 @@ import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeftCircle, Heart, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { fetchInvitationById, formatInvitationData } from '@/lib/supabase-helpers';
+import { toast } from '@/hooks/use-toast';
 
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,14 +29,94 @@ const Invitation = () => {
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { id } = useParams();
+  
+  // Default wedding data - fallback values
+  const [invitationData, setInvitationData] = useState({
+    brideFirstName: "Ananya",
+    brideName: "Ananya",
+    brideLastName: "Sharma",
+    groomFirstName: "Arjun", 
+    groomName: "Arjun",
+    groomLastName: "Patel",
+    coupleImageUrl: "",
+    weddingDate: new Date('2025-04-10'),
+    weddingTime: "11:00 AM",
+    weddingVenue: "Divine Gardens",
+    weddingAddress: "789 Blessing Avenue, New Delhi",
+    mapUrl: "https://goo.gl/maps/Ghi12345Jkl",
+    contactEmail: "",
+    contactPhone: "",
+    brideFamily: {
+      title: "Sharma Family",
+      members: []
+    },
+    groomFamily: {
+      title: "Patel Family",
+      members: []
+    },
+    events: [],
+    galleryImages: []
+  });
+  
+  // Fetch invitation data if ID is provided
+  const { isLoading: isDataLoading, error } = useQuery({
+    queryKey: ['invitation', id],
+    queryFn: () => fetchInvitationById(id || ''),
+    enabled: !!id,
+    onSuccess: (data) => {
+      if (data?.invitation) {
+        const formattedData = formatInvitationData(data.invitation);
+        
+        setInvitationData({
+          brideFirstName: formattedData.bride_name?.split(' ')[0] || "Ananya",
+          brideName: formattedData.bride_name || "Ananya",
+          brideLastName: formattedData.bride_name?.split(' ').slice(1).join(' ') || "Sharma",
+          groomFirstName: formattedData.groom_name?.split(' ')[0] || "Arjun",
+          groomName: formattedData.groom_name || "Arjun",
+          groomLastName: formattedData.groom_name?.split(' ').slice(1).join(' ') || "Patel",
+          coupleImageUrl: formattedData.couple_image_url || "",
+          weddingDate: formattedData.wedding_date ? new Date(formattedData.wedding_date) : new Date('2025-04-10'),
+          weddingTime: formattedData.wedding_time || "11:00 AM",
+          weddingVenue: formattedData.wedding_venue || "Divine Gardens",
+          weddingAddress: formattedData.wedding_address || "789 Blessing Avenue, New Delhi",
+          mapUrl: formattedData.map_url || "https://goo.gl/maps/Ghi12345Jkl",
+          contactEmail: formattedData.contact_email || "",
+          contactPhone: formattedData.contact_phone || "",
+          brideFamily: {
+            title: `${formattedData.bride_name?.split(' ')[0] || "Sharma"} Family`,
+            members: formattedData.bride_family || []
+          },
+          groomFamily: {
+            title: `${formattedData.groom_name?.split(' ')[0] || "Patel"} Family`,
+            members: formattedData.groom_family || []
+          },
+          events: data.events || [],
+          galleryImages: formattedData.gallery_images || []
+        });
+      }
+      
+      setIsLoading(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to load invitation data",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+    }
+  });
   
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    // If no ID, just show loading for a bit and then show the default template
+    if (!id) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [id]);
   
   const handleOpenRSVP = () => {
     setConfetti(true);
@@ -51,12 +134,9 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Default wedding date - April 10, 2025
-  const weddingDate = new Date('2025-04-10T11:00:00');
-
   return (
     <div className="min-h-screen w-full pattern-background">
-      {isLoading ? (
+      {isLoading || isDataLoading ? (
         <div className="loading-overlay flex flex-col items-center justify-center min-h-screen">
           <div className="relative">
             <div className="loading-spinner mb-4 w-16 h-16 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
@@ -110,64 +190,21 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            brideName="Ananya"
-            groomName="Arjun"
+            brideName={invitationData.brideFirstName}
+            groomName={invitationData.groomFirstName}
+            coupleImageUrl={invitationData.coupleImageUrl}
           />
           
           <CountdownTimer 
-            weddingDate={weddingDate} 
-            weddingTime="11:00 AM"
+            weddingDate={invitationData.weddingDate} 
+            weddingTime={invitationData.weddingTime}
           />
           
           <CoupleSection />
           
           <FamilyDetails 
-            brideFamily={{
-              title: "Sharma Family",
-              members: [
-                { 
-                  name: "Rajesh & Priya Sharma", 
-                  relation: "Parents of the Bride",
-                  image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
-                  description: "Rajesh is a successful businessman who loves cricket and traveling. Priya is a dedicated homemaker with a passion for classical music and cooking traditional dishes."
-                },
-                { 
-                  name: "Ishaan Sharma", 
-                  relation: "Brother of the Bride",
-                  image: "https://images.unsplash.com/photo-1507081323647-4d250478b919",
-                  description: "Ishaan is a software engineer working in Bangalore. He enjoys gaming and photography in his free time."
-                },
-                { 
-                  name: "Meera Sharma", 
-                  relation: "Sister of the Bride",
-                  image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
-                  description: "Meera is pursuing her Masters in Psychology. She is an avid reader and loves to paint."
-                }
-              ]
-            }}
-            groomFamily={{
-              title: "Patel Family",
-              members: [
-                { 
-                  name: "Vikram & Nisha Patel", 
-                  relation: "Parents of the Groom",
-                  image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
-                  description: "Vikram is a retired professor who now mentors students. Nisha is a doctor specializing in pediatrics and loves gardening."
-                },
-                { 
-                  name: "Aditya Patel", 
-                  relation: "Brother of the Groom",
-                  image: "https://images.unsplash.com/photo-1502307100811-6bdc0981a85b",
-                  description: "Aditya is an entrepreneur who runs a successful startup. He's passionate about fitness and hiking."
-                },
-                { 
-                  name: "Riya Patel", 
-                  relation: "Sister of the Groom",
-                  image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df",
-                  description: "Riya is an architect with a love for sustainable design. She enjoys playing the violin and experimenting with fusion cooking."
-                }
-              ]
-            }}
+            brideFamily={invitationData.brideFamily}
+            groomFamily={invitationData.groomFamily}
           />
           
           <EventTimeline />
@@ -193,13 +230,6 @@ const Invitation = () => {
                     Accept Invitation
                   </span>
                   <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
-                  
-                  <span className="absolute -top-6 -left-6 text-white/10">
-                    <User size={24} />
-                  </span>
-                  <span className="absolute -bottom-6 -right-6 text-white/10">
-                    <Heart size={24} />
-                  </span>
                 </Button>
               )}
               
@@ -210,7 +240,15 @@ const Invitation = () => {
             </div>
           </div>
           
-          <Footer />
+          <Footer 
+            venueAddress={invitationData.weddingAddress}
+            venueMapUrl={invitationData.mapUrl}
+            contactPhone={invitationData.contactPhone}
+            contactEmail={invitationData.contactEmail}
+            brideFirstName={invitationData.brideFirstName}
+            groomFirstName={invitationData.groomFirstName}
+            weddingDate={invitationData.weddingDate}
+          />
           
           <RSVPModal isOpen={showRSVP} onClose={() => setShowRSVP(false)} />
         </div>
