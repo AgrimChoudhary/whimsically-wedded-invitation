@@ -12,7 +12,7 @@ import {
   MapPin, 
   Heart, 
   Music, 
-  MusicOff, 
+  Music2Off, 
   Phone, 
   Mail, 
   Users, 
@@ -28,7 +28,7 @@ const Invitation = () => {
   const [searchParams] = useSearchParams();
   const guestId = searchParams.get('guest');
   const { guestName, setGuestName } = useGuest();
-  const { isPlaying, toggleAudio } = useAudio();
+  const { isPlaying, toggleMusic } = useAudio();
   const [loading, setLoading] = useState(true);
   const [invitation, setInvitation] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([]);
@@ -133,9 +133,9 @@ const Invitation = () => {
         variant="outline"
         size="icon"
         className="fixed top-4 right-4 z-50 rounded-full bg-white/80 backdrop-blur-sm border-wedding-gold/30 text-wedding-gold hover:bg-wedding-gold/10"
-        onClick={toggleAudio}
+        onClick={toggleMusic}
       >
-        {isPlaying ? <Music size={18} /> : <MusicOff size={18} />}
+        {isPlaying ? <Music size={18} /> : <Music2Off size={18} />}
       </Button>
       
       <FloatingPetals />
