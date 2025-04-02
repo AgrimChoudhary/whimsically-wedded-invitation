@@ -100,7 +100,10 @@ const CustomInvitation = () => {
         const parseBrideFamily = () => {
           if (invitation.bride_family) {
             try {
-              const familyData = JSON.parse(invitation.bride_family);
+              const familyData = typeof invitation.bride_family === 'string' 
+                ? JSON.parse(invitation.bride_family)
+                : invitation.bride_family;
+                
               if (Array.isArray(familyData)) {
                 setBrideFamily(familyData);
               }
@@ -113,7 +116,10 @@ const CustomInvitation = () => {
         const parseGroomFamily = () => {
           if (invitation.groom_family) {
             try {
-              const familyData = JSON.parse(invitation.groom_family);
+              const familyData = typeof invitation.groom_family === 'string'
+                ? JSON.parse(invitation.groom_family)
+                : invitation.groom_family;
+                
               if (Array.isArray(familyData)) {
                 setGroomFamily(familyData);
               }
@@ -325,9 +331,19 @@ const CustomInvitation = () => {
                               <span className="font-medium">Date:</span> {new Date(event.event_date).toLocaleDateString()}
                             </p>
                           )}
+                          {event.event_time && (
+                            <p className="text-gray-600">
+                              <span className="font-medium">Time:</span> {event.event_time}
+                            </p>
+                          )}
                           {event.event_venue && (
                             <p className="text-gray-600">
                               <span className="font-medium">Venue:</span> {event.event_venue}
+                            </p>
+                          )}
+                          {event.event_address && (
+                            <p className="text-gray-600">
+                              <span className="font-medium">Address:</span> {event.event_address}
                             </p>
                           )}
                         </div>
