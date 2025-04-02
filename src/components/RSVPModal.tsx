@@ -18,16 +18,9 @@ import { Heart } from 'lucide-react';
 interface RSVPModalProps {
   isOpen: boolean;
   onClose: () => void;
-  rsvpEmail?: string;
-  rsvpPhone?: string;
 }
 
-const RSVPModal: React.FC<RSVPModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  rsvpEmail,
-  rsvpPhone 
-}) => {
+const RSVPModal: React.FC<RSVPModalProps> = ({ isOpen, onClose }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [attendance, setAttendance] = useState('');
@@ -44,17 +37,6 @@ const RSVPModal: React.FC<RSVPModalProps> = ({
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
-      
-      // If rsvpEmail is provided, we could send the RSVP data there
-      console.log("RSVP submitted:", {
-        name,
-        email,
-        attendance,
-        guests: parseInt(guests),
-        message,
-        rsvpEmail,
-        rsvpPhone
-      });
     }, 1500);
   };
   

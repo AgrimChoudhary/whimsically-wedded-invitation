@@ -5,20 +5,11 @@ import { FallingHearts, FireworksDisplay } from './AnimatedElements';
 import { Sparkles, Star, Music } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-interface InvitationHeaderProps {
-  brideName?: string;
-  groomName?: string;
-  coupleImageUrl?: string;
-}
-
-const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
-  brideName = "Ananya", 
-  groomName = "Arjun",
-  coupleImageUrl
-}) => {
+const InvitationHeader: React.FC = () => {
   const { guestName } = useGuest();
   const [showHearts, setShowHearts] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
+  const [titleShimmer, setTitleShimmer] = useState(false);
   const isMobile = useIsMobile();
   
   const triggerHearts = () => {
@@ -32,6 +23,11 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   };
   
   useEffect(() => {
+    const shimmerInterval = setInterval(() => {
+      setTitleShimmer(true);
+      setTimeout(() => setTitleShimmer(false), 2000);
+    }, 7000);
+    
     // Auto-play visual effects on load for a more immersive experience
     const initialTimer = setTimeout(() => {
       triggerHearts();
@@ -39,12 +35,10 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
     }, 2000);
     
     return () => {
+      clearInterval(shimmerInterval);
       clearTimeout(initialTimer);
     };
   }, []);
-
-  // Default guest name if not provided
-  const displayGuestName = guestName || "Guest Name";
 
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
@@ -52,9 +46,9 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
         <div className="flex flex-col items-center mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="relative mb-3">
             <img 
-              src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
+              src="/lovable-uploads/b0b6e6c1-770d-4a6e-8f9c-7f3bdcd7c3a4.png" 
               alt="Lord Ganesha" 
-              className="w-24 h-24 sm:w-28 sm:h-28 object-contain animate-glow-soft"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain animate-glow-soft"
               loading="lazy"
             />
             <div className="absolute -inset-1 rounded-full border border-wedding-gold/30 animate-pulse-soft"></div>
@@ -67,13 +61,14 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           </div>
           <div className="text-center">
             <p className="font-devanagari text-sm text-wedding-gold mb-1">॥ श्री वक्रतुण्ड महाकाय सूर्य कोटी समप्रभा। निर्विघ्नं कुरु मे देव सर्व-कार्येशु सर्वदा॥</p>
+            <p className="text-xs text-gray-600 italic">O Lord Ganesha of the curved trunk and massive body, the one whose splendor is equal to millions of suns, please bless me so that there are no obstacles in my endeavors.</p>
           </div>
         </div>
         
         <div className="text-center mb-6 sm:mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
             <h1 className="font-dancing-script text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
-              Dear {displayGuestName},
+              Dear {guestName || 'Friend'},
             </h1>
             {!isMobile && (
               <div className="absolute -right-6 -top-6 opacity-30">
@@ -100,23 +95,23 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           <div className="flex flex-col items-center">
             <div className="relative mb-4 sm:mb-6">
               <img 
-                src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
-                alt={`${brideName} and ${groomName}`}
+                src="/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png" 
+                alt="Ananya and Arjun" 
                 className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-float"
                 loading="lazy"
               />
               <div className="absolute -inset-2 rounded-full border border-wedding-gold/10"></div>
             </div>
             
-            <h2 className="font-great-vibes text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
-              <span className="relative">
-                {brideName} <span className="inline-block mx-2">&</span> {groomName}
-                {!isMobile && (
-                  <>
-                    <Sparkles size={18} className="absolute -top-4 -left-4 text-wedding-gold" />
-                    <Sparkles size={18} className="absolute -top-4 -right-4 text-wedding-gold" />
-                  </>
-                )}
+            <h2 className={`font-great-vibes text-3xl sm:text-4xl md:text-5xl ${titleShimmer ? 'shimmer-text' : 'text-wedding-maroon'} leading-tight mt-2`}>
+              <span className="block sm:inline relative">
+                Ananya
+                {!isMobile && <Sparkles size={18} className="absolute -top-4 -left-4 text-wedding-gold" />}
+              </span>
+              <span className="inline-block mx-2 sm:mx-4 transform -translate-y-1">&</span>
+              <span className="block sm:inline relative">
+                Arjun
+                {!isMobile && <Sparkles size={18} className="absolute -top-4 -right-4 text-wedding-gold" />}
               </span>
             </h2>
           </div>

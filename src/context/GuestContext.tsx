@@ -9,12 +9,12 @@ interface GuestContextType {
 const GuestContext = createContext<GuestContextType | undefined>(undefined);
 
 export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [guestName, setGuestName] = useState<string>('Guest Name');
+  const [guestName, setGuestName] = useState<string>('Agrim');
 
   // Initialize with default guest name
   useEffect(() => {
     if (!guestName) {
-      setGuestName('Guest Name');
+      setGuestName('Agrim');
     }
   }, [guestName]);
 

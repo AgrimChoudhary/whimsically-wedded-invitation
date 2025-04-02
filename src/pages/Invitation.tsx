@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
-import { useAudio } from '@/context/AudioContext';
 import { Button } from '@/components/ui/button';
 import InvitationHeader from '@/components/InvitationHeader';
 import CoupleSection from '@/components/CoupleSection';
@@ -12,7 +11,7 @@ import EventTimeline from '@/components/EventTimeline';
 import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
-import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
+import { FloatingPetals, MusicPlayer, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
 import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
@@ -21,9 +20,9 @@ const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(true);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const { guestName } = useGuest();
-  const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
@@ -50,9 +49,10 @@ const Invitation = () => {
       setConfetti(false);
     }, 800);
   };
-
-  // Default wedding date - April 10, 2025
-  const weddingDate = new Date('2025-04-10T11:00:00');
+  
+  const toggleMusic = () => {
+    setIsMusicPlaying(!isMusicPlaying);
+  };
 
   return (
     <div className="min-h-screen w-full pattern-background">
@@ -68,6 +68,7 @@ const Invitation = () => {
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
           <FloatingPetals />
+          {isMusicPlaying && <MusicPlayer autoplay={true} />}
           <Confetti isActive={confetti} />
           
           <div className="fixed bottom-20 right-4 z-30 flex flex-col gap-3">
@@ -76,9 +77,9 @@ const Invitation = () => {
               variant="outline"
               size="icon"
               className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
-              aria-label={isPlaying ? "Mute music" : "Play music"}
+              aria-label={isMusicPlaying ? "Mute music" : "Play music"}
             >
-              {isPlaying ? (
+              {isMusicPlaying ? (
                 <Volume2 size={18} className="text-wedding-maroon" />
               ) : (
                 <VolumeX size={18} className="text-wedding-maroon" />
@@ -109,67 +110,10 @@ const Invitation = () => {
             </button>
           )}
           
-          <InvitationHeader 
-            brideName="Ananya"
-            groomName="Arjun"
-          />
-          
-          <CountdownTimer 
-            weddingDate={weddingDate} 
-            weddingTime="11:00 AM"
-          />
-          
+          <InvitationHeader />
+          <CountdownTimer />
           <CoupleSection />
-          
-          <FamilyDetails 
-            brideFamily={{
-              title: "Sharma Family",
-              members: [
-                { 
-                  name: "Rajesh & Priya Sharma", 
-                  relation: "Parents of the Bride",
-                  image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
-                  description: "Rajesh is a successful businessman who loves cricket and traveling. Priya is a dedicated homemaker with a passion for classical music and cooking traditional dishes."
-                },
-                { 
-                  name: "Ishaan Sharma", 
-                  relation: "Brother of the Bride",
-                  image: "https://images.unsplash.com/photo-1507081323647-4d250478b919",
-                  description: "Ishaan is a software engineer working in Bangalore. He enjoys gaming and photography in his free time."
-                },
-                { 
-                  name: "Meera Sharma", 
-                  relation: "Sister of the Bride",
-                  image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
-                  description: "Meera is pursuing her Masters in Psychology. She is an avid reader and loves to paint."
-                }
-              ]
-            }}
-            groomFamily={{
-              title: "Patel Family",
-              members: [
-                { 
-                  name: "Vikram & Nisha Patel", 
-                  relation: "Parents of the Groom",
-                  image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
-                  description: "Vikram is a retired professor who now mentors students. Nisha is a doctor specializing in pediatrics and loves gardening."
-                },
-                { 
-                  name: "Aditya Patel", 
-                  relation: "Brother of the Groom",
-                  image: "https://images.unsplash.com/photo-1502307100811-6bdc0981a85b",
-                  description: "Aditya is an entrepreneur who runs a successful startup. He's passionate about fitness and hiking."
-                },
-                { 
-                  name: "Riya Patel", 
-                  relation: "Sister of the Groom",
-                  image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df",
-                  description: "Riya is an architect with a love for sustainable design. She enjoys playing the violin and experimenting with fusion cooking."
-                }
-              ]
-            }}
-          />
-          
+          <FamilyDetails />
           <EventTimeline />
           <PhotoGrid />
           
