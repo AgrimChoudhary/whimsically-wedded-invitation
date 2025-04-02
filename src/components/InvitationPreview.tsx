@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Clock, Users, Heart, Edit, Check } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Heart, Edit, Check, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -22,7 +22,7 @@ interface InvitationPreviewProps {
     custom_message: string;
   };
   editable?: boolean;
-  onUpdate?: (updatedData: Partial<any>) => void;
+  onUpdate?: (field: string, value: any) => void;
 }
 
 const InvitationPreview: React.FC<InvitationPreviewProps> = ({ 
@@ -53,8 +53,13 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
   };
 
   const handleEditSave = (field: string) => {
-    const updatedData = {[field]: tempValues[field]};
-    onUpdate(updatedData);
+    if (onUpdate) {
+      onUpdate(field, tempValues[field]);
+    }
+    setEditingField(null);
+  };
+
+  const handleEditCancel = () => {
     setEditingField(null);
   };
 
@@ -71,8 +76,16 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
           <button 
             onClick={() => handleEditSave(field)}
             className="ml-2 p-1 bg-wedding-gold/20 rounded-full"
+            title="Save"
           >
             <Check size={16} className="text-wedding-maroon" />
+          </button>
+          <button 
+            onClick={handleEditCancel}
+            className="ml-1 p-1 bg-red-100 rounded-full"
+            title="Cancel"
+          >
+            <X size={16} className="text-red-500" />
           </button>
         </div>
       );
@@ -118,8 +131,16 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
           <button 
             onClick={() => handleEditSave(field)}
             className="ml-2 p-1 bg-wedding-gold/20 rounded-full self-start mt-1"
+            title="Save"
           >
             <Check size={16} className="text-wedding-maroon" />
+          </button>
+          <button 
+            onClick={handleEditCancel}
+            className="ml-1 p-1 bg-red-100 rounded-full self-start mt-1"
+            title="Cancel"
+          >
+            <X size={16} className="text-red-500" />
           </button>
         </div>
       );
@@ -213,13 +234,13 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                     </h4>
                     <div className="flex items-center text-sm text-gray-600 mt-2">
                       <Clock className="h-4 w-4 mr-1" />
-                      <span>{renderEditableText(`event_${index}_date`, event.relation || event.event_date)}</span>
+                      <span>{renderEditableText(`event_${index}_date`, event.date || event.event_date)}</span>
                       <span className="mx-2">•</span>
-                      <span>{renderEditableText(`event_${index}_time`, event.description || event.event_time)}</span>
+                      <span>{renderEditableText(`event_${index}_time`, event.time || event.event_time)}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600 mt-1">
                       <MapPin className="h-4 w-4 mr-1" />
-                      <span>{renderEditableText(`event_${index}_venue`, event.image || event.event_venue)}</span>
+                      <span>{renderEditableText(`event_${index}_venue`, event.venue || event.event_venue)}</span>
                     </div>
                   </CardContent>
                 </Card>

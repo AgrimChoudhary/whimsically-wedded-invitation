@@ -59,6 +59,7 @@ export const createWeddingInvitation = async (invitationData: any) => {
       .single();
 
     if (error) {
+      console.error('Supabase insert error:', error);
       throw error;
     }
 
@@ -95,6 +96,7 @@ export const fetchInvitationById = async (id: string) => {
       .single();
 
     if (error) {
+      console.error('Error fetching invitation:', error);
       throw error;
     }
 
@@ -106,6 +108,7 @@ export const fetchInvitationById = async (id: string) => {
       .order('event_date', { ascending: true });
 
     if (eventsError) {
+      console.error('Error fetching events:', eventsError);
       throw eventsError;
     }
 

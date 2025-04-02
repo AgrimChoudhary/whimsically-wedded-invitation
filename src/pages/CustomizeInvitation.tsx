@@ -1,19 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Edit, Save, Image, Users, Calendar, MapPin, Mail, Phone, Eye } from 'lucide-react';
+import { ArrowLeft, Edit, Save, Image, Users, Calendar, MapPin, Mail, Phone, Eye, Camera, Upload } from 'lucide-react';
 import InvitationEditor from '@/components/InvitationEditor';
 import InvitationPreview from '@/components/InvitationPreview';
-import { createWeddingInvitation, generateUniqueInvitationLink } from '@/lib/supabase-helpers';
+import { Input } from "@/components/ui/input";
+import { uploadImageToSupabase, createWeddingInvitation, generateUniqueInvitationLink } from '@/lib/supabase-helpers';
+import { supabase } from "@/integrations/supabase/client";
 
 const CustomizeInvitation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("basic");
+  const [uploading, setUploading] = useState(false);
   const [invitationData, setInvitationData] = useState({
     bride_name: "Ananya",
     groom_name: "Arjun",
@@ -30,12 +33,75 @@ const CustomizeInvitation = () => {
   });
   const [generatedLink, setGeneratedLink] = useState("");
 
+  // Direct update handler for the InvitationPreview component
+  const handleDirectUpdate = (field: string, value: any) => {
+    if (field === 'names') {
+      // Special case for the combined names field
+      const names = value.split('&');
+      if (names.length === 2) {
+        setInvitationData(prev => ({
+          ...prev,
+          bride_name: names[0].trim(),
+          groom_name: names[1].trim()
+        }));
+      }
+    } else if (field === 'couple_image_upload') {
+      // Open file upload dialog
+      document.getElementById('couple-image-upload')?.click();
+    } else {
+      // Handle direct updates to standard fields
+      setInvitationData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
   // Update invitation data from the editor components
-  const updateInvitationData = (section, data) => {
+  const updateInvitationData = (section: string, data: any) => {
     setInvitationData(prev => ({
       ...prev,
       ...data
     }));
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+    
+    setUploading(true);
+    try {
+      // Upload to Supabase storage
+      const imageUrl = await uploadImageToSupabase(files[0], 'couple_photos');
+      
+      if (imageUrl) {
+        setInvitationData(prev => ({
+          ...prev,
+          couple_image_url: imageUrl
+        }));
+        
+        setUploading(false);
+        
+        toast({
+          title: "Image Uploaded",
+          description: "Your image has been successfully uploaded."
+        });
+      } else {
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setUploading(false);
+      
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your image.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Save the invitation to Supabase
@@ -86,13 +152,23 @@ const CustomizeInvitation = () => {
           </h1>
         </div>
 
+        {/* Hidden file input for couple image upload */}
+        <input
+          type="file"
+          id="couple-image-upload"
+          className="hidden"
+          accept="image/*"
+          onChange={handleImageUpload}
+          disabled={uploading}
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="col-span-1">
             <Card className="bg-white/90 backdrop-blur-sm border-wedding-gold/30">
               <CardHeader>
                 <CardTitle>Invitation Editor</CardTitle>
                 <CardDescription>
-                  Customize all aspects of your wedding invitation
+                  Click on any element in the preview to customize your invitation
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -302,11 +378,15 @@ const CustomizeInvitation = () => {
               <CardHeader>
                 <CardTitle>Live Preview</CardTitle>
                 <CardDescription>
-                  See how your invitation will look
+                  Click on any text to edit it directly
                 </CardDescription>
               </CardHeader>
               <CardContent className="min-h-[500px] overflow-auto">
-                <InvitationPreview invitationData={invitationData} />
+                <InvitationPreview 
+                  invitationData={invitationData} 
+                  editable={true}
+                  onUpdate={handleDirectUpdate}
+                />
               </CardContent>
             </Card>
           </div>
