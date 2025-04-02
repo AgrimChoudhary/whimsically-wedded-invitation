@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Calendar, Heart, MapPin } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const CoupleSection: React.FC = () => {
@@ -25,8 +25,8 @@ const CoupleSection: React.FC = () => {
             <AspectRatio ratio={isMobile ? 4/3 : 21/9} className="bg-wedding-cream">
               <div className="absolute inset-0 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a" 
-                  alt="Ananya and Arjun" 
+                  src="/lovable-uploads/7f492c44-762e-4c64-86d8-d52fc38e8e39.png" 
+                  alt="Ananya and Arjun Wedding" 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"
                 />
@@ -36,14 +36,14 @@ const CoupleSection: React.FC = () => {
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute top-3 left-3 w-16 h-16 md:w-24 md:h-24">
                     <img 
-                      src="https://i.imgur.com/eK7BXjh.png" 
+                      src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
                       alt="Kalash decoration" 
                       className="w-full h-full object-contain opacity-40"
                     />
                   </div>
                   <div className="absolute top-3 right-3 w-16 h-16 md:w-24 md:h-24">
                     <img 
-                      src="https://i.imgur.com/MsS23jz.png" 
+                      src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
                       alt="Om symbol" 
                       className="w-full h-full object-contain opacity-40"
                     />
@@ -69,33 +69,6 @@ const CoupleSection: React.FC = () => {
           
           {/* Animated border effect on hover */}
           <div className={`absolute inset-0 pointer-events-none border-2 border-transparent transition-all duration-700 ${isHovered ? 'border-wedding-gold/30' : ''}`}></div>
-        </div>
-        
-        {/* Hindu wedding related information */}
-        <div className="mt-6 flex flex-col md:flex-row gap-4">
-          <div className="flex-1 glass-card p-4 border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-500">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-full bg-red-100 text-red-600">
-                <Heart size={18} />
-              </div>
-              <div>
-                <h3 className="font-playfair text-lg text-wedding-maroon mb-1">Traditional Hindu Ceremony</h3>
-                <p className="text-sm text-gray-600">Join us for a beautiful traditional Hindu wedding ceremony with rituals that have been celebrated for thousands of years.</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex-1 glass-card p-4 border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-500">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-full bg-yellow-100 text-yellow-600">
-                <MapPin size={18} />
-              </div>
-              <div>
-                <h3 className="font-playfair text-lg text-wedding-maroon mb-1">Elegant Venue</h3>
-                <p className="text-sm text-gray-600">Celebrate with us at Divine Gardens, a beautiful venue decorated with traditional Indian wedding elements.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>

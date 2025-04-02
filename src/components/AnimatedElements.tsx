@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Music, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 interface PetalProps {
   key: number;
@@ -16,10 +16,6 @@ interface FallingHeartsProps {
 
 interface FireworksDisplayProps {
   isActive: boolean;
-}
-
-interface MusicPlayerProps {
-  autoplay?: boolean;
 }
 
 // Create floating petals component - optimized to use fewer elements
@@ -69,95 +65,6 @@ export const FloatingPetals: React.FC = () => {
           style={petal.style}
         />
       ))}
-    </div>
-  );
-};
-
-// Create music player component with autoplay option
-export const MusicPlayer: React.FC<MusicPlayerProps> = ({ autoplay = false }) => {
-  const [isVisible, setIsVisible] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  
-  useEffect(() => {
-    // Create audio element
-    audioRef.current = new Audio("https://pagalfree.com/musics/128-Kudmayi%20(Film%20Version)%20-%20Rocky%20Aur%20Rani%20Kii%20Prem%20Kahaani%20128%20Kbps.mp3");
-    
-    if (audioRef.current) {
-      audioRef.current.loop = true;
-      audioRef.current.volume = 0.3;
-      
-      // Handle autoplay
-      if (autoplay) {
-        // Add event listener for user interaction to enable autoplay
-        const handleUserInteraction = () => {
-          if (audioRef.current) {
-            const playPromise = audioRef.current.play();
-            if (playPromise !== undefined) {
-              playPromise.catch(error => {
-                console.log("Audio play prevented by browser", error);
-              });
-            }
-            // Remove the event listeners once played
-            document.removeEventListener('click', handleUserInteraction);
-            document.removeEventListener('touchstart', handleUserInteraction);
-          }
-        };
-        
-        // Try to play immediately (might be blocked)
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.log("Audio autoplay prevented, waiting for user interaction", error);
-            // Add event listeners to play on first interaction
-            document.addEventListener('click', handleUserInteraction);
-            document.addEventListener('touchstart', handleUserInteraction);
-          });
-        }
-      }
-    }
-    
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 5000);
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      clearTimeout(timer);
-      document.removeEventListener('click', () => {});
-      document.removeEventListener('touchstart', () => {});
-    };
-  }, [autoplay]);
-  
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      
-      if (e.clientX > windowWidth - 200 && e.clientY > windowHeight - 200) {
-        setIsVisible(true);
-      }
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-
-  return (
-    <div 
-      className={`fixed bottom-6 right-6 z-20 transition-opacity duration-500 pointer-events-none ${
-        isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
-      <div className="flex items-center bg-wedding-gold/10 backdrop-blur-sm rounded-full py-1 px-3 border border-wedding-gold/30 shadow-gold-soft">
-        <Music size={14} className="text-wedding-gold animate-pulse-soft mr-2" />
-        <span className="text-xs text-wedding-gold font-dancing-script">Wedding Music Playing</span>
-      </div>
     </div>
   );
 };

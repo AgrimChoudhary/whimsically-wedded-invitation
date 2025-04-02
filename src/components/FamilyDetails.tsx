@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Star, Users, User, UserRound, Heart, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-interface FamilyMember {
+export interface FamilyMember {
   name: string;
   relation: string;
   image?: string;
@@ -17,12 +17,33 @@ interface FamilyDetailProps {
   members: FamilyMember[];
 }
 
-const FamilyDetails: React.FC = () => {
+interface FamilyDetailsProps {
+  brideFamily?: {
+    title?: string;
+    members?: FamilyMember[];
+  };
+  groomFamily?: {
+    title?: string;
+    members?: FamilyMember[];
+  };
+}
+
+const FamilyDetails: React.FC<FamilyDetailsProps> = ({ 
+  brideFamily = {
+    title: "Sharma Family",
+    members: []
+  }, 
+  groomFamily = {
+    title: "Patel Family",
+    members: []
+  }
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
-  const brideFamily: FamilyMember[] = [
+  // Default bride family members if none provided
+  const defaultBrideFamily: FamilyMember[] = [
     { 
       name: "Rajesh & Priya Sharma", 
       relation: "Parents of the Bride",
@@ -43,7 +64,8 @@ const FamilyDetails: React.FC = () => {
     }
   ];
   
-  const groomFamily: FamilyMember[] = [
+  // Default groom family members if none provided
+  const defaultGroomFamily: FamilyMember[] = [
     { 
       name: "Vikram & Nisha Patel", 
       relation: "Parents of the Groom",
@@ -63,6 +85,15 @@ const FamilyDetails: React.FC = () => {
       description: "Riya is an architect with a love for sustainable design. She enjoys playing the violin and experimenting with fusion cooking."
     }
   ];
+  
+  // Use provided family members or fallback to defaults
+  const brideFamilyMembers = brideFamily.members && brideFamily.members.length > 0 
+    ? brideFamily.members 
+    : defaultBrideFamily;
+    
+  const groomFamilyMembers = groomFamily.members && groomFamily.members.length > 0
+    ? groomFamily.members
+    : defaultGroomFamily;
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -103,8 +134,12 @@ const FamilyDetails: React.FC = () => {
                 <Users size={24} className="text-wedding-gold" />
               </div>
               <div className="text-center">
-                <p className="font-medium text-gray-800 text-sm sm:text-base">{members[0].name}</p>
-                <p className="text-xs sm:text-sm text-gray-600">{members[0].relation}</p>
+                <p className="font-medium text-gray-800 text-sm sm:text-base">
+                  {members.length > 0 ? members[0].name : "Family Members"}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  {members.length > 0 ? members[0].relation : ""}
+                </p>
               </div>
             </div>
             
@@ -184,13 +219,13 @@ const FamilyDetails: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
           <FamilyCard 
             side="Bride's" 
-            title="Sharma Family" 
-            members={brideFamily} 
+            title={brideFamily.title || "Bride's Family"} 
+            members={brideFamilyMembers} 
           />
           <FamilyCard 
             side="Groom's" 
-            title="Patel Family" 
-            members={groomFamily} 
+            title={groomFamily.title || "Groom's Family"} 
+            members={groomFamilyMembers} 
           />
         </div>
       </div>

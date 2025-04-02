@@ -1,525 +1,692 @@
 
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { v4 as uuidv4 } from 'uuid';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Button } from './ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from './ui/form';
+import FileUploader from './FileUploader';
+import DynamicFormFields from './DynamicFormFields';
+import { createWeddingInvitation, generateUniqueInvitationLink } from '@/lib/supabase-helpers';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Copy, Check } from 'lucide-react';
 
-const weddingFormSchema = z.object({
-  // Couple Information
-  bride_first_name: z.string().min(1, "Bride's first name is required"),
-  bride_last_name: z.string().min(1, "Bride's last name is required"),
-  groom_first_name: z.string().min(1, "Groom's first name is required"),
-  groom_last_name: z.string().min(1, "Groom's last name is required"),
+// Schema validation
+const formSchema = z.object({
+  bride_name: z.string().min(1, 'Bride\'s name is required'),
   bride_about: z.string().optional(),
+  groom_name: z.string().min(1, 'Groom\'s name is required'),
   groom_about: z.string().optional(),
-  love_story: z.string().optional(),
-  
-  // Wedding Details
-  wedding_date: z.string().min(1, "Wedding date is required"),
-  wedding_time: z.string().min(1, "Wedding time is required"),
-  venue_name: z.string().min(1, "Venue name is required"),
-  venue_address: z.string().min(1, "Venue address is required"),
-  venue_map_url: z.string().url().optional(),
-  
-  // Bride's Family
-  bride_family_name: z.string().min(1, "Bride's family name is required"),
-  bride_father_name: z.string().min(1, "Bride's father's name is required"),
-  bride_mother_name: z.string().min(1, "Bride's mother's name is required"),
-  bride_family_description: z.string().optional(),
-  
-  // Groom's Family
-  groom_family_name: z.string().min(1, "Groom's family name is required"),
-  groom_father_name: z.string().min(1, "Groom's father's name is required"),
-  groom_mother_name: z.string().min(1, "Groom's mother's name is required"),
-  groom_family_description: z.string().optional(),
-  
-  // Contact Information
-  contact_phone: z.string().min(1, "Contact phone is required"),
-  contact_email: z.string().email("Invalid email address"),
+  couple_story: z.string().optional(),
+  wedding_date: z.string().min(1, 'Wedding date is required'),
+  wedding_time: z.string().min(1, 'Wedding time is required'),
+  wedding_venue: z.string().min(1, 'Venue name is required'),
+  wedding_address: z.string().optional(),
+  map_url: z.string().url().optional().or(z.literal('')),
+  contact_email: z.string().email().optional().or(z.literal('')),
+  contact_phone: z.string().optional(),
+  custom_message: z.string().optional(),
 });
 
 const WeddingInvitationForm = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(weddingFormSchema),
-  });
-  
-  const [events, setEvents] = useState([{ name: '', date: '', time: '', venue: '', address: '', mapLink: '' }]);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('couple');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const onSubmit = async (data: any) => {
+  const [coupleImageUrl, setCoupleImageUrl] = useState('');
+  const [brideFamily, setBrideFamily] = useState<any[]>([]);
+  const [groomFamily, setGroomFamily] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      bride_name: '',
+      bride_about: '',
+      groom_name: '',
+      groom_about: '',
+      couple_story: '',
+      wedding_date: '',
+      wedding_time: '',
+      wedding_venue: '',
+      wedding_address: '',
+      map_url: '',
+      contact_email: '',
+      contact_phone: '',
+      custom_message: '',
+    },
+  });
+
+  // Family members handlers
+  const addBrideFamilyMember = () => {
+    setBrideFamily([
+      ...brideFamily,
+      { id: uuidv4(), name: '', relation: '', description: '', image: '' }
+    ]);
+  };
+
+  const removeBrideFamilyMember = (index: number) => {
+    const newMembers = [...brideFamily];
+    newMembers.splice(index, 1);
+    setBrideFamily(newMembers);
+  };
+
+  const updateBrideFamilyMember = (index: number, field: string, value: any) => {
+    const newMembers = [...brideFamily];
+    newMembers[index] = { ...newMembers[index], [field]: value };
+    setBrideFamily(newMembers);
+  };
+
+  const addGroomFamilyMember = () => {
+    setGroomFamily([
+      ...groomFamily,
+      { id: uuidv4(), name: '', relation: '', description: '', image: '' }
+    ]);
+  };
+
+  const removeGroomFamilyMember = (index: number) => {
+    const newMembers = [...groomFamily];
+    newMembers.splice(index, 1);
+    setGroomFamily(newMembers);
+  };
+
+  const updateGroomFamilyMember = (index: number, field: string, value: any) => {
+    const newMembers = [...groomFamily];
+    newMembers[index] = { ...newMembers[index], [field]: value };
+    setGroomFamily(newMembers);
+  };
+
+  // Events handlers
+  const addEvent = () => {
+    setEvents([
+      ...events,
+      { 
+        id: uuidv4(), 
+        name: '', // event_name
+        relation: '', // event_date
+        description: '', // event_time
+        image: '' // event_venue
+      }
+    ]);
+  };
+
+  const removeEvent = (index: number) => {
+    const newEvents = [...events];
+    newEvents.splice(index, 1);
+    setEvents(newEvents);
+  };
+
+  const updateEvent = (index: number, field: string, value: any) => {
+    const newEvents = [...events];
+    
+    // Map the form fields to the database fields
+    const dbFieldMap: Record<string, string> = {
+      'name': 'event_name',
+      'relation': 'event_date',
+      'description': 'event_time',
+      'image': 'event_venue'
+    };
+    
+    // If there's a mapping, use it
+    const dbField = dbFieldMap[field] || field;
+    
+    newEvents[index] = { 
+      ...newEvents[index], 
+      [field]: value, // Keep original field for the UI
+      [dbField]: value // Add mapped field for database
+    };
+    
+    setEvents(newEvents);
+  };
+
+  // Gallery images handlers
+  const addGalleryImage = () => {
+    setGalleryImages([
+      ...galleryImages,
+      { id: uuidv4(), image: '', name: '', description: '' }
+    ]);
+  };
+
+  const removeGalleryImage = (index: number) => {
+    const newImages = [...galleryImages];
+    newImages.splice(index, 1);
+    setGalleryImages(newImages);
+  };
+
+  const updateGalleryImage = (index: number, field: string, value: any) => {
+    const newImages = [...galleryImages];
+    newImages[index] = { ...newImages[index], [field]: value };
+    setGalleryImages(newImages);
+  };
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     
     try {
-      // In a real application, you'd submit the data to your backend here
-      console.log('Form data:', data);
-      console.log('Events:', events);
-      alert('Form submitted successfully! In a real application, the invitation would be created now.');
+      // Process events data
+      const formattedEvents = events.map(event => ({
+        event_name: event.name,
+        event_date: event.relation,
+        event_time: event.description,
+        event_venue: event.image,
+        event_address: '' // Optional field we're not collecting
+      }));
+
+      // Create invitation data
+      const invitationData = {
+        ...data,
+        couple_image_url: coupleImageUrl,
+        bride_family: brideFamily,
+        groom_family: groomFamily,
+        gallery_images: galleryImages,
+        events: formattedEvents
+      };
+
+      // Save to Supabase
+      const invitation = await createWeddingInvitation(invitationData);
+      
+      if (invitation) {
+        // Generate unique link
+        const link = generateUniqueInvitationLink(invitation.id);
+        setGeneratedLink(link);
+        
+        toast({
+          title: "Success!",
+          description: "Your wedding invitation has been created."
+        });
+        
+        // Move to the result tab
+        setActiveTab('result');
+      }
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('There was an error submitting the form. Please try again.');
+      console.error('Error creating invitation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create your invitation. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
-  
-  const addEvent = () => {
-    setEvents([...events, { name: '', date: '', time: '', venue: '', address: '', mapLink: '' }]);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
-  
-  const removeEvent = (index: number) => {
-    const updatedEvents = [...events];
-    updatedEvents.splice(index, 1);
-    setEvents(updatedEvents);
+
+  const previewInvitation = () => {
+    // The invitation ID is the last part of the generated link
+    const id = generatedLink.split('/').pop();
+    navigate(`/invitation/${id}`);
   };
-  
-  const updateEvent = (index: number, field: string, value: string) => {
-    const updatedEvents = [...events];
-    updatedEvents[index] = { ...updatedEvents[index], [field]: value };
-    setEvents(updatedEvents);
-  };
-  
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mb-10">
-      {/* Couple Information */}
-      <div>
-        <h2 className="text-2xl font-semibold text-wedding-maroon mb-4">Couple Information</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="bride_first_name">Bride's First Name</Label>
-              <Input
-                id="bride_first_name"
-                placeholder="Enter the bride's first name"
-                {...register('bride_first_name')}
-              />
-              {errors.bride_first_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.bride_first_name.message as string}</p>
-              )}
-            </div>
-            
-            <div>
-              <Label htmlFor="bride_last_name">Bride's Last Name</Label>
-              <Input
-                id="bride_last_name"
-                placeholder="Enter the bride's last name"
-                {...register('bride_last_name')}
-              />
-              {errors.bride_last_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.bride_last_name.message as string}</p>
-              )}
-            </div>
-            
-            <div>
-              <Label htmlFor="bride_about">About the Bride</Label>
-              <Textarea
-                id="bride_about"
-                placeholder="Short bio of the bride: education, job, hobbies"
-                className="min-h-[100px]"
-                {...register('bride_about')}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="groom_first_name">Groom's First Name</Label>
-              <Input
-                id="groom_first_name"
-                placeholder="Enter the groom's first name"
-                {...register('groom_first_name')}
-              />
-              {errors.groom_first_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.groom_first_name.message as string}</p>
-              )}
-            </div>
-            
-            <div>
-              <Label htmlFor="groom_last_name">Groom's Last Name</Label>
-              <Input
-                id="groom_last_name"
-                placeholder="Enter the groom's last name"
-                {...register('groom_last_name')}
-              />
-              {errors.groom_last_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.groom_last_name.message as string}</p>
-              )}
-            </div>
-            
-            <div>
-              <Label htmlFor="groom_about">About the Groom</Label>
-              <Textarea
-                id="groom_about"
-                placeholder="Short bio of the groom: education, job, hobbies"
-                className="min-h-[100px]"
-                {...register('groom_about')}
-              />
-            </div>
-          </div>
-        </div>
-        
-        <div className="mt-4">
-          <Label htmlFor="love_story">Love Story</Label>
-          <Textarea
-            id="love_story"
-            placeholder="How the couple met and their journey (optional)"
-            className="min-h-[150px]"
-            {...register('love_story')}
-          />
-        </div>
-        
-        <div className="mt-4">
-          <Label htmlFor="couple_photo">Couple Photo</Label>
-          <Input
-            id="couple_photo"
-            type="file"
-            accept="image/jpeg,image/png"
-            className="mt-1"
-          />
-          <p className="text-xs text-gray-500 mt-1">Upload a photo of the couple (max 5MB, JPG/PNG)</p>
-        </div>
-      </div>
-      
-      <Separator />
-      
-      {/* Wedding Details */}
-      <div>
-        <h2 className="text-2xl font-semibold text-wedding-maroon mb-4">Wedding Details</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="wedding_date">Wedding Date</Label>
-            <Input
-              id="wedding_date"
-              placeholder="DD Month YYYY, like '15 June 2025'"
-              {...register('wedding_date')}
-            />
-            {errors.wedding_date && (
-              <p className="text-red-500 text-sm mt-1">{errors.wedding_date.message as string}</p>
-            )}
-          </div>
-          
-          <div>
-            <Label htmlFor="wedding_time">Wedding Time</Label>
-            <Input
-              id="wedding_time"
-              placeholder="Enter time, like '2:00 PM'"
-              {...register('wedding_time')}
-            />
-            {errors.wedding_time && (
-              <p className="text-red-500 text-sm mt-1">{errors.wedding_time.message as string}</p>
-            )}
-          </div>
-        </div>
-        
-        <div className="mt-4">
-          <Label htmlFor="venue_name">Wedding Venue Name</Label>
-          <Input
-            id="venue_name"
-            placeholder="Enter venue name, like 'Rosewood Hall'"
-            {...register('venue_name')}
-          />
-          {errors.venue_name && (
-            <p className="text-red-500 text-sm mt-1">{errors.venue_name.message as string}</p>
-          )}
-        </div>
-        
-        <div className="mt-4">
-          <Label htmlFor="venue_address">Venue Address</Label>
-          <Textarea
-            id="venue_address"
-            placeholder="Enter full address, like '456 Oak Street, Austin, TX'"
-            {...register('venue_address')}
-          />
-          {errors.venue_address && (
-            <p className="text-red-500 text-sm mt-1">{errors.venue_address.message as string}</p>
-          )}
-        </div>
-        
-        <div className="mt-4">
-          <Label htmlFor="venue_map_url">Google Maps URL</Label>
-          <Input
-            id="venue_map_url"
-            placeholder="Paste map link, like 'https://maps.google.com/...'"
-            {...register('venue_map_url')}
-          />
-          {errors.venue_map_url && (
-            <p className="text-red-500 text-sm mt-1">{errors.venue_map_url.message as string}</p>
-          )}
-        </div>
-      </div>
-      
-      <Separator />
-      
-      {/* Family Details - Bride */}
-      <div>
-        <h2 className="text-2xl font-semibold text-wedding-maroon mb-4">Bride's Family Details</h2>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="bride_family_name">Family Name</Label>
-            <Input
-              id="bride_family_name"
-              placeholder="Enter family name, like 'Miller Family'"
-              {...register('bride_family_name')}
-            />
-            {errors.bride_family_name && (
-              <p className="text-red-500 text-sm mt-1">{errors.bride_family_name.message as string}</p>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="bride_father_name">Father's Name</Label>
-              <Input
-                id="bride_father_name"
-                placeholder="Enter father's name, like 'Ramesh'"
-                {...register('bride_father_name')}
-              />
-              {errors.bride_father_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.bride_father_name.message as string}</p>
-              )}
-            </div>
-            
-            <div>
-              <Label htmlFor="bride_mother_name">Mother's Name</Label>
-              <Input
-                id="bride_mother_name"
-                placeholder="Enter mother's name, like 'Rameshi'"
-                {...register('bride_mother_name')}
-              />
-              {errors.bride_mother_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.bride_mother_name.message as string}</p>
-              )}
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="bride_family_description">Family Description</Label>
-            <Textarea
-              id="bride_family_description"
-              placeholder="About the family, like 'John is a teacher...'"
-              {...register('bride_family_description')}
-            />
-          </div>
-        </div>
-      </div>
-      
-      <Separator />
-      
-      {/* Family Details - Groom */}
-      <div>
-        <h2 className="text-2xl font-semibold text-wedding-maroon mb-4">Groom's Family Details</h2>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="groom_family_name">Family Name</Label>
-            <Input
-              id="groom_family_name"
-              placeholder="Enter family name, like 'Carter Family'"
-              {...register('groom_family_name')}
-            />
-            {errors.groom_family_name && (
-              <p className="text-red-500 text-sm mt-1">{errors.groom_family_name.message as string}</p>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="groom_father_name">Father's Name</Label>
-              <Input
-                id="groom_father_name"
-                placeholder="Enter father's name, like 'Harkesh'"
-                {...register('groom_father_name')}
-              />
-              {errors.groom_father_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.groom_father_name.message as string}</p>
-              )}
-            </div>
-            
-            <div>
-              <Label htmlFor="groom_mother_name">Mother's Name</Label>
-              <Input
-                id="groom_mother_name"
-                placeholder="Enter mother's name, like 'Harkeshi'"
-                {...register('groom_mother_name')}
-              />
-              {errors.groom_mother_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.groom_mother_name.message as string}</p>
-              )}
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="groom_family_description">Family Description</Label>
-            <Textarea
-              id="groom_family_description"
-              placeholder="About the family, like 'David is a chef...'"
-              {...register('groom_family_description')}
-            />
-          </div>
-        </div>
-      </div>
-      
-      <Separator />
-      
-      {/* Wedding Events - Dynamic */}
-      <div>
-        <h2 className="text-2xl font-semibold text-wedding-maroon mb-4">Wedding Events</h2>
-        
-        {events.map((event, index) => (
-          <div key={index} className="p-4 border border-gray-200 rounded-md mb-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-medium">Event {index + 1}</h3>
-              {events.length > 1 && (
-                <Button 
-                  type="button" 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => removeEvent(index)}
-                >
-                  Remove
-                </Button>
-              )}
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Event Name</Label>
-                <Input
-                  placeholder="Enter event, like 'Reception'"
-                  value={event.name}
-                  onChange={(e) => updateEvent(index, 'name', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label>Date</Label>
-                <Input
-                  placeholder="Enter date, like '16 June 2025'"
-                  value={event.date}
-                  onChange={(e) => updateEvent(index, 'date', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label>Time</Label>
-                <Input
-                  placeholder="Enter time range, like '6:00 PM - 10:00 PM'"
-                  value={event.time}
-                  onChange={(e) => updateEvent(index, 'time', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label>Venue Name</Label>
-                <Input
-                  placeholder="Enter venue, like 'Crystal Pavilion'"
-                  value={event.venue}
-                  onChange={(e) => updateEvent(index, 'venue', e.target.value)}
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <Label>Venue Address</Label>
-                <Textarea
-                  placeholder="Enter address, like '789 Pine Road, Austin, TX'"
-                  value={event.address}
-                  onChange={(e) => updateEvent(index, 'address', e.target.value)}
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <Label>Venue Map Link</Label>
-                <Input
-                  placeholder="Paste map link, optional"
-                  value={event.mapLink}
-                  onChange={(e) => updateEvent(index, 'mapLink', e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-        ))}
-        
-        <Button
-          type="button"
-          variant="outline"
-          onClick={addEvent}
-          className="w-full mt-2"
-        >
-          Add Another Event
-        </Button>
-      </div>
-      
-      <Separator />
-      
-      {/* Contact Information */}
-      <div>
-        <h2 className="text-2xl font-semibold text-wedding-maroon mb-4">Contact Information</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="contact_phone">Contact Phone</Label>
-            <Input
-              id="contact_phone"
-              placeholder="Enter phone, like '+1-512-555-1234'"
-              {...register('contact_phone')}
-            />
-            {errors.contact_phone && (
-              <p className="text-red-500 text-sm mt-1">{errors.contact_phone.message as string}</p>
-            )}
-          </div>
-          
-          <div>
-            <Label htmlFor="contact_email">Contact Email</Label>
-            <Input
-              id="contact_email"
-              placeholder="Enter email, like 'sophie.james@wedding.com'"
-              {...register('contact_email')}
-            />
-            {errors.contact_email && (
-              <p className="text-red-500 text-sm mt-1">{errors.contact_email.message as string}</p>
-            )}
-          </div>
-        </div>
-      </div>
-      
-      <Separator />
-      
-      {/* Photo Memories */}
-      <div>
-        <h2 className="text-2xl font-semibold text-wedding-maroon mb-4">Photo Memories</h2>
-        <p className="text-sm text-gray-500 mb-4">Upload up to 6 photos to share your memories. (Not implemented in this demo)</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[...Array(6)].map((_, index) => (
-            <div key={index} className="border border-dashed border-gray-300 rounded-md p-4">
-              <Label htmlFor={`photo_${index}`}>Photo {index + 1}</Label>
-              <Input
-                id={`photo_${index}`}
-                type="file"
-                accept="image/jpeg,image/png"
-                className="mt-2"
-              />
-              <Input
-                placeholder="Photo title (optional)"
-                className="mt-2"
-              />
-              <Textarea
-                placeholder="Photo description (optional)"
-                className="mt-2"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div className="flex justify-center pt-4">
-        <Button type="submit" className="bg-wedding-maroon hover:bg-wedding-maroon/90 text-white px-10 py-2" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating Invitation...' : 'Create Wedding Invitation'}
-        </Button>
-      </div>
-    </form>
+    <div className="w-full max-w-5xl mx-auto p-4">
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-2xl font-serif text-wedding-maroon">Create Your Wedding Invitation</CardTitle>
+          <CardDescription>Fill in the details to generate a beautiful wedding invitation.</CardDescription>
+        </CardHeader>
+      </Card>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-2 md:grid-cols-5">
+          <TabsTrigger value="couple">Couple</TabsTrigger>
+          <TabsTrigger value="wedding">Wedding</TabsTrigger>
+          <TabsTrigger value="family">Family</TabsTrigger>
+          <TabsTrigger value="gallery">Gallery</TabsTrigger>
+          <TabsTrigger value="result" disabled={!generatedLink}>Result</TabsTrigger>
+        </TabsList>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
+            <TabsContent value="couple" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Couple Information</CardTitle>
+                  <CardDescription>Tell us about the bride and groom.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Couple Photo</h3>
+                    <FileUploader 
+                      onFileUpload={setCoupleImageUrl}
+                      defaultImageUrl={coupleImageUrl}
+                      bucket="couple_photos"
+                      label="Upload a couple photo (Max 5MB)"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Bride</h3>
+                      <FormField
+                        control={form.control}
+                        name="bride_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Bride's Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="E.g., Sophie Miller" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="bride_about"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>About the Bride</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="E.g., Sophie is a passionate artist with a love for travel..." 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Groom</h3>
+                      <FormField
+                        control={form.control}
+                        name="groom_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Groom's Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="E.g., James Carter" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="groom_about"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>About the Groom</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="E.g., James is a software engineer who enjoys hiking..." 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="couple_story"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Our Love Story</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Tell your love story. How you met, your journey together..." 
+                            className="min-h-[150px]"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-end">
+                    <Button 
+                      type="button" 
+                      onClick={() => setActiveTab('wedding')}
+                      className="flex items-center gap-2"
+                    >
+                      Next <ArrowRight size={16} />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="wedding" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Wedding Details</CardTitle>
+                  <CardDescription>Information about your wedding day.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="wedding_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Wedding Date</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="wedding_time"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Wedding Time</FormLabel>
+                          <FormControl>
+                            <Input placeholder="E.g., 2:00 PM" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="wedding_venue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Venue Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="E.g., Rosewood Hall" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="wedding_address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Venue Address</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="E.g., 456 Oak Street, Austin, TX" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="map_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Google Maps URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="E.g., https://maps.google.com/..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Additional Events</h3>
+                    <p className="text-sm text-gray-500">Add other events related to your wedding celebration.</p>
+                    
+                    <DynamicFormFields
+                      fields={events}
+                      onAdd={addEvent}
+                      onRemove={removeEvent}
+                      onChange={updateEvent}
+                      type="event"
+                    />
+                  </div>
+
+                  <div className="flex justify-between">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setActiveTab('couple')}
+                    >
+                      Back
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={() => setActiveTab('family')}
+                      className="flex items-center gap-2"
+                    >
+                      Next <ArrowRight size={16} />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="family" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Family Details</CardTitle>
+                  <CardDescription>Information about the families of the bride and groom.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium border-b pb-2">Bride's Family</h3>
+                    
+                    <DynamicFormFields
+                      fields={brideFamily}
+                      onAdd={addBrideFamilyMember}
+                      onRemove={removeBrideFamilyMember}
+                      onChange={updateBrideFamilyMember}
+                      type="familyMember"
+                    />
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium border-b pb-2">Groom's Family</h3>
+                    
+                    <DynamicFormFields
+                      fields={groomFamily}
+                      onAdd={addGroomFamilyMember}
+                      onRemove={removeGroomFamilyMember}
+                      onChange={updateGroomFamilyMember}
+                      type="familyMember"
+                    />
+                  </div>
+
+                  <div className="flex justify-between">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setActiveTab('wedding')}
+                    >
+                      Back
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={() => setActiveTab('gallery')}
+                      className="flex items-center gap-2"
+                    >
+                      Next <ArrowRight size={16} />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="gallery" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Gallery & Contact</CardTitle>
+                  <CardDescription>Add photos and contact information.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Photo Gallery</h3>
+                    <p className="text-sm text-gray-500">Add up to 6 photos for your gallery (engagement, pre-wedding).</p>
+                    
+                    <DynamicFormFields
+                      fields={galleryImages}
+                      onAdd={addGalleryImage}
+                      onRemove={removeGalleryImage}
+                      onChange={updateGalleryImage}
+                      type="gallery"
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium border-b pb-2">Contact Information</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="contact_phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Contact Phone</FormLabel>
+                            <FormControl>
+                              <Input placeholder="E.g., +1-512-555-1234" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="contact_email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Contact Email</FormLabel>
+                            <FormControl>
+                              <Input placeholder="E.g., sophie.james@example.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="custom_message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Custom Message</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="E.g., We can't wait to celebrate with you!" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-between">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setActiveTab('family')}
+                    >
+                      Back
+                    </Button>
+                    <Button 
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2"
+                    >
+                      {isSubmitting ? 'Creating...' : 'Create Invitation'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="result" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Invitation is Ready!</CardTitle>
+                  <CardDescription>Your wedding invitation has been created successfully.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="p-4 bg-gray-50 rounded-md">
+                    <p className="text-sm font-medium mb-2">Invitation Link:</p>
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="text" 
+                        value={generatedLink} 
+                        readOnly 
+                        className="flex-1 p-2 text-sm border rounded-md" 
+                      />
+                      <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={copyToClipboard}
+                        className="flex items-center gap-1"
+                      >
+                        {copied ? <Check size={16} /> : <Copy size={16} />}
+                        {copied ? 'Copied' : 'Copy'}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-4 justify-center pt-4">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => form.reset()}
+                      className="w-full sm:w-auto"
+                    >
+                      Create Another Invitation
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={previewInvitation}
+                      className="w-full sm:w-auto"
+                    >
+                      Preview Invitation
+                    </Button>
+                  </div>
+
+                  <div className="mt-6 p-4 border border-amber-200 bg-amber-50 rounded-md">
+                    <p className="text-sm text-amber-800">
+                      <strong>Note:</strong> This invitation uses a placeholder for the guest name. 
+                      You can share this link to preview the invitation. In a real scenario, you would 
+                      create individual links for each guest with their specific names.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </form>
+        </Form>
+      </Tabs>
+    </div>
   );
 };
 
