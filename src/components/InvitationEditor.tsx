@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,21 +14,33 @@ import { CalendarIcon, Plus, Trash2, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
+import { uploadImageToSupabase } from "@/lib/supabase-helpers";
 
 interface InvitationEditorProps {
   section: "couple" | "date" | "photos" | "family" | "events" | "venue" | "contact";
+  initialData?: any;
+  onUpdate?: (data: any) => void;
 }
 
-const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
+const InvitationEditor: React.FC<InvitationEditorProps> = ({ section, initialData = {}, onUpdate = () => {} }) => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
-  const [events, setEvents] = useState<{id: string, name: string, date: Date | undefined, time: string, venue: string, address: string}[]>([
-    { id: uuidv4(), name: 'Wedding Ceremony', date: new Date(), time: '11:00 AM', venue: 'Garden Venue', address: '123 Wedding Lane' }
-  ]);
-  const [familyMembers, setFamilyMembers] = useState<{id: string, side: 'bride' | 'groom', name: string, relation: string, description: string, imageUrl: string}[]>([
-    { id: uuidv4(), side: 'bride', name: 'Mr. & Mrs. Sharma', relation: 'Parents of the Bride', description: 'Loving parents who have supported throughout life', imageUrl: '' },
-    { id: uuidv4(), side: 'groom', name: 'Mr. & Mrs. Patel', relation: 'Parents of the Groom', description: 'Caring parents who have guided at every step', imageUrl: '' }
-  ]);
+  const [events, setEvents] = useState<{id: string, name: string, date: Date | undefined, time: string, venue: string, address: string}[]>(
+    initialData.events || [
+      { id: uuidv4(), name: 'Wedding Ceremony', date: new Date(), time: '11:00 AM', venue: 'Garden Venue', address: '123 Wedding Lane' }
+    ]
+  );
+  const [familyMembers, setFamilyMembers] = useState<{id: string, side: 'bride' | 'groom', name: string, relation: string, description: string, imageUrl: string}[]>(
+    initialData.brideFamily?.map(member => ({ ...member, side: 'bride' })).concat(
+      initialData.groomFamily?.map(member => ({ ...member, side: 'groom' }))
+    ) || [
+      { id: uuidv4(), side: 'bride', name: 'Mr. & Mrs. Sharma', relation: 'Parents of the Bride', description: 'Loving parents who have supported throughout life', imageUrl: '' },
+      { id: uuidv4(), side: 'groom', name: 'Mr. & Mrs. Patel', relation: 'Parents of the Groom', description: 'Caring parents who have guided at every step', imageUrl: '' }
+    ]
+  );
+  const [galleryImages, setGalleryImages] = useState<any[]>(
+    initialData.galleryImages || []
+  );
   
   // Define the form schema for each section
   const coupleSchema = z.object({
@@ -64,38 +75,38 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
   const coupleForm = useForm<z.infer<typeof coupleSchema>>({
     resolver: zodResolver(coupleSchema),
     defaultValues: {
-      brideName: "Ananya",
-      groomName: "Arjun",
-      brideAbout: "A beautiful soul with a passion for arts and culture.",
-      groomAbout: "A dedicated individual with a love for adventure.",
-      coupleStory: "We met through mutual friends at a college gathering and it was love at first sight.",
-      coupleImageUrl: ""
+      brideName: initialData.brideName || "Ananya",
+      groomName: initialData.groomName || "Arjun",
+      brideAbout: initialData.brideAbout || "A beautiful soul with a passion for arts and culture.",
+      groomAbout: initialData.groomAbout || "A dedicated individual with a love for adventure.",
+      coupleStory: initialData.coupleStory || "We met through mutual friends at a college gathering and it was love at first sight.",
+      coupleImageUrl: initialData.coupleImageUrl || ""
     }
   });
   
   const dateForm = useForm<z.infer<typeof dateSchema>>({
     resolver: zodResolver(dateSchema),
     defaultValues: {
-      weddingDate: new Date('2025-04-10'),
-      weddingTime: "11:00 AM"
+      weddingDate: initialData.weddingDate || new Date('2025-04-10'),
+      weddingTime: initialData.weddingTime || "11:00 AM"
     }
   });
   
   const venueForm = useForm<z.infer<typeof venueSchema>>({
     resolver: zodResolver(venueSchema),
     defaultValues: {
-      venueName: "Royal Garden Palace",
-      venueAddress: "123 Wedding Lane, Wedding City, WD 12345",
-      mapUrl: "https://maps.google.com"
+      venueName: initialData.venueName || "Royal Garden Palace",
+      venueAddress: initialData.venueAddress || "123 Wedding Lane, Wedding City, WD 12345",
+      mapUrl: initialData.mapUrl || "https://maps.google.com"
     }
   });
   
   const contactForm = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      rsvpEmail: "rsvp@wedding.com",
-      rsvpPhone: "+1 (555) 123-4567",
-      customMessage: "We would be honored by your presence on our special day."
+      rsvpEmail: initialData.rsvpEmail || "rsvp@wedding.com",
+      rsvpPhone: initialData.rsvpPhone || "+1 (555) 123-4567",
+      customMessage: initialData.customMessage || "We would be honored by your presence on our special day."
     }
   });
   
@@ -108,9 +119,10 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
     
     setUploading(true);
     try {
-      // For demo purposes - in real app would upload to Supabase storage
-      setTimeout(() => {
-        const imageUrl = URL.createObjectURL(files[0]);
+      // Upload to Supabase storage
+      const imageUrl = await uploadImageToSupabase(files[0], 'couple_photos');
+      
+      if (imageUrl) {
         coupleForm.setValue("coupleImageUrl", imageUrl);
         setUploading(false);
         
@@ -118,7 +130,16 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
           title: "Image Uploaded",
           description: "Your image has been successfully uploaded."
         });
-      }, 1500);
+        
+        // Trigger update to parent component
+        onUpdate({
+          brideName: coupleForm.getValues().brideName,
+          groomName: coupleForm.getValues().groomName,
+          coupleImageUrl: imageUrl
+        });
+      } else {
+        throw new Error("Failed to upload image");
+      }
     } catch (error) {
       console.error("Error uploading image:", error);
       setUploading(false);
@@ -132,51 +153,148 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
   };
   
   const handleAddEvent = () => {
-    setEvents([...events, {
+    const newEvents = [...events, {
       id: uuidv4(),
       name: '',
       date: undefined,
       time: '',
       venue: '',
       address: ''
-    }]);
+    }];
+    setEvents(newEvents);
+    if (onUpdate) {
+      onUpdate({ events: newEvents });
+    }
   };
   
   const handleRemoveEvent = (id: string) => {
-    setEvents(events.filter(event => event.id !== id));
+    const newEvents = events.filter(event => event.id !== id);
+    setEvents(newEvents);
+    if (onUpdate) {
+      onUpdate({ events: newEvents });
+    }
   };
   
   const handleUpdateEvent = (id: string, field: string, value: any) => {
-    setEvents(events.map(event => {
+    const newEvents = events.map(event => {
       if (event.id === id) {
         return { ...event, [field]: value };
       }
       return event;
-    }));
+    });
+    setEvents(newEvents);
+    if (onUpdate) {
+      onUpdate({ events: newEvents });
+    }
   };
   
   const handleAddFamilyMember = (side: 'bride' | 'groom') => {
-    setFamilyMembers([...familyMembers, {
+    const newFamilyMembers = [...familyMembers, {
       id: uuidv4(),
       side,
       name: '',
       relation: '',
       description: '',
       imageUrl: ''
-    }]);
+    }];
+    setFamilyMembers(newFamilyMembers);
+    
+    if (onUpdate) {
+      const brideFamily = newFamilyMembers.filter(m => m.side === 'bride');
+      const groomFamily = newFamilyMembers.filter(m => m.side === 'groom');
+      onUpdate({ 
+        brideFamily,
+        groomFamily 
+      });
+    }
   };
   
   const handleRemoveFamilyMember = (id: string) => {
-    setFamilyMembers(familyMembers.filter(member => member.id !== id));
+    const newFamilyMembers = familyMembers.filter(member => member.id !== id);
+    setFamilyMembers(newFamilyMembers);
+    
+    if (onUpdate) {
+      const brideFamily = newFamilyMembers.filter(m => m.side === 'bride');
+      const groomFamily = newFamilyMembers.filter(m => m.side === 'groom');
+      onUpdate({ 
+        brideFamily,
+        groomFamily 
+      });
+    }
   };
   
   const handleUpdateFamilyMember = (id: string, field: string, value: string) => {
-    setFamilyMembers(familyMembers.map(member => {
+    const newFamilyMembers = familyMembers.map(member => {
       if (member.id === id) {
         return { ...member, [field]: value };
       }
       return member;
-    }));
+    });
+    setFamilyMembers(newFamilyMembers);
+    
+    if (onUpdate) {
+      const brideFamily = newFamilyMembers.filter(m => m.side === 'bride');
+      const groomFamily = newFamilyMembers.filter(m => m.side === 'groom');
+      onUpdate({ 
+        brideFamily,
+        groomFamily 
+      });
+    }
+  };
+  
+  const handleAddGalleryImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+    
+    setUploading(true);
+    try {
+      // Upload to Supabase storage
+      const imageUrl = await uploadImageToSupabase(files[0], 'gallery_images');
+      
+      if (imageUrl) {
+        const newImage = {
+          id: uuidv4(),
+          image: imageUrl,
+          name: '',
+          description: ''
+        };
+        
+        const newGalleryImages = [...galleryImages, newImage];
+        setGalleryImages(newGalleryImages);
+        setUploading(false);
+        
+        toast({
+          title: "Image Uploaded",
+          description: "Your gallery image has been successfully uploaded."
+        });
+        
+        // Trigger update to parent component
+        if (onUpdate) {
+          onUpdate({ galleryImages: newGalleryImages });
+        }
+      } else {
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading gallery image:", error);
+      setUploading(false);
+      
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your image.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleRemoveGalleryImage = (id: string) => {
+    const newGalleryImages = galleryImages.filter(image => image.id !== id);
+    setGalleryImages(newGalleryImages);
+    if (onUpdate) {
+      onUpdate({ galleryImages: newGalleryImages });
+    }
   };
   
   // Submit handlers for each form
@@ -186,6 +304,17 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
       title: "Couple Details Updated",
       description: "Your changes have been saved."
     });
+    
+    if (onUpdate) {
+      onUpdate({
+        brideName: data.brideName,
+        groomName: data.groomName,
+        brideAbout: data.brideAbout,
+        groomAbout: data.groomAbout,
+        coupleStory: data.coupleStory,
+        coupleImageUrl: data.coupleImageUrl
+      });
+    }
   };
   
   const onSubmitDate = (data: z.infer<typeof dateSchema>) => {
@@ -194,6 +323,13 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
       title: "Wedding Date Updated",
       description: "Your changes have been saved."
     });
+    
+    if (onUpdate) {
+      onUpdate({
+        weddingDate: data.weddingDate,
+        weddingTime: data.weddingTime
+      });
+    }
   };
   
   const onSubmitVenue = (data: z.infer<typeof venueSchema>) => {
@@ -202,6 +338,14 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
       title: "Venue Details Updated",
       description: "Your changes have been saved."
     });
+    
+    if (onUpdate) {
+      onUpdate({
+        venueName: data.venueName,
+        venueAddress: data.venueAddress,
+        mapUrl: data.mapUrl
+      });
+    }
   };
   
   const onSubmitContact = (data: z.infer<typeof contactSchema>) => {
@@ -210,6 +354,14 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
       title: "Contact Information Updated",
       description: "Your changes have been saved."
     });
+    
+    if (onUpdate) {
+      onUpdate({
+        rsvpEmail: data.rsvpEmail,
+        rsvpPhone: data.rsvpPhone,
+        customMessage: data.customMessage
+      });
+    }
   };
   
   const saveEvents = () => {
@@ -218,6 +370,10 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
       title: "Wedding Events Updated",
       description: "Your changes have been saved."
     });
+    
+    if (onUpdate) {
+      onUpdate({ events });
+    }
   };
   
   const saveFamilyMembers = () => {
@@ -226,6 +382,28 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
       title: "Family Details Updated",
       description: "Your changes have been saved."
     });
+    
+    const brideFamily = familyMembers.filter(m => m.side === 'bride');
+    const groomFamily = familyMembers.filter(m => m.side === 'groom');
+    
+    if (onUpdate) {
+      onUpdate({ 
+        brideFamily,
+        groomFamily 
+      });
+    }
+  };
+  
+  const savePhotos = () => {
+    console.log("Gallery data:", galleryImages);
+    toast({
+      title: "Gallery Updated",
+      description: "Your changes have been saved."
+    });
+    
+    if (onUpdate) {
+      onUpdate({ galleryImages });
+    }
   };
   
   // Render the appropriate editor section
@@ -324,7 +502,10 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
                             variant="destructive"
                             size="icon"
                             className="absolute -top-2 -right-2 w-6 h-6"
-                            onClick={() => coupleForm.setValue("coupleImageUrl", "")}
+                            onClick={() => {
+                              coupleForm.setValue("coupleImageUrl", "");
+                              onUpdate({ coupleImageUrl: "" });
+                            }}
                           >
                             <X className="h-3 w-3" />
                           </Button>
@@ -748,19 +929,46 @@ const InvitationEditor: React.FC<InvitationEditorProps> = ({ section }) => {
             <h3 className="text-lg font-medium">Gallery Photos</h3>
             <p className="text-sm text-gray-500">Upload photos for your wedding gallery</p>
             
-            <div className="grid grid-cols-2 gap-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="border-2 border-dashed border-gray-300 rounded-lg aspect-square flex items-center justify-center">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {galleryImages.map((image, index) => (
+                <div key={image.id} className="relative border rounded-lg aspect-square overflow-hidden">
+                  <img 
+                    src={image.image} 
+                    alt={`Gallery ${index + 1}`} 
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 w-6 h-6"
+                    onClick={() => handleRemoveGalleryImage(image.id)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+              
+              {galleryImages.length < 6 && (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg aspect-square flex items-center justify-center">
                   <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
                     <Upload className="h-6 w-6 text-gray-400 mb-1" />
                     <span className="text-xs text-gray-500">Upload</span>
-                    <input type="file" accept="image/*" className="hidden" />
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleAddGalleryImage}
+                      disabled={uploading}
+                    />
                   </label>
                 </div>
-              ))}
+              )}
             </div>
             
-            <Button className="w-full">Save Photos</Button>
+            <Button className="w-full" onClick={savePhotos} disabled={galleryImages.length === 0}>
+              Save Photos
+            </Button>
           </div>
         );
         
