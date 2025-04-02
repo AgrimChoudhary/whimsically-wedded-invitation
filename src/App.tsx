@@ -8,6 +8,7 @@ import { GuestProvider } from "./context/GuestContext";
 import Index from "./pages/Index";
 import Invitation from "./pages/Invitation";
 import NotFound from "./pages/NotFound";
+import CustomizeForm from "./pages/CustomizeForm"; // Add this import
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/invitation" element={<Invitation />} />
+            <Route path="/customize" element={<CustomizeForm />} /> {/* Add this route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
