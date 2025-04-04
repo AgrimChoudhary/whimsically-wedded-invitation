@@ -16,6 +16,15 @@ export const uploadImageToSupabase = async (
     const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
     const filePath = `${path}/${fileName}`;
     
+    // Create the bucket if it doesn't exist
+    const { error: bucketError } = await supabase.storage.getBucket('wedding_images');
+    if (bucketError && bucketError.message.includes('does not exist')) {
+      await supabase.storage.createBucket('wedding_images', {
+        public: true,
+        fileSizeLimit: MAX_FILE_SIZE
+      });
+    }
+    
     const { error: uploadError } = await supabase.storage
       .from('wedding_images')
       .upload(filePath, file);
@@ -166,4 +175,93 @@ export const generateUniqueInvitationLink = (id: string) => {
   // Generate a link that includes the invitation ID
   const baseUrl = window.location.origin;
   return `${baseUrl}/invitation/${id}`;
+};
+
+// New helper function to get default invitation data
+export const getDefaultInvitationTemplate = () => {
+  return {
+    bride_name: "Ananya",
+    groom_name: "Arjun",
+    couple_image_url: "",
+    wedding_date: new Date().toISOString().split('T')[0],
+    wedding_time: "11:00 AM",
+    wedding_venue: "Royal Garden Palace",
+    wedding_address: "123 Wedding Lane, Wedding City",
+    bride_family: [
+      { 
+        id: "1", 
+        name: "Rajesh & Priya Sharma", 
+        relation: "Parents of the Bride",
+        description: "Rajesh is a successful businessman who loves cricket and traveling. Priya is a dedicated homemaker with a passion for classical music and cooking traditional dishes."
+      },
+      { 
+        id: "2", 
+        name: "Ishaan Sharma", 
+        relation: "Brother of the Bride",
+        description: "Ishaan is a software engineer working in Bangalore. He enjoys gaming and photography in his free time."
+      },
+      { 
+        id: "3", 
+        name: "Meera Sharma", 
+        relation: "Sister of the Bride",
+        description: "Meera is pursuing her Masters in Psychology. She is an avid reader and loves to paint."
+      }
+    ],
+    groom_family: [
+      { 
+        id: "4", 
+        name: "Vikram & Nisha Patel", 
+        relation: "Parents of the Groom",
+        description: "Vikram is a retired professor who now mentors students. Nisha is a doctor specializing in pediatrics and loves gardening."
+      },
+      { 
+        id: "5", 
+        name: "Aditya Patel", 
+        relation: "Brother of the Groom",
+        description: "Aditya is an entrepreneur who runs a successful startup. He's passionate about fitness and hiking."
+      },
+      { 
+        id: "6", 
+        name: "Riya Patel", 
+        relation: "Sister of the Groom",
+        description: "Riya is an architect with a love for sustainable design. She enjoys playing the violin and experimenting with fusion cooking."
+      }
+    ],
+    events: [
+      {
+        id: "1",
+        name: "Mehndi Ceremony",
+        date: new Date(new Date().setDate(new Date().getDate() - 2)),
+        time: "3:00 PM",
+        venue: "Family Residence",
+        address: "123 Wedding Lane, Wedding City"
+      },
+      {
+        id: "2",
+        name: "Sangeet Ceremony",
+        date: new Date(new Date().setDate(new Date().getDate() - 1)),
+        time: "7:00 PM",
+        venue: "Golden Ballroom",
+        address: "456 Celebration Blvd, Wedding City"
+      },
+      {
+        id: "3",
+        name: "Wedding Ceremony",
+        date: new Date(),
+        time: "11:00 AM",
+        venue: "Royal Garden Palace",
+        address: "789 Royal Avenue, Wedding City"
+      },
+      {
+        id: "4",
+        name: "Reception",
+        date: new Date(),
+        time: "7:00 PM",
+        venue: "Grand Luxury Hotel",
+        address: "101 Luxury Drive, Wedding City"
+      }
+    ],
+    gallery_images: [],
+    custom_message: "We would be honored by your presence on our special day."
+  };
 };

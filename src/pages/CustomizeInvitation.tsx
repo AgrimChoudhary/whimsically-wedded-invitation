@@ -1,40 +1,31 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Edit, Save, Image, Users, Calendar, MapPin, Mail, Phone, Eye, Camera, Upload } from 'lucide-react';
-import InvitationEditor from '@/components/InvitationEditor';
-import InvitationPreview from '@/components/InvitationPreview';
+import { ArrowLeft, Edit, Save, Image, Users, Calendar, MapPin, Mail, Phone, Eye, Camera, Upload, PlusCircle } from 'lucide-react';
 import { Input } from "@/components/ui/input";
-import { uploadImageToSupabase, createWeddingInvitation, generateUniqueInvitationLink } from '@/lib/supabase-helpers';
+import { uploadImageToSupabase, createWeddingInvitation, generateUniqueInvitationLink, getDefaultInvitationTemplate } from '@/lib/supabase-helpers';
 import { supabase } from "@/integrations/supabase/client";
+import { useGuest } from '@/context/GuestContext';
+import InvitationPreview from '@/components/InvitationPreview';
 
 const CustomizeInvitation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("basic");
+  const { guestName } = useGuest();
+  const [activeTab, setActiveTab] = useState("preview");
   const [uploading, setUploading] = useState(false);
-  const [invitationData, setInvitationData] = useState({
-    bride_name: "Ananya",
-    groom_name: "Arjun",
-    couple_image_url: "",
-    wedding_date: new Date().toISOString().split('T')[0],
-    wedding_time: "11:00 AM",
-    wedding_venue: "Royal Garden Palace",
-    wedding_address: "123 Wedding Lane, Wedding City",
-    bride_family: [],
-    groom_family: [],
-    events: [],
-    gallery_images: [],
-    custom_message: "We would be honored by your presence on our special day."
-  });
+  const [invitationData, setInvitationData] = useState(getDefaultInvitationTemplate());
   const [generatedLink, setGeneratedLink] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // Direct update handler for the InvitationPreview component
   const handleDirectUpdate = (field: string, value: any) => {
+    console.log("Updating field:", field, "with value:", value);
+    
     if (field === 'names') {
       // Special case for the combined names field
       const names = value.split('&');
@@ -48,6 +39,101 @@ const CustomizeInvitation = () => {
     } else if (field === 'couple_image_upload') {
       // Open file upload dialog
       document.getElementById('couple-image-upload')?.click();
+    } else if (field === 'wedding_date') {
+      // Convert string date to ISO string for storage
+      setInvitationData(prev => ({
+        ...prev,
+        wedding_date: new Date(value).toISOString().split('T')[0]
+      }));
+    } else if (field === 'event_update') {
+      // Handle event updates - value should be {id, field, value}
+      const { id, eventField, eventValue } = value;
+      setInvitationData(prev => ({
+        ...prev,
+        events: prev.events.map(event => 
+          event.id === id ? { ...event, [eventField]: eventValue } : event
+        )
+      }));
+    } else if (field === 'add_event') {
+      // Add a new event
+      const newEvent = {
+        id: `event_${Date.now()}`,
+        name: "New Event",
+        date: new Date(),
+        time: "12:00 PM",
+        venue: "Venue Name",
+        address: "Venue Address"
+      };
+      
+      setInvitationData(prev => ({
+        ...prev,
+        events: [...prev.events, newEvent]
+      }));
+      
+      toast({
+        title: "Event Added",
+        description: "A new event has been added to your invitation."
+      });
+    } else if (field === 'remove_event') {
+      // Remove an event - value should be the event ID
+      setInvitationData(prev => ({
+        ...prev,
+        events: prev.events.filter(event => event.id !== value)
+      }));
+      
+      toast({
+        title: "Event Removed",
+        description: "The event has been removed from your invitation."
+      });
+    } else if (field === 'family_member_update') {
+      // Handle family member updates - value should be {id, side, field, value}
+      const { id, side, memberField, memberValue } = value;
+      setInvitationData(prev => {
+        const familyKey = side === 'bride' ? 'bride_family' : 'groom_family';
+        return {
+          ...prev,
+          [familyKey]: prev[familyKey].map(member => 
+            member.id === id ? { ...member, [memberField]: memberValue } : member
+          )
+        };
+      });
+    } else if (field === 'add_family_member') {
+      // Add a new family member - value should be 'bride' or 'groom'
+      const side = value;
+      const familyKey = side === 'bride' ? 'bride_family' : 'groom_family';
+      const newMember = {
+        id: `member_${Date.now()}`,
+        name: `New ${side === 'bride' ? 'Bride' : 'Groom'} Family Member`,
+        relation: `Relation to ${side === 'bride' ? 'Bride' : 'Groom'}`,
+        description: "Add a description here"
+      };
+      
+      setInvitationData(prev => ({
+        ...prev,
+        [familyKey]: [...prev[familyKey], newMember]
+      }));
+      
+      toast({
+        title: "Family Member Added",
+        description: `A new ${side === 'bride' ? 'bride' : 'groom'} family member has been added.`
+      });
+    } else if (field === 'remove_family_member') {
+      // Remove a family member - value should be {id, side}
+      const { id, side } = value;
+      const familyKey = side === 'bride' ? 'bride_family' : 'groom_family';
+      
+      setInvitationData(prev => ({
+        ...prev,
+        [familyKey]: prev[familyKey].filter(member => member.id !== id)
+      }));
+      
+      toast({
+        title: "Family Member Removed",
+        description: "The family member has been removed from your invitation."
+      });
+    } else if (field.startsWith('add_image_to_gallery')) {
+      // Open file upload dialog for gallery
+      document.getElementById('gallery-image-upload')?.click();
     } else {
       // Handle direct updates to standard fields
       setInvitationData(prev => ({
@@ -57,16 +143,8 @@ const CustomizeInvitation = () => {
     }
   };
 
-  // Update invitation data from the editor components
-  const updateInvitationData = (section: string, data: any) => {
-    setInvitationData(prev => ({
-      ...prev,
-      ...data
-    }));
-  };
-
   // Handle image upload
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'couple' | 'gallery') => {
     const files = e.target.files;
     if (!files || files.length === 0) {
       return;
@@ -75,19 +153,34 @@ const CustomizeInvitation = () => {
     setUploading(true);
     try {
       // Upload to Supabase storage
-      const imageUrl = await uploadImageToSupabase(files[0], 'couple_photos');
+      const imageUrl = await uploadImageToSupabase(files[0], type === 'couple' ? 'couple_photos' : 'gallery_images');
       
       if (imageUrl) {
-        setInvitationData(prev => ({
-          ...prev,
-          couple_image_url: imageUrl
-        }));
+        if (type === 'couple') {
+          setInvitationData(prev => ({
+            ...prev,
+            couple_image_url: imageUrl
+          }));
+        } else {
+          // For gallery image
+          const newImage = {
+            id: `gallery_${Date.now()}`,
+            image: imageUrl,
+            name: '',
+            description: ''
+          };
+          
+          setInvitationData(prev => ({
+            ...prev,
+            gallery_images: [...prev.gallery_images, newImage]
+          }));
+        }
         
         setUploading(false);
         
         toast({
           title: "Image Uploaded",
-          description: "Your image has been successfully uploaded."
+          description: `Your ${type === 'couple' ? 'couple' : 'gallery'} image has been successfully uploaded.`
         });
       } else {
         throw new Error("Failed to upload image");
@@ -106,6 +199,7 @@ const CustomizeInvitation = () => {
 
   // Save the invitation to Supabase
   const saveInvitation = async () => {
+    setSaving(true);
     try {
       const savedInvitation = await createWeddingInvitation(invitationData);
       
@@ -132,6 +226,8 @@ const CustomizeInvitation = () => {
         description: "Failed to save your invitation. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -152,244 +248,265 @@ const CustomizeInvitation = () => {
           </h1>
         </div>
 
-        {/* Hidden file input for couple image upload */}
+        {/* Hidden file inputs for image uploads */}
         <input
           type="file"
           id="couple-image-upload"
           className="hidden"
           accept="image/*"
-          onChange={handleImageUpload}
+          onChange={(e) => handleImageUpload(e, 'couple')}
+          disabled={uploading}
+        />
+        
+        <input
+          type="file"
+          id="gallery-image-upload"
+          className="hidden"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, 'gallery')}
           disabled={uploading}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="col-span-1">
-            <Card className="bg-white/90 backdrop-blur-sm border-wedding-gold/30">
-              <CardHeader>
-                <CardTitle>Invitation Editor</CardTitle>
-                <CardDescription>
-                  Click on any element in the preview to customize your invitation
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="basic" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid grid-cols-2 mb-4">
-                    <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                    <TabsTrigger value="details">Details</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="basic" className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab("couple")}>
-                      <Users className="mr-2 h-4 w-4" />
-                      <span>Couple Details</span>
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab("date")}>
-                      <Calendar className="mr-2 h-4 w-4" />
-                      <span>Date & Time</span>
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab("photos")}>
-                      <Image className="mr-2 h-4 w-4" />
-                      <span>Photos</span>
-                    </Button>
-                  </TabsContent>
-                  
-                  <TabsContent value="details" className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab("family")}>
-                      <Users className="mr-2 h-4 w-4" />
-                      <span>Family Members</span>
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab("events")}>
-                      <Calendar className="mr-2 h-4 w-4" />
-                      <span>Events</span>
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab("venue")}>
-                      <MapPin className="mr-2 h-4 w-4" />
-                      <span>Venue Details</span>
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab("contact")}>
-                      <Mail className="mr-2 h-4 w-4" />
-                      <span>Contact Information</span>
-                    </Button>
-                  </TabsContent>
-                  
-                  <TabsContent value="couple">
-                    <Button variant="outline" size="sm" className="mb-4" onClick={() => setActiveTab("basic")}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back
-                    </Button>
-                    <InvitationEditor 
-                      section="couple" 
-                      initialData={{
-                        brideName: invitationData.bride_name,
-                        groomName: invitationData.groom_name,
-                        coupleImageUrl: invitationData.couple_image_url
-                      }}
-                      onUpdate={(data) => updateInvitationData("couple", {
-                        bride_name: data.brideName,
-                        groom_name: data.groomName,
-                        couple_image_url: data.coupleImageUrl
-                      })}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="date">
-                    <Button variant="outline" size="sm" className="mb-4" onClick={() => setActiveTab("basic")}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back
-                    </Button>
-                    <InvitationEditor 
-                      section="date" 
-                      initialData={{
-                        weddingDate: new Date(invitationData.wedding_date),
-                        weddingTime: invitationData.wedding_time
-                      }}
-                      onUpdate={(data) => updateInvitationData("date", {
-                        wedding_date: data.weddingDate.toISOString().split('T')[0],
-                        wedding_time: data.weddingTime
-                      })}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="photos">
-                    <Button variant="outline" size="sm" className="mb-4" onClick={() => setActiveTab("basic")}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back
-                    </Button>
-                    <InvitationEditor 
-                      section="photos" 
-                      initialData={{ galleryImages: invitationData.gallery_images }}
-                      onUpdate={(data) => updateInvitationData("photos", {
-                        gallery_images: data.galleryImages
-                      })}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="family">
-                    <Button variant="outline" size="sm" className="mb-4" onClick={() => setActiveTab("details")}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back
-                    </Button>
-                    <InvitationEditor 
-                      section="family" 
-                      initialData={{
-                        brideFamily: invitationData.bride_family,
-                        groomFamily: invitationData.groom_family
-                      }}
-                      onUpdate={(data) => updateInvitationData("family", {
-                        bride_family: data.brideFamily,
-                        groom_family: data.groomFamily
-                      })}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="events">
-                    <Button variant="outline" size="sm" className="mb-4" onClick={() => setActiveTab("details")}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back
-                    </Button>
-                    <InvitationEditor 
-                      section="events" 
-                      initialData={{ events: invitationData.events }}
-                      onUpdate={(data) => updateInvitationData("events", {
-                        events: data.events
-                      })}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="venue">
-                    <Button variant="outline" size="sm" className="mb-4" onClick={() => setActiveTab("details")}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back
-                    </Button>
-                    <InvitationEditor 
-                      section="venue" 
-                      initialData={{
-                        venueName: invitationData.wedding_venue,
-                        venueAddress: invitationData.wedding_address
-                      }}
-                      onUpdate={(data) => updateInvitationData("venue", {
-                        wedding_venue: data.venueName,
-                        wedding_address: data.venueAddress
-                      })}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="contact">
-                    <Button variant="outline" size="sm" className="mb-4" onClick={() => setActiveTab("details")}>
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back
-                    </Button>
-                    <InvitationEditor 
-                      section="contact" 
-                      initialData={{ customMessage: invitationData.custom_message }}
-                      onUpdate={(data) => updateInvitationData("contact", {
-                        custom_message: data.customMessage
-                      })}
-                    />
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-            
-            <div className="mt-6">
-              <Button className="w-full bg-wedding-gold hover:bg-wedding-deep-gold text-white" onClick={saveInvitation}>
-                <Save className="mr-2 h-4 w-4" />
-                Save Invitation
-              </Button>
-              
-              {generatedLink && (
-                <div className="mt-4 p-4 bg-white/90 rounded-lg shadow">
-                  <p className="font-medium mb-2">Share your invitation:</p>
-                  <div className="flex items-center">
-                    <input 
-                      type="text" 
-                      value={generatedLink} 
-                      readOnly 
-                      className="flex-1 p-2 text-sm border rounded-l-md"
-                    />
-                    <Button 
-                      className="rounded-l-none"
-                      onClick={() => {
-                        navigator.clipboard.writeText(generatedLink);
-                        toast({
-                          title: "Link Copied!",
-                          description: "Share this link with your guests.",
-                        });
-                      }}
-                    >
-                      Copy
-                    </Button>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full mt-2"
-                    onClick={() => window.open(generatedLink, "_blank")}
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    Preview Invitation
-                  </Button>
+        <div className="grid grid-cols-1 gap-6">
+          <Card className="bg-white/90 backdrop-blur-sm border-wedding-gold/30">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Invitation Editor</CardTitle>
+                  <CardDescription>
+                    Click on any element to customize your invitation
+                  </CardDescription>
                 </div>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
+                  <TabsList>
+                    <TabsTrigger value="preview" className="flex items-center">
+                      <Eye className="mr-2 h-4 w-4" />
+                      <span>Edit Invitation</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="settings" className="flex items-center">
+                      <Edit className="mr-2 h-4 w-4" />
+                      <span>Advanced Settings</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </CardHeader>
+            
+            <CardContent>
+              <TabsContent value="preview" className="mt-0">
+                <div className="border rounded-lg bg-white overflow-hidden">
+                  <div className="p-1 bg-wedding-gold/30 text-xs text-center text-wedding-maroon">
+                    Click on any text or element to edit it directly
+                  </div>
+                  <div className="max-h-[80vh] overflow-y-auto px-4 py-6">
+                    <InvitationPreview 
+                      invitationData={invitationData} 
+                      editable={true}
+                      onUpdate={handleDirectUpdate}
+                      showEditHints={true}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="settings" className="mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium mb-4">Invitation Settings</h3>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Bride's Name</label>
+                      <Input 
+                        value={invitationData.bride_name} 
+                        onChange={(e) => handleDirectUpdate('bride_name', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Groom's Name</label>
+                      <Input 
+                        value={invitationData.groom_name} 
+                        onChange={(e) => handleDirectUpdate('groom_name', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Wedding Date</label>
+                      <Input 
+                        type="date" 
+                        value={invitationData.wedding_date} 
+                        onChange={(e) => handleDirectUpdate('wedding_date', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Wedding Time</label>
+                      <Input 
+                        value={invitationData.wedding_time} 
+                        onChange={(e) => handleDirectUpdate('wedding_time', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Venue Name</label>
+                      <Input 
+                        value={invitationData.wedding_venue} 
+                        onChange={(e) => handleDirectUpdate('wedding_venue', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Venue Address</label>
+                      <Input 
+                        value={invitationData.wedding_address} 
+                        onChange={(e) => handleDirectUpdate('wedding_address', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium mb-4">Image Settings</h3>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Couple Image</label>
+                      <div className="flex items-center space-x-4">
+                        {invitationData.couple_image_url ? (
+                          <div className="relative w-32 h-32">
+                            <img src={invitationData.couple_image_url} alt="Couple" className="w-full h-full object-cover rounded-md" />
+                            <button 
+                              className="absolute top-1 right-1 bg-red-500 rounded-full p-1 text-white"
+                              onClick={() => handleDirectUpdate('couple_image_url', '')}
+                            >
+                              <ArrowLeft size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-32 h-32 border-2 border-dashed border-gray-300 flex items-center justify-center rounded-md">
+                            <Upload size={24} className="text-gray-400" />
+                          </div>
+                        )}
+                        
+                        <Button 
+                          onClick={() => document.getElementById('couple-image-upload')?.click()}
+                          disabled={uploading}
+                          variant="outline"
+                        >
+                          {uploading ? "Uploading..." : "Upload Photo"}
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-medium">Gallery Images</label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById('gallery-image-upload')?.click()}
+                          className="text-xs"
+                        >
+                          <PlusCircle size={14} className="mr-1" />
+                          Add Image
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-2">
+                        {invitationData.gallery_images.map((image, idx) => (
+                          <div key={idx} className="relative aspect-square">
+                            <img 
+                              src={image.image} 
+                              alt={`Gallery ${idx + 1}`}
+                              className="w-full h-full object-cover rounded-md"
+                            />
+                            <button 
+                              className="absolute top-1 right-1 bg-red-500 rounded-full p-1 text-white"
+                              onClick={() => {
+                                const updatedGallery = [...invitationData.gallery_images];
+                                updatedGallery.splice(idx, 1);
+                                handleDirectUpdate('gallery_images', updatedGallery);
+                              }}
+                            >
+                              <ArrowLeft size={12} />
+                            </button>
+                          </div>
+                        ))}
+                        
+                        {invitationData.gallery_images.length === 0 && (
+                          <div className="col-span-3 h-24 border-2 border-dashed border-gray-300 flex items-center justify-center rounded-md">
+                            <span className="text-gray-400 text-sm">No gallery images yet</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </CardContent>
+          </Card>
+          
+          <div className="flex justify-center mt-6">
+            <Button 
+              className="w-full max-w-md bg-wedding-gold hover:bg-wedding-deep-gold text-white" 
+              onClick={saveInvitation}
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin mr-2"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Invitation
+                </>
               )}
-            </div>
+            </Button>
           </div>
           
-          <div className="col-span-1 lg:col-span-2">
-            <Card className="bg-white/90 backdrop-blur-sm border-wedding-gold/30">
-              <CardHeader>
-                <CardTitle>Live Preview</CardTitle>
-                <CardDescription>
-                  Click on any text to edit it directly
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="min-h-[500px] overflow-auto">
-                <InvitationPreview 
-                  invitationData={invitationData} 
-                  editable={true}
-                  onUpdate={handleDirectUpdate}
+          {generatedLink && (
+            <div className="mt-4 p-4 max-w-lg mx-auto bg-white/90 rounded-lg shadow">
+              <p className="font-medium mb-2">Share your invitation:</p>
+              <div className="flex items-center">
+                <Input 
+                  type="text" 
+                  value={generatedLink} 
+                  readOnly 
+                  className="flex-1 text-sm"
                 />
-              </CardContent>
-            </Card>
-          </div>
+                <Button 
+                  className="ml-2"
+                  onClick={() => {
+                    navigator.clipboard.writeText(generatedLink);
+                    toast({
+                      title: "Link Copied!",
+                      description: "Share this link with your guests.",
+                    });
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
+              <div className="flex mt-4 space-x-3">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => window.open(generatedLink, "_blank")}
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  Preview
+                </Button>
+                
+                <Button
+                  variant="default"
+                  className="flex-1 bg-wedding-maroon hover:bg-wedding-maroon/90"
+                  onClick={() => navigate('/')}
+                >
+                  Create Another
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
