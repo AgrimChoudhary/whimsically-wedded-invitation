@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -274,151 +275,152 @@ const CustomizeInvitation = () => {
             </CardHeader>
             
             <CardContent>
-              <TabsContent value="preview" className="mt-0">
-                <div className="border rounded-lg bg-white overflow-hidden">
-                  <div className="max-h-[80vh] overflow-y-auto px-4 py-6">
-                    <InvitationPreview 
-                      invitationData={invitationData} 
-                      editable={true}
-                      onUpdate={handleDirectUpdate}
-                      showEditHints={true}
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="settings" className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium mb-4">Invitation Settings</h3>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Bride's Name</label>
-                      <Input 
-                        value={invitationData.bride_name} 
-                        onChange={(e) => handleDirectUpdate('bride_name', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Groom's Name</label>
-                      <Input 
-                        value={invitationData.groom_name} 
-                        onChange={(e) => handleDirectUpdate('groom_name', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Wedding Date</label>
-                      <Input 
-                        type="date" 
-                        value={invitationData.wedding_date} 
-                        onChange={(e) => handleDirectUpdate('wedding_date', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Wedding Time</label>
-                      <Input 
-                        value={invitationData.wedding_time} 
-                        onChange={(e) => handleDirectUpdate('wedding_time', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Venue Name</label>
-                      <Input 
-                        value={invitationData.wedding_venue} 
-                        onChange={(e) => handleDirectUpdate('wedding_venue', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Venue Address</label>
-                      <Input 
-                        value={invitationData.wedding_address} 
-                        onChange={(e) => handleDirectUpdate('wedding_address', e.target.value)}
+              <Tabs value={activeTab}>
+                <TabsContent value="preview" className="mt-0">
+                  <div className="border rounded-lg bg-white overflow-hidden">
+                    <div className="max-h-[80vh] overflow-y-auto px-4 py-6">
+                      <InvitationPreview 
+                        invitationData={invitationData} 
+                        editable={true}
+                        onUpdate={handleDirectUpdate}
                       />
                     </div>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium mb-4">Image Settings</h3>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Couple Image</label>
-                      <div className="flex items-center space-x-4">
-                        {invitationData.couple_image_url ? (
-                          <div className="relative w-32 h-32">
-                            <img src={invitationData.couple_image_url} alt="Couple" className="w-full h-full object-cover rounded-md" />
-                            <button 
-                              className="absolute top-1 right-1 bg-red-500 rounded-full p-1 text-white"
-                              onClick={() => handleDirectUpdate('couple_image_url', '')}
-                            >
-                              <ArrowLeft size={12} />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="w-32 h-32 border-2 border-dashed border-gray-300 flex items-center justify-center rounded-md">
-                            <Upload size={24} className="text-gray-400" />
-                          </div>
-                        )}
-                        
-                        <Button 
-                          onClick={() => document.getElementById('couple-image-upload')?.click()}
-                          disabled={uploading}
-                          variant="outline"
-                        >
-                          {uploading ? "Uploading..." : "Upload Photo"}
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <label className="text-sm font-medium">Gallery Images</label>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => document.getElementById('gallery-image-upload')?.click()}
-                          className="text-xs"
-                        >
-                          <PlusCircle size={14} className="mr-1" />
-                          Add Image
-                        </Button>
+                </TabsContent>
+                
+                <TabsContent value="settings" className="mt-0">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium mb-4">Invitation Settings</h3>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Bride's Name</label>
+                        <Input 
+                          value={invitationData.bride_name} 
+                          onChange={(e) => handleDirectUpdate('bride_name', e.target.value)}
+                        />
                       </div>
                       
-                      <div className="grid grid-cols-3 gap-2">
-                        {invitationData.gallery_images.map((image, idx) => (
-                          <div key={idx} className="relative aspect-square">
-                            <img 
-                              src={image.image} 
-                              alt={`Gallery ${idx + 1}`}
-                              className="w-full h-full object-cover rounded-md"
-                            />
-                            <button 
-                              className="absolute top-1 right-1 bg-red-500 rounded-full p-1 text-white"
-                              onClick={() => {
-                                const updatedGallery = [...invitationData.gallery_images];
-                                updatedGallery.splice(idx, 1);
-                                handleDirectUpdate('gallery_images', updatedGallery);
-                              }}
-                            >
-                              <ArrowLeft size={12} />
-                            </button>
-                          </div>
-                        ))}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Groom's Name</label>
+                        <Input 
+                          value={invitationData.groom_name} 
+                          onChange={(e) => handleDirectUpdate('groom_name', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Wedding Date</label>
+                        <Input 
+                          type="date" 
+                          value={invitationData.wedding_date} 
+                          onChange={(e) => handleDirectUpdate('wedding_date', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Wedding Time</label>
+                        <Input 
+                          value={invitationData.wedding_time} 
+                          onChange={(e) => handleDirectUpdate('wedding_time', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Venue Name</label>
+                        <Input 
+                          value={invitationData.wedding_venue} 
+                          onChange={(e) => handleDirectUpdate('wedding_venue', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Venue Address</label>
+                        <Input 
+                          value={invitationData.wedding_address} 
+                          onChange={(e) => handleDirectUpdate('wedding_address', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium mb-4">Image Settings</h3>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Couple Image</label>
+                        <div className="flex items-center space-x-4">
+                          {invitationData.couple_image_url ? (
+                            <div className="relative w-32 h-32">
+                              <img src={invitationData.couple_image_url} alt="Couple" className="w-full h-full object-cover rounded-md" />
+                              <button 
+                                className="absolute top-1 right-1 bg-red-500 rounded-full p-1 text-white"
+                                onClick={() => handleDirectUpdate('couple_image_url', '')}
+                              >
+                                <ArrowLeft size={12} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-32 h-32 border-2 border-dashed border-gray-300 flex items-center justify-center rounded-md">
+                              <Upload size={24} className="text-gray-400" />
+                            </div>
+                          )}
+                          
+                          <Button 
+                            onClick={() => document.getElementById('couple-image-upload')?.click()}
+                            disabled={uploading}
+                            variant="outline"
+                          >
+                            {uploading ? "Uploading..." : "Upload Photo"}
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <label className="text-sm font-medium">Gallery Images</label>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => document.getElementById('gallery-image-upload')?.click()}
+                            className="text-xs"
+                          >
+                            <PlusCircle size={14} className="mr-1" />
+                            Add Image
+                          </Button>
+                        </div>
                         
-                        {invitationData.gallery_images.length === 0 && (
-                          <div className="col-span-3 h-24 border-2 border-dashed border-gray-300 flex items-center justify-center rounded-md">
-                            <span className="text-gray-400 text-sm">No gallery images yet</span>
-                          </div>
-                        )}
+                        <div className="grid grid-cols-3 gap-2">
+                          {invitationData.gallery_images.map((image, idx) => (
+                            <div key={idx} className="relative aspect-square">
+                              <img 
+                                src={image.image} 
+                                alt={`Gallery ${idx + 1}`}
+                                className="w-full h-full object-cover rounded-md"
+                              />
+                              <button 
+                                className="absolute top-1 right-1 bg-red-500 rounded-full p-1 text-white"
+                                onClick={() => {
+                                  const updatedGallery = [...invitationData.gallery_images];
+                                  updatedGallery.splice(idx, 1);
+                                  handleDirectUpdate('gallery_images', updatedGallery);
+                                }}
+                              >
+                                <ArrowLeft size={12} />
+                              </button>
+                            </div>
+                          ))}
+                          
+                          {invitationData.gallery_images.length === 0 && (
+                            <div className="col-span-3 h-24 border-2 border-dashed border-gray-300 flex items-center justify-center rounded-md">
+                              <span className="text-gray-400 text-sm">No gallery images yet</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </TabsContent>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
           
