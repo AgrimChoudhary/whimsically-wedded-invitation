@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -22,12 +21,10 @@ const CustomizeInvitation = () => {
   const [generatedLink, setGeneratedLink] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Direct update handler for the InvitationPreview component
   const handleDirectUpdate = (field: string, value: any) => {
     console.log("Updating field:", field, "with value:", value);
     
     if (field === 'names') {
-      // Special case for the combined names field
       const names = value.split('&');
       if (names.length === 2) {
         setInvitationData(prev => ({
@@ -37,16 +34,13 @@ const CustomizeInvitation = () => {
         }));
       }
     } else if (field === 'couple_image_upload') {
-      // Open file upload dialog
       document.getElementById('couple-image-upload')?.click();
     } else if (field === 'wedding_date') {
-      // Convert string date to ISO string for storage
       setInvitationData(prev => ({
         ...prev,
         wedding_date: new Date(value).toISOString().split('T')[0]
       }));
     } else if (field === 'event_update') {
-      // Handle event updates - value should be {id, field, value}
       const { id, eventField, eventValue } = value;
       setInvitationData(prev => ({
         ...prev,
@@ -55,7 +49,6 @@ const CustomizeInvitation = () => {
         )
       }));
     } else if (field === 'add_event') {
-      // Add a new event
       const newEvent = {
         id: `event_${Date.now()}`,
         name: "New Event",
@@ -75,7 +68,6 @@ const CustomizeInvitation = () => {
         description: "A new event has been added to your invitation."
       });
     } else if (field === 'remove_event') {
-      // Remove an event - value should be the event ID
       setInvitationData(prev => ({
         ...prev,
         events: prev.events.filter(event => event.id !== value)
@@ -86,7 +78,6 @@ const CustomizeInvitation = () => {
         description: "The event has been removed from your invitation."
       });
     } else if (field === 'family_member_update') {
-      // Handle family member updates - value should be {id, side, field, value}
       const { id, side, memberField, memberValue } = value;
       setInvitationData(prev => {
         const familyKey = side === 'bride' ? 'bride_family' : 'groom_family';
@@ -98,7 +89,6 @@ const CustomizeInvitation = () => {
         };
       });
     } else if (field === 'add_family_member') {
-      // Add a new family member - value should be 'bride' or 'groom'
       const side = value;
       const familyKey = side === 'bride' ? 'bride_family' : 'groom_family';
       const newMember = {
@@ -118,7 +108,6 @@ const CustomizeInvitation = () => {
         description: `A new ${side === 'bride' ? 'bride' : 'groom'} family member has been added.`
       });
     } else if (field === 'remove_family_member') {
-      // Remove a family member - value should be {id, side}
       const { id, side } = value;
       const familyKey = side === 'bride' ? 'bride_family' : 'groom_family';
       
@@ -132,10 +121,8 @@ const CustomizeInvitation = () => {
         description: "The family member has been removed from your invitation."
       });
     } else if (field.startsWith('add_image_to_gallery')) {
-      // Open file upload dialog for gallery
       document.getElementById('gallery-image-upload')?.click();
     } else {
-      // Handle direct updates to standard fields
       setInvitationData(prev => ({
         ...prev,
         [field]: value
@@ -143,7 +130,6 @@ const CustomizeInvitation = () => {
     }
   };
 
-  // Handle image upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'couple' | 'gallery') => {
     const files = e.target.files;
     if (!files || files.length === 0) {
@@ -152,7 +138,6 @@ const CustomizeInvitation = () => {
     
     setUploading(true);
     try {
-      // Upload to Supabase storage
       const imageUrl = await uploadImageToSupabase(files[0], type === 'couple' ? 'couple_photos' : 'gallery_images');
       
       if (imageUrl) {
@@ -162,7 +147,6 @@ const CustomizeInvitation = () => {
             couple_image_url: imageUrl
           }));
         } else {
-          // For gallery image
           const newImage = {
             id: `gallery_${Date.now()}`,
             image: imageUrl,
@@ -197,7 +181,6 @@ const CustomizeInvitation = () => {
     }
   };
 
-  // Save the invitation to Supabase
   const saveInvitation = async () => {
     setSaving(true);
     try {
@@ -212,7 +195,6 @@ const CustomizeInvitation = () => {
           description: "Your customized invitation has been successfully saved.",
         });
         
-        // Copy link to clipboard
         navigator.clipboard.writeText(link);
         toast({
           title: "Link Copied!",
@@ -248,7 +230,6 @@ const CustomizeInvitation = () => {
           </h1>
         </div>
 
-        {/* Hidden file inputs for image uploads */}
         <input
           type="file"
           id="couple-image-upload"
@@ -295,9 +276,6 @@ const CustomizeInvitation = () => {
             <CardContent>
               <TabsContent value="preview" className="mt-0">
                 <div className="border rounded-lg bg-white overflow-hidden">
-                  <div className="p-1 bg-wedding-gold/30 text-xs text-center text-wedding-maroon">
-                    Click on any text or element to edit it directly
-                  </div>
                   <div className="max-h-[80vh] overflow-y-auto px-4 py-6">
                     <InvitationPreview 
                       invitationData={invitationData} 

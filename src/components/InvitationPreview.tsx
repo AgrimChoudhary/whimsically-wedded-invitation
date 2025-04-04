@@ -23,12 +23,14 @@ interface InvitationPreviewProps {
   };
   editable?: boolean;
   onUpdate?: (field: string, value: any) => void;
+  showEditHints?: boolean;
 }
 
 const InvitationPreview: React.FC<InvitationPreviewProps> = ({ 
   invitationData, 
   editable = false,
-  onUpdate = () => {}
+  onUpdate = () => {},
+  showEditHints = false
 }) => {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValues, setTempValues] = useState<{[key: string]: any}>({});
@@ -162,6 +164,12 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
   return (
     <div className="scale-[0.9] origin-top">
       <div className="max-w-3xl mx-auto bg-wedding-cream p-8 rounded-lg shadow-lg border-2 border-wedding-gold/30">
+        {showEditHints && editable && (
+          <div className="mb-4 p-2 bg-wedding-gold/10 rounded text-sm text-wedding-maroon text-center">
+            Click on any text or element to edit it directly
+          </div>
+        )}
+        
         {/* Header */}
         <div className="text-center mb-8">
           {renderEditableText('names', `${invitationData.bride_name} & ${invitationData.groom_name}`, true)}
