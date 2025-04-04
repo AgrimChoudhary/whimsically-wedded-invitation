@@ -42,15 +42,28 @@ const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => {
-  // Make sure we're in a Tabs context
-  const tabsContext = React.useContext(TabsPrimitive.TabsContext)
-  
-  // If we're not in a Tabs context, provide a helpful error message during development
-  if (process.env.NODE_ENV !== "production" && !tabsContext) {
-    console.error(
-      "TabsContent must be used within a Tabs component. " +
-      "Ensure the TabsContent is nested within a Tabs component in the component tree."
-    )
+  // Instead of using TabsContext directly, we'll safely check if we're in a Tabs component
+  // by checking if the Trigger component is defined in the current context
+  if (process.env.NODE_ENV !== "production") {
+    // We're using a try/catch here because calling useContext with an undefined
+    // context will throw an error, and we want to provide helpful feedback
+    try {
+      // Use the primitive directly
+      const val = TabsPrimitive.useRootContext?.()
+      
+      // If the context doesn't exist (not inside a Tabs component), provide a helpful error
+      if (!val && val !== 0) {
+        console.error(
+          "TabsContent must be used within a Tabs component. " +
+          "Ensure the TabsContent is nested within a Tabs component in the component tree."
+        )
+      }
+    } catch (e) {
+      console.error(
+        "TabsContent must be used within a Tabs component. " +
+        "Ensure the TabsContent is nested within a Tabs component in the component tree."
+      )
+    }
   }
   
   return (
