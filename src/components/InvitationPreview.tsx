@@ -35,12 +35,14 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValues, setTempValues] = useState<{[key: string]: any}>({});
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     try {
-      const date = new Date(dateString);
+      // If it's already a Date object, use it directly
+      const date = dateString instanceof Date ? dateString : new Date(dateString);
       return format(date, 'MMMM d, yyyy');
     } catch (error) {
-      return dateString;
+      // If formatting fails, convert to string as a fallback
+      return String(dateString);
     }
   };
 
@@ -65,7 +67,10 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
     setEditingField(null);
   };
 
-  const renderEditableText = (field: string, value: string, isHeader: boolean = false) => {
+  const renderEditableText = (field: string, value: string | Date, isHeader: boolean = false) => {
+    // Ensure value is a string before rendering
+    const displayValue = value instanceof Date ? formatDate(value) : String(value);
+    
     if (editingField === field) {
       return (
         <div className="flex items-center">
@@ -97,9 +102,9 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
       return (
         <h2 
           className={`font-great-vibes text-4xl text-wedding-maroon mb-2 ${editable ? 'cursor-pointer group relative' : ''}`}
-          onClick={() => handleEditStart(field, value)}
+          onClick={() => handleEditStart(field, displayValue)}
         >
-          {value}
+          {displayValue}
           {editable && (
             <Edit size={16} className="invisible group-hover:visible absolute -right-6 top-2 text-wedding-gold/70" />
           )}
@@ -110,9 +115,9 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
     return (
       <p 
         className={`${editable ? 'cursor-pointer group relative' : ''}`}
-        onClick={() => handleEditStart(field, value)}
+        onClick={() => handleEditStart(field, displayValue)}
       >
-        {value}
+        {displayValue}
         {editable && (
           <Edit size={14} className="invisible group-hover:visible absolute -right-5 top-1 text-wedding-gold/70" />
         )}
@@ -121,6 +126,9 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
   };
 
   const renderEditableContent = (field: string, value: string) => {
+    // Ensure value is a string
+    const displayValue = String(value);
+    
     if (editingField === field) {
       return (
         <div className="flex items-center">
@@ -151,9 +159,9 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
     return (
       <p 
         className={`italic text-gray-700 ${editable ? 'cursor-pointer group relative' : ''}`}
-        onClick={() => handleEditStart(field, value)}
+        onClick={() => handleEditStart(field, displayValue)}
       >
-        {value}
+        {displayValue}
         {editable && (
           <Edit size={14} className="invisible group-hover:visible absolute -right-5 top-1 text-wedding-gold/70" />
         )}
@@ -242,13 +250,13 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                     </h4>
                     <div className="flex items-center text-sm text-gray-600 mt-2">
                       <Clock className="h-4 w-4 mr-1" />
-                      <span>{renderEditableText(`event_${index}_date`, event.date || event.event_date)}</span>
+                      <span>{renderEditableText(`event_${index}_date`, event.date ? formatDate(event.date) : (event.event_date || ''))}</span>
                       <span className="mx-2">•</span>
-                      <span>{renderEditableText(`event_${index}_time`, event.time || event.event_time)}</span>
+                      <span>{renderEditableText(`event_${index}_time`, event.time || event.event_time || '')}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600 mt-1">
                       <MapPin className="h-4 w-4 mr-1" />
-                      <span>{renderEditableText(`event_${index}_venue`, event.venue || event.event_venue)}</span>
+                      <span>{renderEditableText(`event_${index}_venue`, event.venue || event.event_venue || '')}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -272,8 +280,8 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                       <div key={index} className="flex items-center p-2 bg-white/70 rounded-lg">
                         <Users className="h-4 w-4 mr-2 text-wedding-maroon" />
                         <div>
-                          {renderEditableText(`bride_family_${index}_name`, member.name)}
-                          {renderEditableText(`bride_family_${index}_relation`, member.relation)}
+                          {renderEditableText(`bride_family_${index}_name`, member.name || '')}
+                          {renderEditableText(`bride_family_${index}_relation`, member.relation || '')}
                         </div>
                       </div>
                     ))}
@@ -289,8 +297,8 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                       <div key={index} className="flex items-center p-2 bg-white/70 rounded-lg">
                         <Users className="h-4 w-4 mr-2 text-wedding-maroon" />
                         <div>
-                          {renderEditableText(`groom_family_${index}_name`, member.name)}
-                          {renderEditableText(`groom_family_${index}_relation`, member.relation)}
+                          {renderEditableText(`groom_family_${index}_name`, member.name || '')}
+                          {renderEditableText(`groom_family_${index}_relation`, member.relation || '')}
                         </div>
                       </div>
                     ))}
