@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Check, Copy, Edit, Eye, EyeOff, Palette, PenTool, Pencil, Save, X as CloseIcon, Plus, Trash2 } from 'lucide-react';
+import { Check, Copy, Edit, Eye, EyeOff, Palette, PenTool, Pencil, Save, CloseIcon, Plus, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,21 @@ interface EventData {
   time: string;
   venue: string;
   address: string;
+}
+
+// Define interface for the template data which might have different property names
+interface TemplateEventData {
+  id?: string;
+  name?: string;
+  event_name?: string;
+  date?: Date | string;
+  event_date?: string;
+  time?: string;
+  event_time?: string;
+  venue?: string;
+  event_venue?: string;
+  address?: string;
+  event_address?: string;
 }
 
 // Define the invitation data structure with all required fields
@@ -212,7 +227,7 @@ const CustomizeInvitation: React.FC = () => {
       
       // Map events correctly
       if (templateData.events && Array.isArray(templateData.events)) {
-        updatedData.events = templateData.events.map(event => {
+        updatedData.events = templateData.events.map((event: any) => {
           // Create correctly shaped event object
           return {
             id: event.id || String(Math.random()),
