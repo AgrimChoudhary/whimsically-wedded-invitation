@@ -61,9 +61,12 @@ export const createWeddingInvitation = async (invitationData: any) => {
         : invitationData.gallery_images,
     };
 
+    // Remove events from the data to be inserted into the main table
+    const { events, ...dataWithoutEvents } = formattedData;
+
     const { data, error } = await supabase
       .from('wedding_invitations')
-      .insert(formattedData)
+      .insert(dataWithoutEvents)
       .select()
       .single();
 
@@ -73,11 +76,11 @@ export const createWeddingInvitation = async (invitationData: any) => {
     }
 
     // If events are provided, insert them
-    if (invitationData.events && Array.isArray(invitationData.events) && invitationData.events.length > 0) {
-      const eventsWithInvitationId = invitationData.events.map((event: any) => ({
+    if (events && Array.isArray(events) && events.length > 0) {
+      const eventsWithInvitationId = events.map((event: any) => ({
         invitation_id: data.id,
         event_name: event.name,
-        event_date: event.date,
+        event_date: event.date instanceof Date ? event.date.toISOString() : event.date,
         event_time: event.time,
         event_venue: event.venue,
         event_address: event.address
@@ -235,7 +238,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "1",
         name: "Mehndi Ceremony",
-        date: new Date(new Date().setDate(new Date().getDate() - 2)),
+        date: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString().split('T')[0],
         time: "3:00 PM",
         venue: "Family Residence",
         address: "123 Wedding Lane, Wedding City"
@@ -243,7 +246,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "2",
         name: "Sangeet Ceremony",
-        date: new Date(new Date().setDate(new Date().getDate() - 1)),
+        date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0],
         time: "7:00 PM",
         venue: "Golden Ballroom",
         address: "456 Celebration Blvd, Wedding City"
@@ -251,7 +254,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "3",
         name: "Wedding Ceremony",
-        date: new Date(),
+        date: new Date().toISOString().split('T')[0],
         time: "11:00 AM",
         venue: "Royal Garden Palace",
         address: "789 Royal Avenue, Wedding City"
@@ -259,7 +262,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "4",
         name: "Reception",
-        date: new Date(),
+        date: new Date().toISOString().split('T')[0],
         time: "7:00 PM",
         venue: "Grand Luxury Hotel",
         address: "101 Luxury Drive, Wedding City"
