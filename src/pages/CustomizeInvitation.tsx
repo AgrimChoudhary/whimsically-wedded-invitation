@@ -197,29 +197,42 @@ const CustomizeInvitation: React.FC = () => {
   const loadTemplateData = () => {
     const templateData = getDefaultInvitationTemplate();
     // Transform template data to match our expected format
-    setInvitationData(prev => ({
-      ...prev,
-      bride_name: templateData.bride_name,
-      groom_name: templateData.groom_name,
-      couple_image_url: templateData.couple_image_url || "",
-      wedding_date: templateData.wedding_date,
-      wedding_time: templateData.wedding_time || "11:00 AM",
-      wedding_venue: templateData.wedding_venue || "Wedding Venue",
-      wedding_address: templateData.wedding_address || "Address",
-      // Map existing events to our format
-      events: (templateData.events || []).map(event => ({
-        id: event.id || String(Math.random()),
-        name: event.name || event.event_name || "",
-        date: event.date || (event.event_date ? new Date(event.event_date) : new Date()),
-        time: event.time || event.event_time || "",
-        venue: event.venue || event.event_venue || "",
-        address: event.address || event.event_address || ""
-      })),
-      bride_family: templateData.bride_family || [],
-      groom_family: templateData.groom_family || [],
-      gallery_images: templateData.gallery_images || [],
-      custom_message: templateData.custom_message || "We request the honor of your presence"
-    }));
+    setInvitationData(prev => {
+      // Create a new copy of the previous state
+      const updatedData = { ...prev };
+      
+      // Update basic fields
+      updatedData.bride_name = templateData.bride_name;
+      updatedData.groom_name = templateData.groom_name;
+      updatedData.couple_image_url = templateData.couple_image_url || "";
+      updatedData.wedding_date = templateData.wedding_date;
+      updatedData.wedding_time = templateData.wedding_time || "11:00 AM";
+      updatedData.wedding_venue = templateData.wedding_venue || "Wedding Venue";
+      updatedData.wedding_address = templateData.wedding_address || "Address";
+      
+      // Map events correctly
+      if (templateData.events && Array.isArray(templateData.events)) {
+        updatedData.events = templateData.events.map(event => {
+          // Create correctly shaped event object
+          return {
+            id: event.id || String(Math.random()),
+            name: event.name || event.event_name || "",
+            date: event.date || (event.event_date ? new Date(event.event_date) : new Date()),
+            time: event.time || event.event_time || "",
+            venue: event.venue || event.event_venue || "",
+            address: event.address || event.event_address || ""
+          };
+        });
+      }
+      
+      // Copy other fields
+      if (templateData.bride_family) updatedData.bride_family = templateData.bride_family;
+      if (templateData.groom_family) updatedData.groom_family = templateData.groom_family;
+      if (templateData.gallery_images) updatedData.gallery_images = templateData.gallery_images;
+      if (templateData.custom_message) updatedData.custom_message = templateData.custom_message;
+      
+      return updatedData;
+    });
   };
   
   useEffect(() => {
