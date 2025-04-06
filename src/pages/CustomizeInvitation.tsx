@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Check, Copy, Edit, Eye, EyeOff, Palette, PenTool, Pencil, Save, CloseIcon, Plus, Trash2 } from 'lucide-react';
+import { Check, Copy, Edit, Eye, EyeOff, Palette, PenTool, Pencil, Save, X, Plus, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
