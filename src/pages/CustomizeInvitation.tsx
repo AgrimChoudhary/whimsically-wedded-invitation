@@ -20,11 +20,47 @@ import CountdownTimer from '@/components/CountdownTimer';
 import CoupleSection from '@/components/CoupleSection';
 import WelcomeForm from '@/components/WelcomeForm';
 
+// Define the Event type to ensure consistency
+interface EventType {
+  id: string;
+  name: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string;
+}
+
+// Define the full InvitationData type
+interface InvitationData {
+  bride_name: string;
+  groom_name: string;
+  couple_image_url: string;
+  wedding_date: string;
+  wedding_time: string;
+  wedding_venue: string;
+  wedding_address: string;
+  bride_family: { 
+    id: string; 
+    name: string; 
+    relation: string; 
+    description: string;
+  }[];
+  groom_family: { 
+    id: string; 
+    name: string; 
+    relation: string; 
+    description: string;
+  }[];
+  events: EventType[];
+  gallery_images: any[];
+  custom_message: string;
+}
+
 const CustomizeInvitation: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showPreviewHint, setShowPreviewHint] = useState(true);
-  const [invitationData, setInvitationData] = useState(getDefaultInvitationTemplate());
+  const [invitationData, setInvitationData] = useState<InvitationData>(getDefaultInvitationTemplate() as InvitationData);
   const [coupleImageFile, setCoupleImageFile] = useState<File | null>(null);
   const [coupleImagePreview, setCoupleImagePreview] = useState<string | null>(null);
   const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([]);
@@ -45,7 +81,21 @@ const CustomizeInvitation: React.FC = () => {
 
   const loadTemplateData = () => {
     const templateData = getDefaultInvitationTemplate();
-    setInvitationData(templateData);
+    
+    // Ensure all dates are strings for consistency
+    const formattedTemplateData = {
+      ...templateData,
+      events: templateData.events.map((event: any) => ({
+        ...event,
+        date: typeof event.date === 'string' 
+          ? event.date 
+          : (event.date instanceof Date 
+              ? event.date.toISOString().split('T')[0] 
+              : new Date().toISOString().split('T')[0])
+      }))
+    };
+    
+    setInvitationData(formattedTemplateData as InvitationData);
   };
 
   const handleInputChange = (field: string, value: any) => {
@@ -109,10 +159,10 @@ const CustomizeInvitation: React.FC = () => {
   };
 
   const addEvent = () => {
-    const newEvent = {
+    const newEvent: EventType = {
       id: Math.random().toString(36).substring(2, 9),
       name: "New Event",
-      date: new Date(),
+      date: new Date().toISOString().split('T')[0],
       time: "12:00 PM",
       venue: "Venue Name",
       address: "Venue Address"
@@ -362,9 +412,7 @@ const CustomizeInvitation: React.FC = () => {
                     <Input 
                       id="wedding_date"
                       type="date"
-                      value={typeof invitationData.wedding_date === 'string' 
-                        ? invitationData.wedding_date 
-                        : invitationData.wedding_date.toISOString().split('T')[0]}
+                      value={invitationData.wedding_date}
                       onChange={e => handleInputChange('wedding_date', e.target.value)}
                     />
                   </div>
@@ -483,9 +531,7 @@ const CustomizeInvitation: React.FC = () => {
                             <Input 
                               id={`event-date-${index}`}
                               type="date"
-                              value={typeof event.date === 'string' 
-                                ? event.date 
-                                : new Date(event.date).toISOString().split('T')[0]}
+                              value={event.date}
                               onChange={e => handleEventChange(index, 'date', e.target.value)}
                             />
                           </div>
@@ -704,3 +750,4 @@ const CustomizeInvitation: React.FC = () => {
 };
 
 export default CustomizeInvitation;
+

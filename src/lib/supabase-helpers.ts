@@ -80,7 +80,8 @@ export const createWeddingInvitation = async (invitationData: any) => {
       const eventsWithInvitationId = events.map((event: any) => ({
         invitation_id: data.id,
         event_name: event.name,
-        event_date: event.date instanceof Date ? event.date.toISOString() : event.date,
+        event_date: typeof event.date === 'string' ? event.date : 
+                   (event.date instanceof Date ? event.date.toISOString().split('T')[0] : null),
         event_time: event.time,
         event_venue: event.venue,
         event_address: event.address
@@ -184,13 +185,18 @@ export const generateUniqueInvitationLink = (id: string) => {
   return `${baseUrl}/invitation/${id}`;
 };
 
-// New helper function to get default invitation data
+// New helper function to get default invitation data with consistent types
 export const getDefaultInvitationTemplate = () => {
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const twoDaysBeforeStr = new Date(today.setDate(today.getDate() - 2)).toISOString().split('T')[0];
+  const oneDayBeforeStr = new Date(today.setDate(today.getDate() + 1)).toISOString().split('T')[0];
+  
   return {
     bride_name: "Ananya",
     groom_name: "Arjun",
     couple_image_url: "",
-    wedding_date: new Date().toISOString().split('T')[0],
+    wedding_date: todayStr,
     wedding_time: "11:00 AM",
     wedding_venue: "Royal Garden Palace",
     wedding_address: "123 Wedding Lane, Wedding City",
@@ -238,7 +244,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "1",
         name: "Mehndi Ceremony",
-        date: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString().split('T')[0],
+        date: twoDaysBeforeStr,
         time: "3:00 PM",
         venue: "Family Residence",
         address: "123 Wedding Lane, Wedding City"
@@ -246,7 +252,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "2",
         name: "Sangeet Ceremony",
-        date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0],
+        date: oneDayBeforeStr,
         time: "7:00 PM",
         venue: "Golden Ballroom",
         address: "456 Celebration Blvd, Wedding City"
@@ -254,7 +260,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "3",
         name: "Wedding Ceremony",
-        date: new Date().toISOString().split('T')[0],
+        date: todayStr,
         time: "11:00 AM",
         venue: "Royal Garden Palace",
         address: "789 Royal Avenue, Wedding City"
@@ -262,7 +268,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "4",
         name: "Reception",
-        date: new Date().toISOString().split('T')[0],
+        date: todayStr,
         time: "7:00 PM",
         venue: "Grand Luxury Hotel",
         address: "101 Luxury Drive, Wedding City"
@@ -272,3 +278,4 @@ export const getDefaultInvitationTemplate = () => {
     custom_message: "We would be honored by your presence on our special day."
   };
 };
+
