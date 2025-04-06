@@ -59,6 +59,8 @@ export const createWeddingInvitation = async (invitationData: any) => {
       gallery_images: Array.isArray(invitationData.gallery_images) 
         ? JSON.stringify(invitationData.gallery_images) 
         : invitationData.gallery_images,
+      // Add welcome_page_enabled flag to ensure both pages are preserved
+      welcome_page_enabled: true
     };
 
     // Ensure dates are properly formatted as strings
@@ -298,6 +300,7 @@ export const getDefaultInvitationTemplate = () => {
       }
     ],
     gallery_images: [],
-    custom_message: "We would be honored by your presence on our special day."
+    custom_message: "We would be honored by your presence on our special day.",
+    welcome_page_enabled: true // Ensure both welcome page and invitation are shown
   };
 };

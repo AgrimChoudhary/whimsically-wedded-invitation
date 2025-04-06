@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Clock, Users, Heart, Edit, Check, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Heart, Edit, Check, X, ChevronLeft, ChevronRight, Camera, PenLine } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FloatingPetals, Confetti } from '@/components/AnimatedElements';
+import { useToast } from '@/components/ui/use-toast';
 
 interface InvitationPreviewProps {
   invitationData: {
@@ -22,6 +23,7 @@ interface InvitationPreviewProps {
     events: any[];
     gallery_images: any[];
     custom_message: string;
+    welcome_page_enabled?: boolean;
   };
   editable?: boolean;
   onUpdate?: (field: string, value: any) => void;
@@ -39,6 +41,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
   const [activePage, setActivePage] = useState<'welcome' | 'invitation'>('welcome');
   const [showHearts, setShowHearts] = useState(false);
   const [confetti, setConfetti] = useState(false);
+  const { toast } = useToast();
 
   const formatDate = (dateString: string | Date) => {
     try {
@@ -55,6 +58,14 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
     if (!editable) return;
     setEditingField(field);
     setTempValues({...tempValues, [field]: value});
+
+    if (showEditHints) {
+      toast({
+        title: "Editing Mode",
+        description: "Make your changes and click the check mark to save",
+        duration: 3000,
+      });
+    }
   };
 
   const handleEditChange = (field: string, value: any) => {
@@ -64,6 +75,11 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
   const handleEditSave = (field: string) => {
     if (onUpdate) {
       onUpdate(field, tempValues[field]);
+      toast({
+        title: "Updated!",
+        description: "Your changes have been saved",
+        duration: 2000,
+      });
     }
     setEditingField(null);
   };
@@ -214,6 +230,18 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
           <div className="absolute inset-0 bg-wedding-cream bg-opacity-50 z-0"></div>
           <FloatingPetals />
           
+          {editable && showEditHints && (
+            <div className="absolute top-4 left-4 right-4 bg-wedding-gold/10 border border-wedding-gold/20 p-3 rounded-lg text-sm text-wedding-maroon z-20 text-center">
+              Click on any text or element to edit it directly
+              <button 
+                onClick={() => onUpdate('showEditHints', false)} 
+                className="absolute top-2 right-2 text-wedding-maroon/60 hover:text-wedding-maroon"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+          
           <div className="relative z-10 text-center mb-8">
             <h1 
               className={`font-great-vibes text-4xl sm:text-5xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative ${editable ? 'cursor-pointer group' : ''}`}
@@ -221,7 +249,9 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
             >
               {invitationData.bride_name} & {invitationData.groom_name}
               {editable && (
-                <Edit size={18} className="invisible group-hover:visible absolute -right-8 top-4 text-wedding-gold/70" />
+                <button className="invisible group-hover:visible absolute -right-8 top-4 text-wedding-gold/70 bg-wedding-cream/70 rounded-full p-1">
+                  <PenLine size={16} />
+                </button>
               )}
             </h1>
             <div className="opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
@@ -241,41 +271,80 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
             
             <div className="mb-4">
               <p className="font-medium text-gray-700">Date</p>
-              <p className="text-lg text-wedding-maroon" onClick={() => editable && handleEditStart('wedding_date', invitationData.wedding_date)}>
+              <p 
+                className={`text-lg text-wedding-maroon ${editable ? 'cursor-pointer relative group' : ''}`} 
+                onClick={() => editable && handleEditStart('wedding_date', invitationData.wedding_date)}
+              >
                 {formatDate(invitationData.wedding_date)}
-                {editable && <Edit size={14} className="ml-2 inline-block text-wedding-gold/70" />}
+                {editable && (
+                  <button className="invisible group-hover:visible absolute -right-6 top-1 text-wedding-gold/70 bg-wedding-cream/70 rounded-full p-1">
+                    <PenLine size={14} />
+                  </button>
+                )}
               </p>
             </div>
             
             <div className="mb-4">
               <p className="font-medium text-gray-700">Time</p>
-              <p className="text-lg text-wedding-maroon" onClick={() => editable && handleEditStart('wedding_time', invitationData.wedding_time)}>
+              <p 
+                className={`text-lg text-wedding-maroon ${editable ? 'cursor-pointer relative group' : ''}`}
+                onClick={() => editable && handleEditStart('wedding_time', invitationData.wedding_time)}
+              >
                 {invitationData.wedding_time}
-                {editable && <Edit size={14} className="ml-2 inline-block text-wedding-gold/70" />}
+                {editable && (
+                  <button className="invisible group-hover:visible absolute -right-6 top-1 text-wedding-gold/70 bg-wedding-cream/70 rounded-full p-1">
+                    <PenLine size={14} />
+                  </button>
+                )}
               </p>
             </div>
             
             <div className="mb-6">
               <p className="font-medium text-gray-700">Venue</p>
-              <p className="text-lg text-wedding-maroon" onClick={() => editable && handleEditStart('wedding_venue', invitationData.wedding_venue)}>
+              <p 
+                className={`text-lg text-wedding-maroon ${editable ? 'cursor-pointer relative group' : ''}`}
+                onClick={() => editable && handleEditStart('wedding_venue', invitationData.wedding_venue)}
+              >
                 {invitationData.wedding_venue}
-                {editable && <Edit size={14} className="ml-2 inline-block text-wedding-gold/70" />}
+                {editable && (
+                  <button className="invisible group-hover:visible absolute -right-6 top-1 text-wedding-gold/70 bg-wedding-cream/70 rounded-full p-1">
+                    <PenLine size={14} />
+                  </button>
+                )}
               </p>
-              <p className="text-sm text-gray-600" onClick={() => editable && handleEditStart('wedding_address', invitationData.wedding_address)}>
+              <p 
+                className={`text-sm text-gray-600 ${editable ? 'cursor-pointer relative group' : ''}`}
+                onClick={() => editable && handleEditStart('wedding_address', invitationData.wedding_address)}
+              >
                 {invitationData.wedding_address}
-                {editable && <Edit size={14} className="ml-1 inline-block text-wedding-gold/70" />}
+                {editable && (
+                  <button className="invisible group-hover:visible absolute -right-6 top-0 text-wedding-gold/70 bg-wedding-cream/70 rounded-full p-1">
+                    <PenLine size={14} />
+                  </button>
+                )}
               </p>
             </div>
             
-            <Button 
-              className="bg-wedding-gold text-white hover:bg-wedding-deep-gold"
-              onClick={() => {
-                triggerConfetti();
-                setActivePage('invitation');
-              }}
-            >
-              View Invitation Details
-            </Button>
+            {!editable ? (
+              <Button 
+                className="bg-wedding-gold text-white hover:bg-wedding-deep-gold"
+                onClick={() => {
+                  triggerConfetti();
+                  setActivePage('invitation');
+                }}
+              >
+                View Invitation Details
+              </Button>
+            ) : (
+              <Button 
+                className="bg-wedding-gold text-white hover:bg-wedding-deep-gold"
+                onClick={() => {
+                  setActivePage('invitation');
+                }}
+              >
+                View & Edit Invitation Details
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -287,8 +356,14 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
       <div className="scale-[0.9] origin-top">
         <div className="max-w-3xl mx-auto bg-wedding-cream p-8 rounded-lg shadow-lg border-2 border-wedding-gold/30">
           {showEditHints && editable && (
-            <div className="mb-4 p-2 bg-wedding-gold/10 rounded text-sm text-wedding-maroon text-center">
+            <div className="mb-4 p-2 bg-wedding-gold/10 rounded text-sm text-wedding-maroon text-center relative">
               Click on any text or element to edit it directly
+              <button 
+                onClick={() => onUpdate('showEditHints', false)} 
+                className="absolute top-2 right-2 text-wedding-maroon/60 hover:text-wedding-maroon"
+              >
+                <X size={14} />
+              </button>
             </div>
           )}
           
@@ -301,7 +376,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
           {/* Couple Image */}
           <div className="mb-8 flex justify-center">
             <div 
-              className="w-64 h-64 rounded-full overflow-hidden border-4 border-wedding-gold/20 relative group"
+              className={`w-64 h-64 rounded-full overflow-hidden border-4 border-wedding-gold/20 relative group ${editable ? 'cursor-pointer' : ''}`}
               onClick={() => editable && handleImageUpload('couple_image_url')}
             >
               {invitationData.couple_image_url ? (
@@ -311,13 +386,14 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center">
+                  <Camera size={32} className="text-gray-400 mb-2" />
                   <p className="text-gray-500">Add Couple Photo</p>
                 </div>
               )}
               {editable && (
                 <div 
-                  className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+                  className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
                 >
                   <Edit size={24} className="text-white" />
                   <span className="text-white text-sm ml-2">{invitationData.couple_image_url ? 'Change' : 'Add'} Image</span>
@@ -363,7 +439,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
               </h3>
               <div className="grid grid-cols-1 gap-4">
                 {invitationData.events.map((event, index) => (
-                  <Card key={index} className="bg-white/70 border-wedding-gold/20">
+                  <Card key={index} className="bg-white/70 border-wedding-gold/20 event-card">
                     <CardContent className="p-4">
                       <h4 className="font-medium text-lg">
                         {renderEditableText(`event_${index}_name`, event.name || event.event_name || '')}
@@ -401,7 +477,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                     <h4 className="font-medium text-lg mb-2 text-center">{invitationData.bride_name}'s Family</h4>
                     <div className="space-y-2">
                       {invitationData.bride_family.map((member, index) => (
-                        <div key={index} className="flex items-center p-2 bg-white/70 rounded-lg">
+                        <div key={index} className="flex items-center p-2 bg-white/70 rounded-lg hover:shadow-md transition-shadow duration-300">
                           <Users className="h-4 w-4 mr-2 text-wedding-maroon" />
                           <div>
                             {renderEditableText(`bride_family_${index}_name`, member.name || '')}
@@ -418,7 +494,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                     <h4 className="font-medium text-lg mb-2 text-center">{invitationData.groom_name}'s Family</h4>
                     <div className="space-y-2">
                       {invitationData.groom_family.map((member, index) => (
-                        <div key={index} className="flex items-center p-2 bg-white/70 rounded-lg">
+                        <div key={index} className="flex items-center p-2 bg-white/70 rounded-lg hover:shadow-md transition-shadow duration-300">
                           <Users className="h-4 w-4 mr-2 text-wedding-maroon" />
                           <div>
                             {renderEditableText(`groom_family_${index}_name`, member.name || '')}
@@ -443,7 +519,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                 {invitationData.gallery_images.map((image, index) => (
                   <div 
                     key={index} 
-                    className="aspect-square rounded-lg overflow-hidden border border-wedding-gold/20 relative group"
+                    className={`aspect-square rounded-lg overflow-hidden border border-wedding-gold/20 relative group ${editable ? 'cursor-pointer' : ''}`}
                     onClick={() => editable && handleImageUpload(`gallery_image_${index}`)}
                   >
                     <img 
@@ -453,7 +529,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                     />
                     {editable && (
                       <div 
-                        className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+                        className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
                       >
                         <Edit size={20} className="text-white" />
                       </div>
@@ -466,7 +542,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
                     onClick={() => handleImageUpload('add_gallery_image')}
                   >
                     <div className="text-center">
-                      <Edit size={24} className="mx-auto text-wedding-gold/50 mb-2" />
+                      <Camera size={24} className="mx-auto text-wedding-gold/50 mb-2" />
                       <p className="text-sm text-wedding-gold/50">Add Photo</p>
                     </div>
                   </div>
@@ -479,7 +555,7 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
           {invitationData.custom_message && (
             <div className="text-center mt-8 mb-4">
               <div className="flex justify-center mb-2">
-                <Heart className="text-wedding-maroon h-6 w-6" />
+                <Heart className="text-wedding-maroon h-6 w-6 animate-pulse-soft" />
               </div>
               {renderEditableContent('custom_message', invitationData.custom_message)}
             </div>
@@ -540,6 +616,14 @@ const InvitationPreview: React.FC<InvitationPreviewProps> = ({
               <ChevronRight className="h-6 w-6" />
             </Button>
           )}
+        </div>
+      )}
+
+      {/* Edit mode indicator */}
+      {editable && (
+        <div className="absolute top-2 right-2 bg-wedding-gold/20 text-wedding-maroon px-2 py-1 rounded-md text-xs flex items-center">
+          <Edit size={12} className="mr-1" />
+          Edit Mode
         </div>
       )}
     </div>
