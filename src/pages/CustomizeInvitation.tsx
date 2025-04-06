@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { X, ImagePlus, Upload, Save, ArrowLeft } from 'lucide-react';
+import { X, ImagePlus, Upload, Save, ArrowLeft, ArrowRight, ArrowLeft as ArrowLeftIcon } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import InvitationPreview from '@/components/InvitationPreview';
 import { 
@@ -66,6 +66,7 @@ const CustomizeInvitation: React.FC = () => {
   const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([]);
   const [galleryImagePreviews, setGalleryImagePreviews] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("general");
+  const [previewPage, setPreviewPage] = useState<'welcome' | 'invitation'>('welcome');
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -278,6 +279,10 @@ const CustomizeInvitation: React.FC = () => {
     );
   }
 
+  const togglePreviewPage = () => {
+    setPreviewPage(prev => prev === 'welcome' ? 'invitation' : 'welcome');
+  };
+
   return (
     <div className="min-h-screen pattern-background">
       <div className="py-4 px-6 sticky top-0 z-50 bg-wedding-cream/80 backdrop-blur-sm border-b border-wedding-gold/20 shadow-sm">
@@ -339,36 +344,114 @@ const CustomizeInvitation: React.FC = () => {
                   </Button>
                 </>
               )}
+              <div className="flex justify-center items-center mb-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className={`border-wedding-gold/30 ${previewPage === 'welcome' ? 'bg-wedding-gold/10' : ''}`} 
+                  onClick={() => setPreviewPage('welcome')}
+                >
+                  Welcome Page
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className={`ml-2 border-wedding-gold/30 ${previewPage === 'invitation' ? 'bg-wedding-gold/10' : ''}`} 
+                  onClick={() => setPreviewPage('invitation')}
+                >
+                  Invitation Page
+                </Button>
+              </div>
             </div>
             
             <div className="shadow-lg border border-wedding-gold/20 bg-white rounded-lg overflow-hidden">
-              <div className="min-h-screen pattern-background">
-                <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-wedding-cream bg-opacity-50 z-0"></div>
-                  <FloatingPetals />
-                  
-                  <div className="relative z-10 text-center mb-8">
-                    <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
-                      {invitationData.bride_name} & {invitationData.groom_name}
-                    </h1>
-                    <div className="opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                      <h2 className="font-dancing-script text-2xl sm:text-3xl text-wedding-gold mb-2">
-                        Wedding Invitation
-                      </h2>
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-wedding-gold/50"></div>
-                        <div className="w-2 h-2 rounded-full bg-wedding-gold/40"></div>
-                        <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-wedding-gold/50"></div>
+              {previewPage === 'welcome' ? (
+                <div className="min-h-screen pattern-background">
+                  <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-wedding-cream bg-opacity-50 z-0"></div>
+                    <FloatingPetals />
+                    
+                    <div className="relative z-10 text-center mb-8">
+                      <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
+                        {invitationData.bride_name} & {invitationData.groom_name}
+                      </h1>
+                      <div className="opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                        <h2 className="font-dancing-script text-2xl sm:text-3xl text-wedding-gold mb-2">
+                          Wedding Invitation
+                        </h2>
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-wedding-gold/50"></div>
+                          <div className="w-2 h-2 rounded-full bg-wedding-gold/40"></div>
+                          <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-wedding-gold/50"></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <WelcomeForm />
+                    
+                    <div className="absolute bottom-8 left-8 w-16 h-16 border-b border-l border-wedding-gold/20 rounded-bl-3xl opacity-30"></div>
+                    <div className="absolute top-8 right-8 w-16 h-16 border-t border-r border-wedding-gold/20 rounded-tr-3xl opacity-30"></div>
+                  </div>
+                </div>
+              ) : (
+                <div className="min-h-screen w-full pattern-background">
+                  <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
+                    <FloatingPetals />
+                    
+                    <InvitationHeader 
+                      brideName={invitationData.bride_name}
+                      groomName={invitationData.groom_name}
+                      coupleImageUrl={invitationData.couple_image_url}
+                    />
+                    
+                    <CountdownTimer 
+                      weddingDate={new Date(invitationData.wedding_date)} 
+                      weddingTime={invitationData.wedding_time}
+                    />
+                    
+                    <CoupleSection />
+                    
+                    {/* The rest of the invitation content will be displayed here */}
+                    <div className="py-10 w-full text-center bg-floral-pattern">
+                      <div className="relative inline-block">
+                        <Button
+                          className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
+                        >
+                          <span className="relative z-10 flex items-center font-medium">
+                            Accept Invitation
+                          </span>
+                        </Button>
+                        
+                        <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-wedding-blush/40 rounded-tl-lg"></div>
+                        <div className="absolute -right-4 -top-4 w-8 h-8 border-t-2 border-r-2 border-wedding-blush/40 rounded-tr-lg"></div>
+                        <div className="absolute -left-4 -bottom-4 w-8 h-8 border-b-2 border-l-2 border-wedding-blush/40 rounded-bl-lg"></div>
+                        <div className="absolute -right-4 -bottom-4 w-8 h-8 border-b-2 border-r-2 border-wedding-blush/40 rounded-br-lg"></div>
                       </div>
                     </div>
                   </div>
-                  
-                  <WelcomeForm />
-                  
-                  <div className="absolute bottom-8 left-8 w-16 h-16 border-b border-l border-wedding-gold/20 rounded-bl-3xl opacity-30"></div>
-                  <div className="absolute top-8 right-8 w-16 h-16 border-t border-r border-wedding-gold/20 rounded-tr-3xl opacity-30"></div>
                 </div>
-              </div>
+              )}
+            </div>
+            
+            <div className="flex justify-center mt-4">
+              <Button 
+                variant="outline"
+                size="sm"
+                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream flex items-center"
+                onClick={togglePreviewPage}
+              >
+                {previewPage === 'welcome' ? (
+                  <>
+                    View Invitation Page
+                    <ArrowRight size={16} className="ml-2" />
+                  </>
+                ) : (
+                  <>
+                    <ArrowLeftIcon size={16} className="mr-2" />
+                    View Welcome Page
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </div>
@@ -750,4 +833,3 @@ const CustomizeInvitation: React.FC = () => {
 };
 
 export default CustomizeInvitation;
-
