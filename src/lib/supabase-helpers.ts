@@ -61,6 +61,11 @@ export const createWeddingInvitation = async (invitationData: any) => {
         : invitationData.gallery_images,
     };
 
+    // Ensure dates are properly formatted as strings
+    if (formattedData.wedding_date && formattedData.wedding_date instanceof Date) {
+      formattedData.wedding_date = formattedData.wedding_date.toISOString().split('T')[0];
+    }
+
     // Remove events from the data to be inserted into the main table
     const { events, ...dataWithoutEvents } = formattedData;
 
@@ -77,14 +82,22 @@ export const createWeddingInvitation = async (invitationData: any) => {
 
     // If events are provided, insert them
     if (events && Array.isArray(events) && events.length > 0) {
-      const eventsWithInvitationId = events.map((event: any) => ({
-        invitation_id: data.id,
-        event_name: event.name,
-        event_date: event.date,  // Always use string date
-        event_time: event.time,
-        event_venue: event.venue,
-        event_address: event.address
-      }));
+      const eventsWithInvitationId = events.map((event: any) => {
+        // Ensure dates are properly formatted as strings
+        let eventDate = event.date;
+        if (eventDate && eventDate instanceof Date) {
+          eventDate = eventDate.toISOString().split('T')[0];
+        }
+
+        return {
+          invitation_id: data.id,
+          event_name: event.name,
+          event_date: eventDate,
+          event_time: event.time,
+          event_venue: event.venue,
+          event_address: event.address
+        };
+      });
 
       const { error: eventsError } = await supabase
         .from('wedding_events')
@@ -170,9 +183,11 @@ export const formatInvitationData = (data: any) => {
     data.gallery_images = [];
   }
 
-  // Format dates
+  // Format dates - ensure all dates are strings for consistency
   if (data.wedding_date) {
-    data.wedding_date = new Date(data.wedding_date);
+    if (data.wedding_date instanceof Date) {
+      data.wedding_date = data.wedding_date.toISOString().split('T')[0];
+    }
   }
 
   return data;
@@ -252,7 +267,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "1",
         name: "Mehndi Ceremony",
-        date: twoDaysBeforeStr,
+        date: twoDaysBeforeStr, // Using string format for consistency
         time: "3:00 PM",
         venue: "Family Residence",
         address: "123 Wedding Lane, Wedding City"
@@ -260,7 +275,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "2",
         name: "Sangeet Ceremony",
-        date: oneDayBeforeStr,
+        date: oneDayBeforeStr, // Using string format for consistency
         time: "7:00 PM",
         venue: "Golden Ballroom",
         address: "456 Celebration Blvd, Wedding City"
@@ -268,7 +283,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "3",
         name: "Wedding Ceremony",
-        date: todayStr2,
+        date: todayStr2, // Using string format for consistency
         time: "11:00 AM",
         venue: "Royal Garden Palace",
         address: "789 Royal Avenue, Wedding City"
@@ -276,7 +291,7 @@ export const getDefaultInvitationTemplate = () => {
       {
         id: "4",
         name: "Reception",
-        date: todayStr2,
+        date: todayStr2, // Using string format for consistency
         time: "7:00 PM",
         venue: "Grand Luxury Hotel",
         address: "101 Luxury Drive, Wedding City"
