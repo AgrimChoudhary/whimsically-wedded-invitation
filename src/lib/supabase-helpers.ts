@@ -75,8 +75,12 @@ export const createWeddingInvitation = async (invitationData: any) => {
     // If events are provided, insert them
     if (invitationData.events && Array.isArray(invitationData.events) && invitationData.events.length > 0) {
       const eventsWithInvitationId = invitationData.events.map((event: any) => ({
-        ...event,
-        invitation_id: data.id
+        invitation_id: data.id,
+        event_name: event.name,
+        event_date: event.date,
+        event_time: event.time,
+        event_venue: event.venue,
+        event_address: event.address
       }));
 
       const { error: eventsError } = await supabase

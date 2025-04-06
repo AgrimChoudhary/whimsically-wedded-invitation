@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -42,11 +41,11 @@ interface InvitationData {
   gallery_images: string[];
   events: {
     id: string;
-    event_name: string;
-    event_date: string | null;
-    event_time: string | null;
-    event_venue: string | null;
-    event_address: string | null;
+    name: string;
+    date: string | null;
+    time: string | null;
+    venue: string | null;
+    address: string | null;
   }[];
 }
 
@@ -69,7 +68,6 @@ const CustomInvitation = () => {
   useEffect(() => {
     const fetchInvitationData = async () => {
       try {
-        // Fetch invitation data
         const { data: invitation, error: invitationError } = await supabase
           .from('wedding_invitations')
           .select('*')
@@ -86,7 +84,6 @@ const CustomInvitation = () => {
           return;
         }
         
-        // Fetch events related to this invitation
         const { data: events, error: eventsError } = await supabase
           .from('wedding_events')
           .select('*')
@@ -96,7 +93,6 @@ const CustomInvitation = () => {
           throw eventsError;
         }
         
-        // Process family member data
         const parseBrideFamily = () => {
           if (invitation.bride_family) {
             try {
@@ -132,17 +128,25 @@ const CustomInvitation = () => {
         parseBrideFamily();
         parseGroomFamily();
         
-        // Combine the data and convert gallery_images from Json to string[]
         const galleryImages = invitation.gallery_images 
           ? (Array.isArray(invitation.gallery_images) 
               ? invitation.gallery_images.map(img => String(img)) 
               : [])
           : [];
           
+        const mappedEvents = events ? events.map((event: any) => ({
+          id: event.id,
+          name: event.event_name,
+          date: event.event_date,
+          time: event.event_time,
+          venue: event.event_venue,
+          address: event.event_address
+        })) : [];
+          
         setInvitationData({
           ...invitation,
           gallery_images: galleryImages,
-          events: events || []
+          events: mappedEvents
         });
       } catch (error) {
         console.error('Error fetching invitation:', error);
@@ -325,25 +329,25 @@ const CustomInvitation = () => {
                     <div className="space-y-4">
                       {invitationData.events.map((event) => (
                         <div key={event.id} className="glass-card p-4 border border-wedding-gold/30">
-                          <h3 className="font-playfair text-lg text-wedding-maroon">{event.event_name}</h3>
-                          {event.event_date && (
+                          <h3 className="font-playfair text-lg text-wedding-maroon">{event.name}</h3>
+                          {event.date && (
                             <p className="text-gray-600">
-                              <span className="font-medium">Date:</span> {new Date(event.event_date).toLocaleDateString()}
+                              <span className="font-medium">Date:</span> {new Date(event.date).toLocaleDateString()}
                             </p>
                           )}
-                          {event.event_time && (
+                          {event.time && (
                             <p className="text-gray-600">
-                              <span className="font-medium">Time:</span> {event.event_time}
+                              <span className="font-medium">Time:</span> {event.time}
                             </p>
                           )}
-                          {event.event_venue && (
+                          {event.venue && (
                             <p className="text-gray-600">
-                              <span className="font-medium">Venue:</span> {event.event_venue}
+                              <span className="font-medium">Venue:</span> {event.venue}
                             </p>
                           )}
-                          {event.event_address && (
+                          {event.address && (
                             <p className="text-gray-600">
-                              <span className="font-medium">Address:</span> {event.event_address}
+                              <span className="font-medium">Address:</span> {event.address}
                             </p>
                           )}
                         </div>
