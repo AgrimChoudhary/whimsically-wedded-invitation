@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -19,6 +18,21 @@ import { Badge } from '@/components/ui/badge';
 import { fetchInvitationById, formatInvitationData } from '@/lib/supabase-helpers';
 import WelcomeForm from '@/components/WelcomeForm';
 import { useToast } from '@/components/ui/use-toast';
+
+interface Event {
+  id: string;
+  name: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string;
+}
+
+interface GalleryImage {
+  id: string;
+  image: string;
+  name?: string;
+}
 
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -94,7 +108,6 @@ const Invitation = () => {
     setActivePage(prev => prev === 'welcome' ? 'invitation' : 'welcome');
   };
 
-  // Default wedding date - April 10, 2025
   const weddingDate = invitationData?.wedding_date 
     ? new Date(invitationData.wedding_date) 
     : new Date('2025-04-10T11:00:00');
@@ -118,7 +131,6 @@ const Invitation = () => {
         <FloatingPetals />
         <Confetti isActive={confetti} />
         
-        {/* Page Navigation */}
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-30 flex gap-2 bg-wedding-cream/80 backdrop-blur-sm py-1 px-3 rounded-full border border-wedding-gold/30 shadow-gold-soft">
           <Button 
             variant="ghost" 
@@ -138,7 +150,6 @@ const Invitation = () => {
           </Button>
         </div>
 
-        {/* Media Controls */}
         <div className="fixed bottom-20 right-4 z-30 flex flex-col gap-3">
           <Button 
             onClick={toggleMusic}
@@ -178,12 +189,10 @@ const Invitation = () => {
           </button>
         )}
         
-        {/* Welcome Page */}
         {activePage === 'welcome' && (
           <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
             <WelcomeForm />
             
-            {/* Navigation Arrow */}
             <button 
               onClick={togglePage}
               className="fixed right-4 top-1/2 transform -translate-y-1/2 z-30 bg-wedding-cream/80 backdrop-blur-sm p-2 rounded-full border border-wedding-gold/30 shadow-gold-soft"
@@ -193,7 +202,6 @@ const Invitation = () => {
           </div>
         )}
         
-        {/* Invitation Page */}
         {activePage === 'invitation' && (
           <>
             <InvitationHeader 
@@ -231,11 +239,75 @@ const Invitation = () => {
             />
             
             {invitationData?.events && invitationData.events.length > 0 && (
-              <EventTimeline events={invitationData.events} />
+              <div className="w-full py-10 bg-wedding-cream bg-opacity-40">
+                <div className="w-full max-w-5xl mx-auto px-4">
+                  <div className="text-center mb-8">
+                    <span className="inline-block py-1 px-3 bg-wedding-gold/10 rounded-full text-xs text-wedding-gold mb-2">
+                      Join Us For
+                    </span>
+                    <h2 className="font-playfair text-2xl sm:text-3xl text-wedding-maroon">Wedding Events</h2>
+                  </div>
+                  
+                  <div className="space-y-6 sm:space-y-8">
+                    {invitationData.events.map((event: Event, index: number) => (
+                      <div 
+                        key={event.id || index}
+                        className="glass-card border p-4 sm:p-5 transition-all duration-300 bg-white/70 border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow hover:scale-[1.01]"
+                      >
+                        <div className="flex items-start space-x-3 sm:space-x-4">
+                          <div className="p-2 rounded-full bg-wedding-gold/10 text-wedding-maroon">
+                            <CalendarIcon size={18} />
+                          </div>
+                          <div>
+                            <h3 className="font-playfair text-lg sm:text-xl text-wedding-maroon">{event.name}</h3>
+                            <div className="mt-1 sm:mt-2 space-y-1 text-xs sm:text-sm">
+                              <div className="flex items-center text-gray-600">
+                                <Calendar size={14} className="mr-2" />
+                                <span>{event.date}</span>
+                              </div>
+                              <p className="text-gray-600 pl-5">{event.time}</p>
+                              <p className="text-gray-700 font-medium pl-5 mb-1">{event.venue}</p>
+                              
+                              <div className="flex items-center text-wedding-maroon pl-5 mt-2">
+                                <MapPin size={14} className="mr-1" />
+                                <span className="text-xs sm:text-sm">{event.address}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
             
             {invitationData?.gallery_images && invitationData.gallery_images.length > 0 && (
-              <PhotoGrid images={invitationData.gallery_images} />
+              <div className="w-full py-10 bg-wedding-cream/40">
+                <div className="max-w-5xl mx-auto px-4">
+                  <div className="text-center mb-8">
+                    <span className="inline-block py-1 px-3 bg-wedding-gold/10 rounded-full text-xs text-wedding-gold mb-2">
+                      Our Memories
+                    </span>
+                    <h2 className="font-playfair text-2xl sm:text-3xl text-wedding-maroon">Photo Gallery</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {invitationData.gallery_images.map((image: GalleryImage, index: number) => (
+                      <div 
+                        key={image.id || index}
+                        className="aspect-square rounded-lg overflow-hidden border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-300"
+                      >
+                        <img 
+                          src={image.image} 
+                          alt={image.name || `Memory ${index + 1}`} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
             
             <div className="py-10 w-full text-center bg-floral-pattern">
@@ -277,7 +349,6 @@ const Invitation = () => {
             
             <Footer />
             
-            {/* Navigation Arrow */}
             <button 
               onClick={togglePage}
               className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 bg-wedding-cream/80 backdrop-blur-sm p-2 rounded-full border border-wedding-gold/30 shadow-gold-soft"
@@ -290,6 +361,28 @@ const Invitation = () => {
         <RSVPModal isOpen={showRSVP} onClose={() => setShowRSVP(false)} />
       </div>
     </div>
+  );
+};
+
+const CalendarIcon = ({ size = 24, ...props }: { size?: number, [key: string]: any }) => {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      {...props}
+    >
+      <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+      <line x1="16" x2="16" y1="2" y2="6" />
+      <line x1="8" x2="8" y1="2" y2="6" />
+      <line x1="3" x2="21" y1="10" y2="10" />
+    </svg>
   );
 };
 
