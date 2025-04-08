@@ -12,7 +12,7 @@ import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 import { fetchInvitationById, formatInvitationData } from '@/lib/supabase-helpers';
