@@ -1,34 +1,35 @@
 
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface GuestContextType {
   guestName: string;
   setGuestName: (name: string) => void;
 }
 
-const GuestContext = createContext<GuestContextType | undefined>(undefined);
+const GuestContext = createContext<GuestContextType>({
+  guestName: '',
+  setGuestName: () => {},
+});
 
-export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [guestName, setGuestName] = useState<string>('Guest Name');
+interface GuestProviderProps {
+  children: ReactNode;
+}
 
-  // Initialize with default guest name
-  useEffect(() => {
-    if (!guestName) {
-      setGuestName('Guest Name');
-    }
-  }, [guestName]);
+export function GuestProvider({ children }: GuestProviderProps) {
+  const [guestName, setGuestName] = useState('');
 
   return (
-    <GuestContext.Provider value={{ guestName, setGuestName }}>
+    <GuestContext.Provider
+      value={{
+        guestName,
+        setGuestName,
+      }}
+    >
       {children}
     </GuestContext.Provider>
   );
-};
+}
 
-export const useGuest = (): GuestContextType => {
-  const context = useContext(GuestContext);
-  if (context === undefined) {
-    throw new Error('useGuest must be used within a GuestProvider');
-  }
-  return context;
-};
+export const useGuest = () => useContext(GuestContext);
+
+export default GuestContext;

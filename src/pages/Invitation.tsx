@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from '@/components/ui/button';
@@ -7,10 +7,7 @@ import InvitationHeader from '@/components/InvitationHeader';
 import CoupleSection from '@/components/CoupleSection';
 import CountdownTimer from '@/components/CountdownTimer';
 import FamilyDetails from '@/components/FamilyDetails';
-import EventTimeline from '@/components/EventTimeline';
-import PhotoGrid from '@/components/PhotoGrid';
-import Footer from '@/components/Footer';
-import RSVPModal from '@/components/RSVPModal';
+import GuestTable from '@/components/GuestTable';
 import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
 import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -40,16 +37,23 @@ const Invitation = () => {
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const [invitationData, setInvitationData] = useState<any>(null);
-  const [activePage, setActivePage] = useState<'welcome' | 'invitation'>('welcome');
+  const [activePage, setActivePage] = useState<'welcome' | 'invitation' | 'guests'>('welcome');
   
-  const { guestName } = useGuest();
+  const { guestName, setGuestName } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   
   useEffect(() => {
+    // Check for guest parameter in URL and set it to context if present
+    const guestParam = searchParams.get('guest');
+    if (guestParam) {
+      setGuestName(decodeURIComponent(guestParam));
+    }
+    
     const loadInvitation = async () => {
       setIsLoading(true);
       
@@ -86,7 +90,7 @@ const Invitation = () => {
     };
     
     loadInvitation();
-  }, [id, toast]);
+  }, [id, toast, searchParams, setGuestName]);
   
   const handleOpenRSVP = () => {
     setConfetti(true);
@@ -147,6 +151,14 @@ const Invitation = () => {
             onClick={() => setActivePage('invitation')}
           >
             Invitation
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className={`px-3 rounded-full ${activePage === 'guests' ? 'bg-wedding-gold/20 text-wedding-maroon' : 'text-gray-600'}`}
+            onClick={() => setActivePage('guests')}
+          >
+            Guests
           </Button>
         </div>
 
@@ -356,6 +368,36 @@ const Invitation = () => {
               <ChevronLeft size={20} className="text-wedding-maroon" />
             </button>
           </>
+        )}
+
+        {activePage === 'guests' && (
+          <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+            <div className="w-full max-w-3xl glass-card p-6 border border-wedding-gold/30 shadow-gold-soft">
+              <h2 className="font-playfair text-2xl text-wedding-maroon mb-4 text-center">Guest Management</h2>
+              <p className="text-gray-600 mb-6 text-center">
+                Manage your guest list and create personalized invitation links for each guest
+              </p>
+              
+              <GuestTable invitationId={id || ''} />
+              
+              <div className="mt-6 pt-4 border-t border-wedding-gold/20">
+                <h4 className="font-medium text-wedding-maroon mb-2">How it works:</h4>
+                <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
+                  <li>Add guests using the "Add Guest" button above</li>
+                  <li>Click "Copy Invitation Link" to create a personalized invitation for each guest</li>
+                  <li>When guests open their personalized link, they'll see their name in the invitation</li>
+                  <li>Share the links with your guests via message, email, or social media</li>
+                </ul>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setActivePage('invitation')}
+              className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 bg-wedding-cream/80 backdrop-blur-sm p-2 rounded-full border border-wedding-gold/30 shadow-gold-soft"
+            >
+              <ChevronLeft size={20} className="text-wedding-maroon" />
+            </button>
+          </div>
         )}
         
         <RSVPModal isOpen={showRSVP} onClose={() => setShowRSVP(false)} />
