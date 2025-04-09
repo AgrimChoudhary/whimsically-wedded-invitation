@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { fetchInvitationById, formatInvitationData } from '@/lib/supabase-helpers';
 import WelcomeForm from '@/components/WelcomeForm';
 import { useToast } from '@/components/ui/use-toast';
+import Footer from '@/components/Footer';
+import RSVPModal from '@/components/RSVPModal';
 
 interface Event {
   id: string;
@@ -48,7 +50,6 @@ const Invitation = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Check for guest parameter in URL and set it to context if present
     const guestParam = searchParams.get('guest');
     if (guestParam) {
       setGuestName(decodeURIComponent(guestParam));
