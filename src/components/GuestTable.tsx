@@ -10,8 +10,9 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { UserPlus, UserMinus, Copy, Check, User } from 'lucide-react';
+import { UserPlus, UserMinus, Copy, Check, User, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Guest {
   id: string;
@@ -27,20 +28,45 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
   const [newGuestName, setNewGuestName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Simulate fetching guests - in a real app, this would come from your database
+  // Fetch guests from Supabase
   useEffect(() => {
-    // Mock data for demonstration
-    const mockGuests = [
-      { id: '1', name: 'John Doe' },
-      { id: '2', name: 'Jane Smith' }
-    ];
+    async function fetchGuests() {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('guests')
+          .select('id, name')
+          .eq('invitation_id', invitationId);
+        
+        if (error) {
+          throw error;
+        }
+        
+        setGuests(data || []);
+      } catch (error) {
+        console.error('Error fetching guests:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load guests. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
     
-    setGuests(mockGuests);
-  }, [invitationId]);
+    if (invitationId) {
+      fetchGuests();
+    } else {
+      setIsLoading(false);
+    }
+  }, [invitationId, toast]);
 
-  const handleAddGuest = () => {
+  const handleAddGuest = async () => {
     if (newGuestName.trim() === '') {
       toast({
         title: "Error",
@@ -50,29 +76,71 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
       return;
     }
 
-    const newGuest = {
-      id: Date.now().toString(),
-      name: newGuestName.trim()
-    };
+    setIsSubmitting(true);
+    try {
+      // Insert new guest into Supabase
+      const { data, error } = await supabase
+        .from('guests')
+        .insert({
+          name: newGuestName.trim(),
+          invitation_id: invitationId,
+          mobile: '' // Default empty value
+        })
+        .select();
 
-    setGuests([...guests, newGuest]);
-    setNewGuestName('');
-    setIsAdding(false);
+      if (error) {
+        throw error;
+      }
 
-    toast({
-      title: "Success",
-      description: "Guest added successfully!",
-      duration: 3000,
-    });
+      if (data && data[0]) {
+        setGuests([...guests, data[0]]);
+        setNewGuestName('');
+        setIsAdding(false);
+
+        toast({
+          title: "Success",
+          description: "Guest added successfully!",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Error adding guest:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add guest. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteGuest = (id: string) => {
-    setGuests(guests.filter(guest => guest.id !== id));
-    toast({
-      title: "Guest Removed",
-      description: "Guest has been removed from the list",
-      duration: 3000,
-    });
+  const handleDeleteGuest = async (id: string) => {
+    try {
+      // Delete guest from Supabase
+      const { error } = await supabase
+        .from('guests')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      setGuests(guests.filter(guest => guest.id !== id));
+      toast({
+        title: "Guest Removed",
+        description: "Guest has been removed from the list",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error deleting guest:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove guest. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const copyInvitationLink = (guestName: string) => {
@@ -87,6 +155,12 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
         duration: 3000,
       });
     });
+  };
+
+  // Update GuestContext with selected guest
+  const handleUpdateGuestContext = (guestName: string) => {
+    // This function will be implemented if needed in the future
+    console.log(`Set guest context to: ${guestName}`);
   };
 
   return (
@@ -112,7 +186,18 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
             onChange={(e) => setNewGuestName(e.target.value)}
             className="border-wedding-gold/30"
           />
-          <Button size="sm" onClick={handleAddGuest}>Add</Button>
+          <Button 
+            size="sm" 
+            onClick={handleAddGuest} 
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 size={14} className="mr-1 animate-spin" />
+                Adding...
+              </>
+            ) : 'Add'}
+          </Button>
           <Button 
             size="sm" 
             variant="outline" 
@@ -120,13 +205,18 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
               setIsAdding(false);
               setNewGuestName('');
             }}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
         </div>
       )}
 
-      {guests.length > 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 size={24} className="animate-spin text-wedding-gold" />
+        </div>
+      ) : guests.length > 0 ? (
         <div className="rounded-md border border-wedding-gold/20 overflow-hidden">
           <Table>
             <TableHeader>
