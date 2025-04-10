@@ -12,6 +12,7 @@ import Invitation from "./pages/Invitation";
 import NotFound from "./pages/NotFound";
 import CustomInvitation from "./pages/CustomInvitation";
 import CustomizeInvitation from "./pages/CustomizeInvitation";
+import UserProfile from "./pages/UserProfile";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -37,6 +38,7 @@ const App: React.FC = () => {
                 <Route path="/invitation" element={<Invitation />} />
                 <Route path="/invitation/:id" element={<CustomInvitation />} />
                 <Route path="/customize" element={<CustomizeInvitation />} />
+                <Route path="/profile" element={<UserProfile />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

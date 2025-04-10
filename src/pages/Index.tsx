@@ -1,79 +1,70 @@
 
-import React, { useState, useEffect } from 'react';
-import WelcomeForm from '@/components/WelcomeForm';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { FloatingPetals } from '@/components/AnimatedElements';
-import { Sparkles } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Sparkles, Calendar, Heart, User } from 'lucide-react';
 
-const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [showSparkle, setShowSparkle] = useState(false);
-  const isMobile = useIsMobile();
-  
-  useEffect(() => {
-    // Simulating assets loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    
-    // Sparkle effect timing
-    const sparkleTimer = setInterval(() => {
-      setShowSparkle(true);
-      setTimeout(() => setShowSparkle(false), 700);
-    }, 3000);
-    
-    return () => {
-      clearTimeout(timer);
-      clearInterval(sparkleTimer);
-    };
-  }, []);
+const Index: React.FC = () => {
+  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen pattern-background">
-      {isLoading ? (
-        <div className="loading-overlay">
-          <div className="loading-spinner mb-4"></div>
-          <p className="text-wedding-maroon font-dancing-script text-xl">Loading our love story...</p>
-        </div>
-      ) : (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
-          <div className="absolute inset-0 bg-wedding-cream bg-opacity-50 z-0"></div>
-          
-          <FloatingPetals />
-          
-          <div className="relative z-10 text-center mb-8">
-            <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
-              Ananya & Arjun
-              {showSparkle && (
-                <Sparkles 
-                  size={isMobile ? 16 : 24} 
-                  className="absolute text-wedding-gold animate-pulse-soft" 
-                  style={{ 
-                    top: isMobile ? '-10px' : '-15px', 
-                    right: isMobile ? '-15px' : '-25px'
-                  }} 
-                />
-              )}
+    <div className="min-h-screen w-full pattern-background">
+      <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
+        <FloatingPetals />
+        
+        <header className="w-full py-4 px-6 flex justify-between z-10">
+          <div className="flex items-center">
+            <Heart size={24} className="text-wedding-maroon mr-2" />
+            <span className="font-dancing-script text-2xl text-wedding-maroon">Forever</span>
+          </div>
+          <nav>
+            <Button 
+              variant="ghost" 
+              className="text-wedding-maroon hover:bg-wedding-gold/10"
+              onClick={() => navigate('/profile')}
+            >
+              <User size={18} className="mr-2" />
+              My Profile
+            </Button>
+          </nav>
+        </header>
+        
+        <main className="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
+          <div className="max-w-3xl mx-auto">
+            <h1 className="font-dancing-script text-5xl md:text-7xl text-wedding-maroon mb-6">
+              Digital Wedding Invitations
             </h1>
-            <div className="opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <h2 className="font-dancing-script text-2xl sm:text-3xl text-wedding-gold mb-2">
-                Wedding Invitation
-              </h2>
-              <div className="flex items-center justify-center gap-2">
-                <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-wedding-gold/50"></div>
-                <div className="w-2 h-2 rounded-full bg-wedding-gold/40"></div>
-                <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-wedding-gold/50"></div>
-              </div>
+            
+            <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+              Create beautiful digital wedding invitations to share your special day with loved ones.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => navigate('/customize')}
+                className="bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full"
+              >
+                <Sparkles className="mr-2 h-5 w-5" />
+                Create Your Invitation
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-gold/10 px-8 py-6 rounded-full"
+                onClick={() => navigate('/profile')}
+              >
+                <Calendar className="mr-2 h-5 w-5" />
+                View Templates
+              </Button>
             </div>
           </div>
-          
-          <WelcomeForm />
-          
-          {/* Background decorative elements */}
-          <div className="absolute bottom-8 left-8 w-16 h-16 border-b border-l border-wedding-gold/20 rounded-bl-3xl opacity-30"></div>
-          <div className="absolute top-8 right-8 w-16 h-16 border-t border-r border-wedding-gold/20 rounded-tr-3xl opacity-30"></div>
-        </div>
-      )}
+        </main>
+        
+        <footer className="w-full py-5 text-center text-sm text-gray-600">
+          <p>© {new Date().getFullYear()} Digital Wedding Invitations</p>
+        </footer>
+      </div>
     </div>
   );
 };
