@@ -22,6 +22,7 @@ const UserProfile: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [userInvitations, setUserInvitations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedInvitationId, setSelectedInvitationId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -40,18 +41,35 @@ const UserProfile: React.FC = () => {
         
         setUserInvitations(data || []);
 
+        // Set the first invitation as selected by default if there is one
+        if (data && data.length > 0) {
+          setSelectedInvitationId(data[0].id);
+        }
+
         // Create template from the invitations
-        const defaultTemplates: Template[] = [
-          {
-            id: "wedding-classic",
-            title: "Classic Wedding",
-            description: "An elegant wedding invitation with traditional styling",
-            thumbnail: "https://images.unsplash.com/photo-1501901609772-df0848060b33?q=80&w=500&auto=format&fit=crop",
-            invitationId: data && data[0]?.id
-          }
-        ];
+        const invitationTemplates: Template[] = data ? data.map((invitation: any) => ({
+          id: `template-${invitation.id}`,
+          title: `${invitation.bride_name} & ${invitation.groom_name} Wedding`,
+          description: "An elegant wedding invitation with traditional styling",
+          thumbnail: invitation.couple_image_url || "https://images.unsplash.com/photo-1501901609772-df0848060b33?q=80&w=500&auto=format&fit=crop",
+          invitationId: invitation.id
+        })) : [];
         
-        setTemplates(defaultTemplates);
+        // Add default template if no invitations exist
+        if (invitationTemplates.length === 0) {
+          const defaultTemplates: Template[] = [
+            {
+              id: "wedding-classic",
+              title: "Classic Wedding",
+              description: "An elegant wedding invitation with traditional styling",
+              thumbnail: "https://images.unsplash.com/photo-1501901609772-df0848060b33?q=80&w=500&auto=format&fit=crop",
+            }
+          ];
+          
+          setTemplates(defaultTemplates);
+        } else {
+          setTemplates(invitationTemplates);
+        }
       } catch (error) {
         console.error("Error fetching invitations:", error);
         toast({
@@ -70,6 +88,7 @@ const UserProfile: React.FC = () => {
   const handleTemplateSelect = (templateId: string) => {
     const template = templates.find(t => t.id === templateId);
     if (template && template.invitationId) {
+      setSelectedInvitationId(template.invitationId);
       navigate(`/invitation/${template.invitationId}`);
     }
   };
@@ -113,7 +132,12 @@ const UserProfile: React.FC = () => {
               ) : (
                 <>
                   {templates.map(template => (
-                    <Card key={template.id} className="overflow-hidden border-wedding-gold/20 hover:shadow-gold-soft transition-all duration-300">
+                    <Card 
+                      key={template.id} 
+                      className={`overflow-hidden border-wedding-gold/20 hover:shadow-gold-soft transition-all duration-300 ${
+                        template.invitationId === selectedInvitationId ? 'ring-2 ring-wedding-gold' : ''
+                      }`}
+                    >
                       <div className="aspect-video relative overflow-hidden">
                         <img 
                           src={template.thumbnail} 
@@ -122,9 +146,14 @@ const UserProfile: React.FC = () => {
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                           <Button onClick={() => handleTemplateSelect(template.id)} variant="secondary" className="bg-white text-wedding-maroon">
-                            Select Template
+                            {template.invitationId === selectedInvitationId ? 'View Template' : 'Select Template'}
                           </Button>
                         </div>
+                        {template.invitationId === selectedInvitationId && (
+                          <div className="absolute top-2 right-2 bg-wedding-gold/90 text-white text-xs px-2 py-1 rounded-full">
+                            Selected
+                          </div>
+                        )}
                       </div>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg text-wedding-maroon">{template.title}</CardTitle>
@@ -155,8 +184,17 @@ const UserProfile: React.FC = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {userInvitations.length > 0 ? (
-                  <GuestTable invitationId={userInvitations[0]?.id || ''} />
+                {selectedInvitationId ? (
+                  <GuestTable invitationId={selectedInvitationId} />
+                ) : userInvitations.length > 0 ? (
+                  <div className="text-center py-8">
+                    <Users size={48} className="mx-auto text-wedding-gold/40 mb-3" />
+                    <h3 className="text-lg font-medium text-wedding-maroon mb-2">Select a Template First</h3>
+                    <p className="text-gray-500 mb-4">Choose an invitation template to manage guests for that event</p>
+                    <Button onClick={() => setActiveTab('templates')} className="bg-wedding-gold hover:bg-wedding-deep-gold">
+                      Select Template
+                    </Button>
+                  </div>
                 ) : (
                   <div className="text-center py-8">
                     <User size={48} className="mx-auto text-wedding-gold/40 mb-3" />

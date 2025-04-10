@@ -157,10 +157,11 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
     });
   };
 
-  // Update GuestContext with selected guest
-  const handleUpdateGuestContext = (guestName: string) => {
-    // This function will be implemented if needed in the future
-    console.log(`Set guest context to: ${guestName}`);
+  const handleOpenPreview = (guestName: string) => {
+    // Open the invitation with the guest name parameter in a new tab
+    const baseUrl = window.location.origin;
+    const link = `${baseUrl}/invitation/${invitationId}?guest=${encodeURIComponent(guestName)}`;
+    window.open(link, '_blank');
   };
 
   return (
@@ -222,7 +223,7 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
             <TableHeader>
               <TableRow className="bg-wedding-gold/10">
                 <TableHead>Guest Name</TableHead>
-                <TableHead className="w-[200px] text-right">Actions</TableHead>
+                <TableHead className="w-[280px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -238,6 +239,14 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
                         variant="outline" 
                         size="sm" 
                         className="h-8 px-2 border-wedding-gold/20 hover:bg-wedding-gold/10"
+                        onClick={() => handleOpenPreview(guest.name)}
+                      >
+                        Preview
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 px-2 border-wedding-gold/20 hover:bg-wedding-gold/10"
                         onClick={() => {
                           copyInvitationLink(guest.name);
                           setCopiedId(guest.id);
@@ -245,7 +254,7 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
                         }}
                       >
                         {copiedId === guest.id ? <Check size={14} className="mr-1" /> : <Copy size={14} className="mr-1" />}
-                        {copiedId === guest.id ? "Copied" : "Copy Invitation Link"}
+                        {copiedId === guest.id ? "Copied" : "Copy Link"}
                       </Button>
                       <Button 
                         variant="outline" 
