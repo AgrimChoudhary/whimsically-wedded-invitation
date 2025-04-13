@@ -10,13 +10,14 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { UserPlus, UserMinus, Copy, Check, User, Loader2 } from 'lucide-react';
+import { UserPlus, UserMinus, Copy, Check, User, Loader2, ExternalLink } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Guest {
   id: string;
   name: string;
+  mobile?: string;
 }
 
 interface GuestTableProps {
@@ -26,6 +27,7 @@ interface GuestTableProps {
 const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [newGuestName, setNewGuestName] = useState('');
+  const [newGuestMobile, setNewGuestMobile] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +41,7 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
       try {
         const { data, error } = await supabase
           .from('guests')
-          .select('id, name')
+          .select('id, name, mobile')
           .eq('invitation_id', invitationId);
         
         if (error) {
@@ -84,7 +86,7 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
         .insert({
           name: newGuestName.trim(),
           invitation_id: invitationId,
-          mobile: '' // Default empty value
+          mobile: newGuestMobile.trim() || '' // Use entered mobile or empty string
         })
         .select();
 
@@ -93,8 +95,9 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
       }
 
       if (data && data[0]) {
-        setGuests([...guests, data[0]]);
+        setGuests(prev => [...prev, data[0]]);
         setNewGuestName('');
+        setNewGuestMobile('');
         setIsAdding(false);
 
         toast({
@@ -143,24 +146,29 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
     }
   };
 
-  const copyInvitationLink = (guestName: string) => {
+  const copyInvitationLink = (guest: Guest) => {
     // Create a personalized link with the guest's name
     const baseUrl = window.location.origin;
-    const link = `${baseUrl}/invitation/${invitationId}?guest=${encodeURIComponent(guestName)}`;
+    const link = `${baseUrl}/invitation/${invitationId}?guest=${encodeURIComponent(guest.name)}`;
     
     navigator.clipboard.writeText(link).then(() => {
+      setCopiedId(guest.id);
       toast({
         title: "Link Copied!",
-        description: `Personalized invitation link for ${guestName} copied to clipboard`,
+        description: `Personalized invitation link for ${guest.name} copied to clipboard`,
         duration: 3000,
       });
+      
+      // Reset copied state after 2 seconds
+      setTimeout(() => setCopiedId(null), 2000);
     });
   };
 
-  // Update GuestContext with selected guest
-  const handleUpdateGuestContext = (guestName: string) => {
-    // This function will be implemented if needed in the future
-    console.log(`Set guest context to: ${guestName}`);
+  const openInvitationPreview = (guest: Guest) => {
+    // Open the personalized invitation in a new tab
+    const baseUrl = window.location.origin;
+    const link = `${baseUrl}/invitation/${invitationId}?guest=${encodeURIComponent(guest.name)}`;
+    window.open(link, '_blank');
   };
 
   return (
@@ -179,36 +187,44 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
       </div>
 
       {isAdding && (
-        <div className="flex items-center gap-2 p-3 bg-wedding-cream/50 rounded-md border border-wedding-gold/20">
+        <div className="flex flex-col space-y-3 p-3 bg-wedding-cream/50 rounded-md border border-wedding-gold/20">
           <Input
             placeholder="Enter guest name"
             value={newGuestName}
             onChange={(e) => setNewGuestName(e.target.value)}
             className="border-wedding-gold/30"
           />
-          <Button 
-            size="sm" 
-            onClick={handleAddGuest} 
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={14} className="mr-1 animate-spin" />
-                Adding...
-              </>
-            ) : 'Add'}
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={() => {
-              setIsAdding(false);
-              setNewGuestName('');
-            }}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
+          <Input
+            placeholder="Mobile number (optional)"
+            value={newGuestMobile}
+            onChange={(e) => setNewGuestMobile(e.target.value)}
+            className="border-wedding-gold/30"
+            type="tel"
+          />
+          <div className="flex items-center gap-2">
+            <Button 
+              onClick={handleAddGuest} 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={14} className="mr-1 animate-spin" />
+                  Adding...
+                </>
+              ) : 'Add Guest'}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsAdding(false);
+                setNewGuestName('');
+                setNewGuestMobile('');
+              }}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       )}
 
@@ -222,7 +238,8 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
             <TableHeader>
               <TableRow className="bg-wedding-gold/10">
                 <TableHead>Guest Name</TableHead>
-                <TableHead className="w-[200px] text-right">Actions</TableHead>
+                <TableHead>Mobile</TableHead>
+                <TableHead className="w-[250px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -232,20 +249,26 @@ const GuestTable: React.FC<GuestTableProps> = ({ invitationId }) => {
                     <User size={16} className="text-wedding-maroon opacity-70" />
                     {guest.name}
                   </TableCell>
+                  <TableCell>{guest.mobile || '-'}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button 
                         variant="outline" 
                         size="sm" 
                         className="h-8 px-2 border-wedding-gold/20 hover:bg-wedding-gold/10"
-                        onClick={() => {
-                          copyInvitationLink(guest.name);
-                          setCopiedId(guest.id);
-                          setTimeout(() => setCopiedId(null), 2000);
-                        }}
+                        onClick={() => copyInvitationLink(guest)}
                       >
                         {copiedId === guest.id ? <Check size={14} className="mr-1" /> : <Copy size={14} className="mr-1" />}
-                        {copiedId === guest.id ? "Copied" : "Copy Invitation Link"}
+                        {copiedId === guest.id ? "Copied" : "Copy Link"}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="h-8 px-2 border-wedding-gold/20 hover:bg-wedding-gold/10"
+                        onClick={() => openInvitationPreview(guest)}
+                      >
+                        <ExternalLink size={14} className="mr-1" />
+                        Preview
                       </Button>
                       <Button 
                         variant="outline" 

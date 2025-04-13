@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,6 @@ import {
 } from '@/lib/supabase-helpers';
 import { FloatingPetals } from '@/components/AnimatedElements';
 
-// Define the Event type to ensure consistency
 interface EventType {
   id: string;
   name: string;
@@ -26,7 +24,6 @@ interface EventType {
   address: string;
 }
 
-// Define the full InvitationData type
 interface InvitationData {
   bride_name: string;
   groom_name: string;
@@ -50,7 +47,6 @@ interface InvitationData {
   events: EventType[];
   gallery_images: any[];
   custom_message: string;
-  welcome_page_enabled?: boolean;
 }
 
 const CustomizeInvitation: React.FC = () => {
@@ -70,7 +66,6 @@ const CustomizeInvitation: React.FC = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Initial setup
     setIsLoading(true);
     loadTemplateData();
     setTimeout(() => {
@@ -81,7 +76,6 @@ const CustomizeInvitation: React.FC = () => {
   const loadTemplateData = () => {
     const templateData = getDefaultInvitationTemplate();
     
-    // Ensure all dates are strings for consistency
     const formattedTemplateData = {
       ...templateData,
       events: templateData.events.map((event: any) => ({
@@ -107,7 +101,6 @@ const CustomizeInvitation: React.FC = () => {
     
     setCoupleImageFile(file);
     
-    // Create a preview
     const reader = new FileReader();
     reader.onload = () => {
       setCoupleImagePreview(reader.result as string);
@@ -123,7 +116,6 @@ const CustomizeInvitation: React.FC = () => {
     const newFiles = Array.from(files);
     setGalleryImageFiles(prev => [...prev, ...newFiles]);
     
-    // Create previews
     newFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -211,7 +203,6 @@ const CustomizeInvitation: React.FC = () => {
       
       let finalInvitationData = { ...invitationData };
       
-      // Upload couple image to Supabase if exists
       if (coupleImageFile) {
         const coupleImageUrl = await uploadImageToSupabase(coupleImageFile, 'couples');
         if (coupleImageUrl) {
@@ -219,7 +210,6 @@ const CustomizeInvitation: React.FC = () => {
         }
       }
       
-      // Upload gallery images to Supabase if exists
       if (galleryImageFiles.length > 0) {
         const uploadPromises = galleryImageFiles.map(file => uploadImageToSupabase(file, 'gallery'));
         const uploadedUrls = await Promise.all(uploadPromises);
@@ -231,7 +221,6 @@ const CustomizeInvitation: React.FC = () => {
         finalInvitationData.gallery_images = galleryImages;
       }
       
-      // Format events for database
       const formattedEvents = finalInvitationData.events.map(event => ({
         name: event.name,
         date: event.date,
@@ -240,9 +229,10 @@ const CustomizeInvitation: React.FC = () => {
         address: event.address
       }));
 
-      // Save to Supabase
+      const { welcome_page_enabled, ...dataToSave } = finalInvitationData;
+      
       const data = await createWeddingInvitation({
-        ...finalInvitationData,
+        ...dataToSave,
         events: formattedEvents
       });
       
@@ -251,7 +241,6 @@ const CustomizeInvitation: React.FC = () => {
         description: "Your invitation has been created!",
       });
 
-      // Navigate to the new invitation
       navigate(`/invitation/${data.id}`);
       
     } catch (error) {
@@ -277,7 +266,6 @@ const CustomizeInvitation: React.FC = () => {
     );
   }
 
-  // Handle updates from InvitationPreview component
   const handlePreviewUpdate = (field: string, value: any) => {
     if (field === 'showEditHints') {
       setShowEditHints(value);
@@ -329,7 +317,6 @@ const CustomizeInvitation: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Preview column */}
         <div className="order-2 lg:order-1">
           <div className="sticky top-24 overflow-y-auto max-h-[calc(100vh-6rem)] p-4">
             <div className="p-4 mb-6 bg-wedding-gold/10 rounded-lg border border-wedding-gold/20 text-center relative">
@@ -360,7 +347,6 @@ const CustomizeInvitation: React.FC = () => {
           </div>
         </div>
         
-        {/* Editor column */}
         <div className="order-1 lg:order-2">
           <div className="p-4 bg-white rounded-lg shadow-lg border border-wedding-gold/20">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
