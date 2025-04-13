@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -59,9 +58,12 @@ export const createWeddingInvitation = async (invitationData: any) => {
       gallery_images: Array.isArray(invitationData.gallery_images) 
         ? JSON.stringify(invitationData.gallery_images) 
         : invitationData.gallery_images,
-      // Add welcome_page_enabled flag to ensure both pages are preserved
-      welcome_page_enabled: true
     };
+
+    // Remove the welcome_page_enabled field as it doesn't exist in the database
+    if ('welcome_page_enabled' in formattedData) {
+      delete formattedData.welcome_page_enabled;
+    }
 
     // Ensure dates are properly formatted as strings
     if (formattedData.wedding_date && formattedData.wedding_date instanceof Date) {
@@ -301,6 +303,6 @@ export const getDefaultInvitationTemplate = () => {
     ],
     gallery_images: [],
     custom_message: "We would be honored by your presence on our special day.",
-    welcome_page_enabled: true // Ensure both welcome page and invitation are shown
+    welcome_page_enabled: true // Keep this for the UI, but remove when sending to database
   };
 };
