@@ -47,6 +47,7 @@ interface InvitationData {
   events: EventType[];
   gallery_images: any[];
   custom_message: string;
+  welcome_page_enabled?: boolean;
 }
 
 const CustomizeInvitation: React.FC = () => {
