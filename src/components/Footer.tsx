@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
           <Separator className="my-6 bg-wedding-gold/20" />
           
           <div className="text-center">
-            <h4 className="font-great-vibes text-xl text-wedding-maroon mb-1">Made with ❤️ by UTSAVY</h4>
+            <h4 className="font-serif text-xl text-wedding-maroon mb-1 font-bold">Made with ❤️ by <span className="text-wedding-gold font-bold tracking-wide">UTSAVY</span></h4>
             <p className="text-sm text-gray-600">
               Want a beautiful digital invitation like this for your special day?
             </p>

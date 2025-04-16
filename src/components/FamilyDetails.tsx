@@ -45,9 +45,8 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
   // Default bride family members if none provided
   const defaultBrideFamily: FamilyMember[] = [
     { 
-      name: "मानगीलाल शर्मा & लोहरी देवी", 
+      name: "श्रीमती गीता देवी & बालकृष्ण जी शर्मा", 
       relation: "माता-पिता (कन्या)",
-      image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
       description: ""
     }
   ];
@@ -55,9 +54,8 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
   // Default groom family members if none provided
   const defaultGroomFamily: FamilyMember[] = [
     { 
-      name: "तेजराम शर्मा & ललिता देवी", 
+      name: "श्रीमती ललिता देवी & तेजराम शर्मा", 
       relation: "माता-पिता (वर)",
-      image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
       description: ""
     }
   ];
@@ -147,22 +145,13 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
           {members.map((member, index) => (
             <div key={index} className="flex items-center gap-3 p-2 hover:bg-wedding-cream/20 rounded-lg transition-colors duration-300">
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden flex-shrink-0 border border-wedding-gold/20">
-                {member.image ? (
-                  <img 
-                    src={member.image} 
-                    alt={member.name} 
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-wedding-gold/10 flex items-center justify-center">
-                    {index === 0 ? (
-                      <Users size={24} className="text-wedding-gold" />
-                    ) : (
-                      <UserRound size={24} className="text-wedding-gold" />
-                    )}
-                  </div>
-                )}
+                <div className="w-full h-full bg-wedding-gold/10 flex items-center justify-center">
+                  {index === 0 ? (
+                    <Users size={24} className="text-wedding-gold" />
+                  ) : (
+                    <UserRound size={24} className="text-wedding-gold" />
+                  )}
+                </div>
               </div>
               <div>
                 <p className="font-medium font-kruti text-gray-800 text-sm sm:text-base">{member.name}</p>

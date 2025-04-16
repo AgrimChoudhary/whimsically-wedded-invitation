@@ -43,7 +43,7 @@ const Index = () => {
           
           <div className="relative z-10 text-center mb-8">
             <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
-              Ananya & Arjun
+              उमाशंकर & भावना
               {showSparkle && (
                 <Sparkles 
                   size={isMobile ? 16 : 24} 

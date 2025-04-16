@@ -97,7 +97,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           <div className="flex flex-col items-center">
             <div className="relative mb-4 sm:mb-6">
               <img 
-                src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
+                src="/lovable-uploads/5dd881f6-d881-416e-b698-ac19aad670dd.png"
                 alt={`${groomName} and ${brideName}`}
                 className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-float"
                 loading="lazy"
