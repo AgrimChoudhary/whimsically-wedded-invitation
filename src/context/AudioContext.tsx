@@ -29,26 +29,36 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     }
 
-    // Setup user interaction handler to initialize audio
-    const handleUserInteraction = () => {
+    // Improved auto-play handling
+    const initializeAudio = () => {
       if (audioRef.current && !audioInitialized) {
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
           playPromise.catch(error => {
-            console.log("Audio play prevented by browser, will retry", error);
+            console.log("Audio play prevented by browser, will retry on user interaction", error);
           });
         }
         setAudioInitialized(true);
       }
     };
+    
+    // Try to play audio immediately (may fail due to browser policies)
+    initializeAudio();
+    
+    // Setup user interaction handlers to initialize audio
+    const handleUserInteraction = () => {
+      initializeAudio();
+    };
 
     // Add event listeners to start audio on first user interaction
-    document.addEventListener('click', handleUserInteraction, { once: true });
-    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+    document.addEventListener('click', handleUserInteraction, { once: false });
+    document.addEventListener('touchstart', handleUserInteraction, { once: false });
+    document.addEventListener('keydown', handleUserInteraction, { once: false });
 
     return () => {
       document.removeEventListener('click', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
       
       // Cleanup audio when component unmounts
       if (audioRef.current) {

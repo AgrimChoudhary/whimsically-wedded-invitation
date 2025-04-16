@@ -12,8 +12,8 @@ interface InvitationHeaderProps {
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
-  brideName = "Ananya", 
-  groomName = "Arjun",
+  brideName = "भावना", 
+  groomName = "उमाशंकर",
   coupleImageUrl
 }) => {
   const { guestName } = useGuest();
@@ -43,9 +43,6 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
     };
   }, []);
 
-  // Default guest name if not provided
-  const displayGuestName = guestName || "Guest Name";
-
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
       <div className="w-full max-w-4xl px-4">
@@ -72,9 +69,11 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
         
         <div className="text-center mb-6 sm:mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
-            <h1 className="font-dancing-script text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
-              Dear {displayGuestName},
-            </h1>
+            {guestName && (
+              <h1 className="font-poppins text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
+                Dear {guestName},
+              </h1>
+            )}
             {!isMobile && (
               <div className="absolute -right-6 -top-6 opacity-30">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,8 +82,8 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               </div>
             )}
           </div>
-          <h2 className="font-great-vibes text-2xl sm:text-3xl text-wedding-gold animate-bounce-light">
-            You're Cordially Invited!
+          <h2 className="font-kruti text-2xl sm:text-3xl text-wedding-gold animate-bounce-light">
+            आपको सादर आमंत्रित किया जाता है!
           </h2>
         </div>
         
@@ -108,7 +107,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               <div className="absolute -inset-2 rounded-full border border-wedding-gold/10"></div>
             </div>
             
-            <h2 className="font-great-vibes text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
+            <h2 className="font-kruti text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
               <span className="relative">
                 {brideName} <span className="inline-block mx-2">&</span> {groomName}
                 {!isMobile && (

@@ -51,8 +51,8 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Default wedding date - April 10, 2025
-  const weddingDate = new Date('2025-04-10T11:00:00');
+  // Wedding date - April 29, 2025
+  const weddingDate = new Date('2025-04-29T20:00:00');
 
   return (
     <div className="min-h-screen w-full pattern-background">
@@ -110,61 +110,37 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            brideName="Ananya"
-            groomName="Arjun"
+            brideName="भावना"
+            groomName="उमाशंकर"
           />
           
           <CountdownTimer 
             weddingDate={weddingDate} 
-            weddingTime="11:00 AM"
+            weddingTime="8:00 PM"
           />
           
           <CoupleSection />
           
           <FamilyDetails 
             brideFamily={{
-              title: "Sharma Family",
+              title: "कन्या पक्ष",
               members: [
                 { 
-                  name: "Rajesh & Priya Sharma", 
-                  relation: "Parents of the Bride",
+                  name: "मानगीलाल शर्मा & लोहरी देवी", 
+                  relation: "माता-पिता (कन्या)",
                   image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
-                  description: "Rajesh is a successful businessman who loves cricket and traveling. Priya is a dedicated homemaker with a passion for classical music and cooking traditional dishes."
-                },
-                { 
-                  name: "Ishaan Sharma", 
-                  relation: "Brother of the Bride",
-                  image: "https://images.unsplash.com/photo-1507081323647-4d250478b919",
-                  description: "Ishaan is a software engineer working in Bangalore. He enjoys gaming and photography in his free time."
-                },
-                { 
-                  name: "Meera Sharma", 
-                  relation: "Sister of the Bride",
-                  image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
-                  description: "Meera is pursuing her Masters in Psychology. She is an avid reader and loves to paint."
+                  description: ""
                 }
               ]
             }}
             groomFamily={{
-              title: "Patel Family",
+              title: "वर पक्ष",
               members: [
                 { 
-                  name: "Vikram & Nisha Patel", 
-                  relation: "Parents of the Groom",
+                  name: "तेजराम शर्मा & ललिता देवी", 
+                  relation: "माता-पिता (वर)",
                   image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
-                  description: "Vikram is a retired professor who now mentors students. Nisha is a doctor specializing in pediatrics and loves gardening."
-                },
-                { 
-                  name: "Aditya Patel", 
-                  relation: "Brother of the Groom",
-                  image: "https://images.unsplash.com/photo-1502307100811-6bdc0981a85b",
-                  description: "Aditya is an entrepreneur who runs a successful startup. He's passionate about fitness and hiking."
-                },
-                { 
-                  name: "Riya Patel", 
-                  relation: "Sister of the Groom",
-                  image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df",
-                  description: "Riya is an architect with a love for sustainable design. She enjoys playing the violin and experimenting with fusion cooking."
+                  description: ""
                 }
               ]
             }}
@@ -177,8 +153,8 @@ const Invitation = () => {
             <div className="relative inline-block">
               {showThankYouMessage ? (
                 <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
-                  <h3 className="text-xl font-playfair text-wedding-maroon mb-3">Thanks for Accepting Our Invitation</h3>
-                  <p className="text-gray-600 mb-4">We look forward to celebrating our special day with you!</p>
+                  <h3 className="text-xl font-kruti text-wedding-maroon mb-3">आपके स्वीकार करने के लिए धन्यवाद</h3>
+                  <p className="text-gray-600 mb-4">हम आपके साथ अपना विशेष दिन मनाने के लिए तत्पर हैं!</p>
                   <Badge variant="outline" className="bg-wedding-gold/10 text-wedding-gold animate-pulse-soft">
                     More features coming soon...
                   </Badge>

@@ -126,6 +126,29 @@ const CustomInvitation = () => {
         parseBrideFamily();
         parseGroomFamily();
         
+        // Override with our custom data
+        setBrideFamily([
+          { 
+            name: "मानगीलाल शर्मा & लोहरी देवी", 
+            relation: "माता-पिता (कन्या)",
+            image: invitation.bride_family && Array.isArray(JSON.parse(invitation.bride_family)) && JSON.parse(invitation.bride_family).length > 0 
+              ? JSON.parse(invitation.bride_family)[0].image 
+              : "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
+            description: ""
+          }
+        ]);
+        
+        setGroomFamily([
+          { 
+            name: "तेजराम शर्मा & ललिता देवी", 
+            relation: "माता-पिता (वर)",
+            image: invitation.groom_family && Array.isArray(JSON.parse(invitation.groom_family)) && JSON.parse(invitation.groom_family).length > 0 
+              ? JSON.parse(invitation.groom_family)[0].image 
+              : "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
+            description: ""
+          }
+        ]);
+        
         // Combine the data and convert gallery_images from Json to string[]
         const galleryImages = invitation.gallery_images 
           ? (Array.isArray(invitation.gallery_images) 
@@ -133,10 +156,71 @@ const CustomInvitation = () => {
               : [])
           : [];
           
+        // Set custom invitation data
         setInvitationData({
           ...invitation,
+          bride_name: "भावना",
+          groom_name: "उमाशंकर",
+          wedding_date: "2025-04-29",
+          wedding_time: "8:00 PM",
+          wedding_venue: "कृष्णा पैलेस",
+          wedding_address: "तीन बड़ के पास, करौली",
+          map_url: "https://maps.app.goo.gl/yjsSHSkHgyhW54oR6",
+          bride_parents: "मानगीलाल शर्मा & लोहरी देवी",
+          groom_parents: "तेजराम शर्मा & ललिता देवी",
+          rsvp_phone: "8302710005",
+          rsvp_email: null,
           gallery_images: galleryImages,
-          events: events || []
+          events: [
+            {
+              id: "event-1",
+              event_name: "शुभ लग्न व टीका",
+              event_date: "2025-04-23",
+              event_time: "4:00 PM",
+              event_venue: "रॉयल पैलेस",
+              event_address: "गंगापुर रोड, पेट्रोल पम्प के पास, वज़ीरपुर"
+            },
+            {
+              id: "event-2",
+              event_name: "भात",
+              event_date: "2025-04-23",
+              event_time: "8:00 PM",
+              event_venue: "रॉयल पैलेस",
+              event_address: "गंगापुर रोड, पेट्रोल पम्प के पास, वज़ीरपुर"
+            },
+            {
+              id: "event-3",
+              event_name: "प्रीतिभोज",
+              event_date: "2025-04-24",
+              event_time: "12:00 PM",
+              event_venue: "निज निवास",
+              event_address: "परिता"
+            },
+            {
+              id: "event-4",
+              event_name: "हल्दी & मेहंदी",
+              event_date: "2025-04-27",
+              event_time: "12:00 PM",
+              event_venue: "निज निवास",
+              event_address: "परिता"
+            },
+            {
+              id: "event-5",
+              event_name: "तेल",
+              event_date: "2025-04-27",
+              event_time: "8:00 PM",
+              event_venue: "निज निवास",
+              event_address: "परिता"
+            },
+            {
+              id: "event-6",
+              event_name: "चाकवास",
+              event_date: "2025-04-28",
+              event_time: "8:00 PM",
+              event_venue: "निज निवास",
+              event_address: "परिता"
+            }
+          ]
         });
       } catch (error) {
         console.error('Error fetching invitation:', error);
@@ -166,6 +250,9 @@ const CustomInvitation = () => {
       setConfetti(false);
     }, 800);
   };
+
+  // Default wedding date - April 29, 2025
+  const weddingDate = new Date('2025-04-29T20:00:00');
 
   if (error) {
     return (
@@ -236,61 +323,45 @@ const CustomInvitation = () => {
             </button>
           )}
           
+          <InvitationHeader 
+            brideName="भावना"
+            groomName="उमाशंकर"
+            coupleImageUrl={invitationData?.couple_image_url || undefined}
+          />
+          
+          <CountdownTimer 
+            weddingDate={weddingDate} 
+            weddingTime="8:00 PM"
+          />
+          
           {invitationData && (
             <>
-              <div className="w-full py-8 px-4 text-center bg-floral-pattern">
-                <h1 className="font-great-vibes text-4xl sm:text-5xl text-wedding-maroon">
-                  {invitationData.bride_name} & {invitationData.groom_name}
-                </h1>
-                <p className="font-dancing-script text-xl text-wedding-gold mt-2">Wedding Invitation</p>
-                <p className="text-sm text-gray-600 mt-4">
-                  {new Date(invitationData.wedding_date).toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                  {invitationData.wedding_time && ` at ${invitationData.wedding_time}`}
-                </p>
-              </div>
-              
-              <CountdownTimer 
-                weddingDate={new Date(invitationData.wedding_date)}
-                weddingTime={invitationData.wedding_time || undefined}
-              />
-              
-              <InvitationHeader 
-                brideName={invitationData.bride_name}
-                groomName={invitationData.groom_name}
-                coupleImageUrl={invitationData.couple_image_url || undefined}
-              />
-              
               <div className="w-full py-6">
                 <div className="max-w-4xl mx-auto px-4">
                   <div className="glass-card p-6 border border-wedding-gold/30">
                     <div className="text-center mb-6">
-                      <h2 className="font-dancing-script text-2xl text-wedding-maroon mb-2">Our Story</h2>
+                      <h2 className="font-kruti text-2xl text-wedding-maroon mb-2">हमारी कहानी</h2>
                       <p className="text-gray-600">{invitationData.couple_story}</p>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="p-4 border border-wedding-gold/20 rounded-lg">
-                        <h3 className="font-playfair text-xl text-wedding-maroon text-center mb-3">
-                          {invitationData.bride_name}
+                        <h3 className="font-kruti text-xl text-wedding-maroon text-center mb-3">
+                          भावना
                         </h3>
                         <p className="text-gray-600 text-center">{invitationData.bride_about}</p>
-                        <p className="text-sm text-gray-500 mt-4 text-center italic">
-                          {invitationData.bride_parents}
+                        <p className="text-sm text-gray-500 mt-4 text-center italic font-kruti">
+                          माता-पिता: {invitationData.bride_parents}
                         </p>
                       </div>
                       
                       <div className="p-4 border border-wedding-gold/20 rounded-lg">
-                        <h3 className="font-playfair text-xl text-wedding-maroon text-center mb-3">
-                          {invitationData.groom_name}
+                        <h3 className="font-kruti text-xl text-wedding-maroon text-center mb-3">
+                          उमाशंकर
                         </h3>
                         <p className="text-gray-600 text-center">{invitationData.groom_about}</p>
-                        <p className="text-sm text-gray-500 mt-4 text-center italic">
-                          {invitationData.groom_parents}
+                        <p className="text-sm text-gray-500 mt-4 text-center italic font-kruti">
+                          माता-पिता: {invitationData.groom_parents}
                         </p>
                       </div>
                     </div>
@@ -300,49 +371,23 @@ const CustomInvitation = () => {
               
               <FamilyDetails 
                 brideFamily={{
-                  title: `${invitationData.bride_name}'s Family`,
+                  title: "कन्या पक्ष",
                   members: brideFamily
                 }}
                 groomFamily={{
-                  title: `${invitationData.groom_name}'s Family`,
+                  title: "वर पक्ष",
                   members: groomFamily
                 }}
               />
               
-              {invitationData.events && invitationData.events.length > 0 && (
-                <div className="w-full py-6 bg-wedding-cream/20">
-                  <div className="max-w-4xl mx-auto px-4">
-                    <div className="text-center mb-6">
-                      <h2 className="font-dancing-script text-2xl text-wedding-maroon">Wedding Events</h2>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {invitationData.events.map((event) => (
-                        <div key={event.id} className="glass-card p-4 border border-wedding-gold/30">
-                          <h3 className="font-playfair text-lg text-wedding-maroon">{event.event_name}</h3>
-                          {event.event_date && (
-                            <p className="text-gray-600">
-                              <span className="font-medium">Date:</span> {new Date(event.event_date).toLocaleDateString()}
-                            </p>
-                          )}
-                          {event.event_venue && (
-                            <p className="text-gray-600">
-                              <span className="font-medium">Venue:</span> {event.event_venue}
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+              <EventTimeline />
               
               <div className="w-full py-8 bg-floral-pattern">
                 <div className="max-w-4xl mx-auto px-4 text-center">
-                  <h2 className="font-dancing-script text-2xl text-wedding-maroon mb-4">Wedding Venue</h2>
+                  <h2 className="font-kruti text-2xl text-wedding-maroon mb-4">विवाह स्थल</h2>
                   <div className="glass-card p-6 border border-wedding-gold/30">
-                    <h3 className="font-playfair text-xl text-wedding-maroon mb-2">{invitationData.wedding_venue}</h3>
-                    <p className="text-gray-600 mb-4">{invitationData.wedding_address}</p>
+                    <h3 className="font-kruti text-xl text-wedding-maroon mb-2">{invitationData.wedding_venue}</h3>
+                    <p className="text-gray-600 mb-4 font-kruti">{invitationData.wedding_address}</p>
                     
                     {invitationData.map_url && (
                       <div className="mt-4">
@@ -361,29 +406,20 @@ const CustomInvitation = () => {
                 </div>
               </div>
               
-              {(invitationData.rsvp_email || invitationData.rsvp_phone) && (
+              {invitationData.rsvp_phone && (
                 <div className="w-full py-8">
                   <div className="max-w-4xl mx-auto px-4 text-center">
-                    <h2 className="font-dancing-script text-2xl text-wedding-maroon mb-4">RSVP</h2>
+                    <h2 className="font-kruti text-2xl text-wedding-maroon mb-4">आर एस वी पी</h2>
                     <div className="glass-card p-6 border border-wedding-gold/30">
-                      <p className="text-gray-600 mb-4">We would be honored by your presence. Please let us know if you can attend.</p>
-                      
-                      {invitationData.rsvp_email && (
-                        <p className="text-gray-600">
-                          <span className="font-medium">Email:</span>{" "}
-                          <a href={`mailto:${invitationData.rsvp_email}`} className="text-wedding-maroon hover:underline">
-                            {invitationData.rsvp_email}
-                          </a>
-                        </p>
-                      )}
+                      <p className="text-gray-600 mb-4 font-kruti">आपकी उपस्थिति हमारे लिए सम्मान की बात होगी। कृपया हमें बताएं कि क्या आप आ सकते हैं।</p>
                       
                       {invitationData.rsvp_phone && (
-                        <p className="text-gray-600">
-                          <span className="font-medium">Phone:</span>{" "}
-                          <a href={`tel:${invitationData.rsvp_phone}`} className="text-wedding-maroon hover:underline">
-                            {invitationData.rsvp_phone}
+                        <div className="text-gray-600">
+                          <span className="font-medium">भावेश (वर के भाई):</span>{" "}
+                          <a href={`tel:+91${invitationData.rsvp_phone}`} className="text-wedding-maroon hover:underline">
+                            +91 {invitationData.rsvp_phone}
                           </a>
-                        </p>
+                        </div>
                       )}
                       
                       <div className="mt-6">
@@ -395,10 +431,19 @@ const CustomInvitation = () => {
                           {showThankYouMessage ? "Thanks for Accepting!" : "Accept Invitation"}
                         </Button>
                       </div>
+                      
+                      {showThankYouMessage && (
+                        <div className="mt-4">
+                          <p className="text-wedding-maroon font-kruti">आपके स्वीकार करने के लिए धन्यवाद</p>
+                          <p className="text-gray-600 text-sm">हम आपके साथ अपना विशेष दिन मनाने के लिए तत्पर हैं!</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               )}
+              
+              <PhotoGrid />
             </>
           )}
           

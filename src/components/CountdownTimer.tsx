@@ -22,8 +22,8 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
   const [showFireworks, setShowFireworks] = useState(false);
   const isMobile = useIsMobile();
   
-  // Wedding date - April 10, 2025 or use the prop if provided
-  const targetDate = weddingDate ? weddingDate.getTime() : new Date('2025-04-10T11:00:00').getTime();
+  // Wedding date - April 29, 2025 at 8:00 PM or use the prop if provided
+  const targetDate = weddingDate ? weddingDate.getTime() : new Date('2025-04-29T20:00:00').getTime();
   
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -94,9 +94,9 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
-    }) : 'April 10, 2025';
+    }) : 'April 29, 2025';
     
-  const displayTime = weddingTime || '11:00 AM';
+  const displayTime = weddingTime || '8:00 PM';
 
   return (
     <section id="countdown-timer" className="w-full py-1 md:py-2 mb-1 md:mb-2">
@@ -105,8 +105,8 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
           <span className="inline-block py-1 px-3 bg-wedding-gold/10 rounded-full text-xs text-wedding-gold mb-1">
             <Calendar size={12} className="inline mr-1" /> Save The Date
           </span>
-          <h3 className="font-dancing-script text-lg sm:text-xl md:text-2xl text-wedding-maroon">
-            Counting Down To Our Special Day
+          <h3 className="font-kruti text-lg sm:text-xl md:text-2xl text-wedding-maroon">
+            हमारे विशेष दिन तक गिनती शुरू
           </h3>
         </div>
         
@@ -124,7 +124,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
                 <div className="relative inline-flex flex-col">
                   <div className={`${isMobile ? 'w-12 h-12 sm:w-14 sm:h-14' : 'w-16 h-16'} rounded-lg bg-gradient-to-br from-wedding-blush to-wedding-cream flex items-center justify-center shadow-md relative overflow-hidden group`}>
                     <div className="absolute inset-0 bg-wedding-gold/5 group-hover:bg-wedding-gold/10 transition-colors duration-300"></div>
-                    <span className={`font-playfair ${isMobile ? 'text-lg' : 'text-2xl'} text-wedding-maroon relative z-10`}>
+                    <span className={`font-poppins ${isMobile ? 'text-lg' : 'text-2xl'} text-wedding-maroon relative z-10`}>
                       {unit.value < 10 ? `0${unit.value}` : unit.value}
                     </span>
                     
