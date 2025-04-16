@@ -1,52 +1,34 @@
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 interface GuestContextType {
   guestName: string;
   setGuestName: (name: string) => void;
-  clearGuestName: () => void;
 }
 
-const GuestContext = createContext<GuestContextType>({
-  guestName: '',
-  setGuestName: () => {},
-  clearGuestName: () => {},
-});
+const GuestContext = createContext<GuestContextType | undefined>(undefined);
 
-interface GuestProviderProps {
-  children: ReactNode;
-}
+export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [guestName, setGuestName] = useState<string>('Guest Name');
 
-export function GuestProvider({ children }: GuestProviderProps) {
-  const [guestName, setGuestName] = useState('');
-  const [searchParams] = useSearchParams();
-
-  // Check for guest parameter in URL when the component mounts
+  // Initialize with default guest name
   useEffect(() => {
-    const guestParam = searchParams.get('guest');
-    if (guestParam) {
-      setGuestName(decodeURIComponent(guestParam));
+    if (!guestName) {
+      setGuestName('Guest Name');
     }
-  }, [searchParams]);
-
-  const clearGuestName = () => {
-    setGuestName('');
-  };
+  }, [guestName]);
 
   return (
-    <GuestContext.Provider
-      value={{
-        guestName,
-        setGuestName,
-        clearGuestName,
-      }}
-    >
+    <GuestContext.Provider value={{ guestName, setGuestName }}>
       {children}
     </GuestContext.Provider>
   );
-}
+};
 
-export const useGuest = () => useContext(GuestContext);
-
-export default GuestContext;
+export const useGuest = (): GuestContextType => {
+  const context = useContext(GuestContext);
+  if (context === undefined) {
+    throw new Error('useGuest must be used within a GuestProvider');
+  }
+  return context;
+};
