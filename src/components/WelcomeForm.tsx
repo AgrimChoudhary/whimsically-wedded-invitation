@@ -15,7 +15,6 @@ const WelcomeForm: React.FC = () => {
   const [groomName, setGroomName] = useState("उमाशंकर");
   const [weddingDate, setWeddingDate] = useState("April 29, 2025");
   const { isPlaying, toggleMusic } = useAudio();
-  const { guestName } = useGuest();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -39,7 +38,7 @@ const WelcomeForm: React.FC = () => {
     // Simulate loading for better UX
     setTimeout(() => {
       navigate('/invitation');
-    }, 1000);
+    }, 800);
   };
 
   return (
@@ -157,7 +156,7 @@ const WelcomeForm: React.FC = () => {
       {/* Date teaser */}
       <div className="mt-8 text-center opacity-0 animate-fade-in" style={{ animationDelay: '1.4s' }}>
         <p className="text-sm text-gray-500 font-dancing-script mb-3">
-          <span className="inline-block px-2 py-0.5 rounded-full bg-wedding-cream/50 text-wedding-maroon border border-wedding-gold/20">
+          <span className="inline-block px-3 py-1 rounded-full bg-wedding-cream/70 text-wedding-maroon border border-wedding-gold/20">
             Save the Date: {weddingDate}
           </span>
         </p>

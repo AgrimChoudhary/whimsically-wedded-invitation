@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calendar, User, Heart, X, Mail, Phone } from 'lucide-react';
+import { Calendar, User, Heart, X, Phone } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useAudio } from '@/context/AudioContext';
@@ -47,7 +47,7 @@ const RSVPModal: React.FC<RSVPModalProps> = ({ isOpen, onClose }) => {
                   </svg>
                 </div>
               </div>
-              <h3 className="text-lg font-kruti text-wedding-maroon mb-2">आपको हमारी शादी में शामिल होकर हमें आशीर्वाद देने के लिए धन्यवाद!</h3>
+              <h3 className="text-lg font-kruti text-wedding-maroon mb-2">निमंत्रण स्वीकार करने के लिए धन्यवाद!</h3>
               <p className="text-sm text-gray-600 mb-4">
                 Thank you for accepting our invitation. We look forward to celebrating our special day with you!
               </p>

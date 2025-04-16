@@ -56,13 +56,18 @@
   .animate-float {
     animation-duration: 4s;
   }
+  
+  .font-kruti {
+    font-size: 110%; /* Slightly larger font size for Hindi on mobile */
+  }
 }
 
 /* Hindi text optimizations */
 .font-kruti {
-  font-family: 'Kruti Dev', 'Noto Sans Devanagari', 'Poppins', sans-serif;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-family: 'Noto Sans Devanagari', 'Hind', 'Poppins', sans-serif;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+  font-weight: 500;
 }
 
 .font-devanagari {
@@ -114,4 +119,44 @@
 .underline-grow:hover::after {
   transform: scaleX(1);
   transform-origin: bottom left;
+}
+
+/* Enhanced countdown styling */
+#countdown-timer .glass-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,248,231,0.8) 100%);
+}
+
+/* Enhanced event card styling */
+.event-timeline-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.event-timeline-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.15);
+}
+
+/* Better fonts for specific sections */
+.footer-title {
+  font-family: 'Great Vibes', 'Dancing Script', cursive;
+  font-size: 1.5rem;
+  color: #800020;
+}
+
+/* Enhance mobile experience */
+@media (max-width: 768px) {
+  .countdown-timer-box {
+    margin: 0 auto;
+    max-width: 85%;
+  }
+  
+  .event-title {
+    font-size: 1.2rem;
+  }
+  
+  .glass-card {
+    padding: 1rem;
+  }
 }

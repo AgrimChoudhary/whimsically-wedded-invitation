@@ -10,6 +10,7 @@ import { AudioProvider } from "./context/AudioContext";
 import Index from "./pages/Index";
 import Invitation from "./pages/Invitation";
 import NotFound from "./pages/NotFound";
+import "./components/custom-styles.css";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -30,40 +31,14 @@ const App: React.FC = () => {
     poppinsLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap';
     document.head.appendChild(poppinsLink);
     
-    // Add Kruti Dev font for Hindi text
-    const styleElement = document.createElement('style');
-    styleElement.textContent = `
-      @font-face {
-        font-family: 'Kruti Dev';
-        src: url('https://fonts.gstatic.com/s/mukta/v8/iJWHBXyXfDDVXbEyjmmT.woff2') format('woff2');
-        font-weight: normal;
-        font-style: normal;
-        font-display: swap;
-      }
-      
-      .font-kruti {
-        font-family: 'Kruti Dev', 'Poppins', sans-serif;
-      }
-      
-      .font-devanagari {
-        font-family: 'Noto Sans Devanagari', 'Poppins', sans-serif;
-      }
-      
-      .font-poppins {
-        font-family: 'Poppins', sans-serif;
-      }
-    `;
-    document.head.appendChild(styleElement);
-    
-    // Add Noto Sans Devanagari for proper Hindi rendering
+    // Add Devanagari fonts for Hindi text with better weights
     const devanagariLink = document.createElement('link');
     devanagariLink.rel = 'stylesheet';
-    devanagariLink.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap';
+    devanagariLink.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Hind:wght@400;500;600;700&family=Rozha+One&display=swap';
     document.head.appendChild(devanagariLink);
     
     return () => {
       document.head.removeChild(poppinsLink);
-      document.head.removeChild(styleElement);
       document.head.removeChild(devanagariLink);
     };
   }, []);

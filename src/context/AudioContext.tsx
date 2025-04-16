@@ -22,6 +22,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     audio.src = "https://pagalsong.in/uploads/systemuploads/mp3/Tum%20Kya%20Mile/Tum%20Kya%20Mile%20128%20Kbps.mp3";
     audio.loop = true;
     audio.volume = 0.5;
+    audio.preload = "auto";
     
     const initializeAudio = () => {
       if (!isInitialized) {
@@ -38,26 +39,54 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       }
     };
 
-    // Wait for user interaction to initialize audio
+    // Multiple event handlers to maximize autoplay chances
+    const autoplayEvents = ['click', 'touchstart', 'scroll', 'mousedown'];
+    
     const handleUserInteraction = () => {
       initializeAudio();
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
+      autoplayEvents.forEach(event => {
+        document.removeEventListener(event, handleUserInteraction);
+      });
     };
 
     // Try to play immediately (works on some browsers without interaction)
     initializeAudio();
     
     // Add fallback listeners for browsers that require user interaction
-    document.addEventListener('click', handleUserInteraction);
-    document.addEventListener('touchstart', handleUserInteraction);
+    autoplayEvents.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { once: true });
+    });
+
+    // Set a timeout to try again after a delay
+    const autoplayTimeout = setTimeout(() => {
+      if (!isInitialized) {
+        initializeAudio();
+      }
+    }, 2000);
 
     return () => {
       audio.pause();
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
+      autoplayEvents.forEach(event => {
+        document.removeEventListener(event, handleUserInteraction);
+      });
+      clearTimeout(autoplayTimeout);
     };
   }, []);
+
+  // Try to resume playback when the document becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isInitialized && !audio.paused) {
+        audio.play().catch(console.error);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isInitialized, audio]);
 
   const toggleMusic = () => {
     if (isPlaying) {

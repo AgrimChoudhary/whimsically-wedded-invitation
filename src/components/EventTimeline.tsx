@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Calendar, Music, Heart, PartyPopper, MapPin, ExternalLink } from 'lucide-react';
+import { Calendar, Music, Heart, MapPin, ExternalLink } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Event {
@@ -139,6 +139,7 @@ const EventTimeline: React.FC = () => {
             Join Us For
           </span>
           <h2 className="font-kruti text-2xl sm:text-3xl text-wedding-maroon">विवाह समारोह</h2>
+          <p className="text-sm text-gray-600 mt-2 max-w-lg mx-auto">We invite you to celebrate these special moments with us</p>
         </div>
         
         <div className="relative">
@@ -167,39 +168,39 @@ const EventTimeline: React.FC = () => {
                 </div>
                 
                 <div 
-                  className={`glass-card border md:w-5/12 p-4 sm:p-5 transition-all duration-300 ${
+                  className={`glass-card border md:w-5/12 w-full p-6 transition-all duration-300 ${
                     activeEvent === index ? 'shadow-gold-glow border-wedding-gold/40 transform scale-105' : 'shadow-gold-soft hover:shadow-gold-glow hover:scale-[1.01]'
                   } ${event.color}`}
                 >
-                  <div className="flex items-start space-x-3 sm:space-x-4">
-                    <div className={`transition-all duration-300 ${activeEvent === index ? 'transform scale-110' : ''}`}>
+                  <div className="flex items-start gap-4">
+                    <div className={`flex-shrink-0 transition-all duration-300 ${activeEvent === index ? 'transform scale-110' : ''}`}>
                       {event.icon}
                     </div>
                     <div className="w-full">
                       <h3 className="font-kruti text-lg sm:text-xl text-wedding-maroon">{event.name}</h3>
-                      <div className="mt-1 sm:mt-2 space-y-1 text-xs sm:text-sm">
-                        <div className="flex items-center text-gray-600">
-                          <Calendar size={14} className="mr-2" />
-                          <span>{event.date}</span>
+                      <div className="mt-3 space-y-2">
+                        <div className="flex items-center text-gray-700">
+                          <Calendar size={16} className="mr-2 text-wedding-gold" />
+                          <span className="font-medium">{event.date}</span>
                         </div>
-                        <p className="text-gray-600 pl-5">{event.time}</p>
-                        <p className="text-gray-700 font-medium pl-5 mb-1">{event.venue}</p>
+                        <p className="text-gray-600 pl-6">{event.time}</p>
+                        {event.venue && <p className="text-gray-700 font-medium pl-6">{event.venue}</p>}
                         
                         {event.mapLink ? (
                           <a 
                             href={event.mapLink} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 pl-5 mt-2"
+                            className="flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 pl-6 mt-2"
                           >
-                            <MapPin size={14} className="mr-1" />
-                            <span className="text-xs sm:text-sm font-kruti underline-grow">{event.address}</span>
-                            <ExternalLink size={12} className="ml-1" />
+                            <MapPin size={16} className="mr-1 flex-shrink-0" />
+                            <span className="font-kruti underline-grow">{event.address}</span>
+                            <ExternalLink size={14} className="ml-1 flex-shrink-0" />
                           </a>
                         ) : (
-                          <p className="flex items-center text-gray-600 pl-5 mt-2">
-                            <MapPin size={14} className="mr-1" />
-                            <span className="text-xs sm:text-sm font-kruti">{event.address}</span>
+                          <p className="flex items-center text-gray-600 pl-6 mt-2">
+                            <MapPin size={16} className="mr-1 flex-shrink-0" />
+                            <span className="font-kruti">{event.address}</span>
                           </p>
                         )}
                       </div>

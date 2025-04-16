@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
             <p className="text-sm text-gray-600">
               Want a beautiful digital invitation like this for your special day?
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
               <p className="text-sm font-medium text-gray-700">Contact: Agrim Choudhary</p>
               <a 
                 href="tel:+919549461861" 
@@ -59,8 +59,8 @@ const Footer: React.FC = () => {
             </div>
           </div>
           
-          <div className="mt-6 pt-4 border-t border-wedding-gold/20 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="mt-4 pt-3 border-t border-wedding-gold/20 text-center">
+            <p className="text-xs text-gray-500">
               With love, उमाशंकर & भावना | April 29, 2025
             </p>
           </div>
