@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { MapPin, Phone, ExternalLink } from 'lucide-react';
+import { Separator } from "@/components/ui/separator";
 
 const Footer: React.FC = () => {
   return (
@@ -13,7 +14,7 @@ const Footer: React.FC = () => {
                 <MapPin size={18} className="text-wedding-gold mr-2" />
                 <h3 className="font-kruti text-lg text-wedding-maroon">विवाह स्थल</h3>
               </div>
-              <p className="mt-2 text-gray-700">कृष्णा पैलेस</p>
+              <p className="mt-2 text-gray-700 font-kruti">कृष्णा पैलेस</p>
               <p className="text-sm text-gray-600 mb-2 font-kruti">तीन बड़ के पास, करौली</p>
               <a 
                 href="https://maps.app.goo.gl/yjsSHSkHgyhW54oR6" 
@@ -40,7 +41,25 @@ const Footer: React.FC = () => {
             </div>
           </div>
           
-          <div className="mt-8 pt-4 border-t border-wedding-gold/20 text-center">
+          <Separator className="my-6 bg-wedding-gold/20" />
+          
+          <div className="text-center">
+            <h4 className="font-great-vibes text-xl text-wedding-maroon mb-1">Made with ❤️ by UTSAVY</h4>
+            <p className="text-sm text-gray-600">
+              Want a beautiful digital invitation like this for your special day?
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
+              <p className="text-sm font-medium text-gray-700">Contact: Agrim Choudhary</p>
+              <a 
+                href="tel:+919549461861" 
+                className="text-sm text-wedding-gold underline-grow ml-1"
+              >
+                +91 9549 461 861
+              </a>
+            </div>
+          </div>
+          
+          <div className="mt-6 pt-4 border-t border-wedding-gold/20 text-center">
             <p className="text-sm text-gray-600">
               With love, उमाशंकर & भावना | April 29, 2025
             </p>

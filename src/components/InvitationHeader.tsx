@@ -69,11 +69,9 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
         
         <div className="text-center mb-6 sm:mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
-            {guestName && (
-              <h1 className="font-poppins text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
-                Dear {guestName},
-              </h1>
-            )}
+            <h1 className="font-poppins text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
+              Wedding Invitation
+            </h1>
             {!isMobile && (
               <div className="absolute -right-6 -top-6 opacity-30">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -100,7 +98,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
             <div className="relative mb-4 sm:mb-6">
               <img 
                 src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
-                alt={`${brideName} and ${groomName}`}
+                alt={`${groomName} and ${brideName}`}
                 className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-float"
                 loading="lazy"
               />
@@ -109,7 +107,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
             
             <h2 className="font-kruti text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
               <span className="relative">
-                {brideName} <span className="inline-block mx-2">&</span> {groomName}
+                {groomName} <span className="inline-block mx-2">&</span> {brideName}
                 {!isMobile && (
                   <>
                     <Sparkles size={18} className="absolute -top-4 -left-4 text-wedding-gold" />

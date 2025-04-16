@@ -224,7 +224,8 @@ export default {
 				'montserrat': ['Montserrat', 'sans-serif'],
 				'dancing-script': ['"Dancing Script"', 'cursive'],
 				'playfair': ['"Playfair Display"', 'serif'],
-				'devanagari': ['Poppins', 'sans-serif']
+				'devanagari': ['Poppins', 'sans-serif'],
+				'kruti': ['Hind', '"Rozha One"', 'sans-serif']
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

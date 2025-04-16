@@ -11,9 +11,9 @@ const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showIcon, setShowIcon] = useState(0);
-  const [brideName, setBrideName] = useState("Ananya");
-  const [groomName, setGroomName] = useState("Arjun");
-  const [weddingDate, setWeddingDate] = useState("April 10, 2025");
+  const [brideName, setBrideName] = useState("भावना");
+  const [groomName, setGroomName] = useState("उमाशंकर");
+  const [weddingDate, setWeddingDate] = useState("April 29, 2025");
   const { isPlaying, toggleMusic } = useAudio();
   const { guestName } = useGuest();
   const navigate = useNavigate();
@@ -78,14 +78,14 @@ const WelcomeForm: React.FC = () => {
             </div>
             <div className="w-10 h-[1px] bg-gradient-to-l from-transparent to-wedding-gold/70"></div>
           </div>
-          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">Welcome, {guestName}</h2>
+          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">Welcome</h2>
           <p className="text-sm text-gray-600">Your special invitation awaits</p>
         </div>
         
         <div className="text-center opacity-0 animate-fade-in-up relative" style={{ animationDelay: '0.6s' }}>
           <div className="absolute -left-6 -top-6 text-6xl text-wedding-gold/10 font-great-vibes">"</div>
-          <p className="text-wedding-gold font-dancing-script text-xl md:text-2xl mb-4 px-4 relative z-10">
-            {brideName} & {groomName} cordially invite you to celebrate their wedding
+          <p className="text-wedding-gold font-kruti text-xl md:text-2xl mb-4 px-4 relative z-10">
+            {groomName} & {brideName} cordially invite you to celebrate their wedding
           </p>
           <div className="absolute -right-6 -bottom-6 text-6xl text-wedding-gold/10 font-great-vibes">"</div>
         </div>

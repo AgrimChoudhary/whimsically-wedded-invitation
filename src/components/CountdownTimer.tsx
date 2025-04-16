@@ -105,8 +105,8 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
           <span className="inline-block py-1 px-3 bg-wedding-gold/10 rounded-full text-xs text-wedding-gold mb-1">
             <Calendar size={12} className="inline mr-1" /> Save The Date
           </span>
-          <h3 className="font-kruti text-lg sm:text-xl md:text-2xl text-wedding-maroon">
-            हमारे विशेष दिन तक गिनती शुरू
+          <h3 className="font-playfair text-lg sm:text-xl md:text-2xl text-wedding-maroon">
+            Countdown to our special day
           </h3>
         </div>
         

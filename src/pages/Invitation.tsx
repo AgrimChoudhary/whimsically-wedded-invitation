@@ -110,8 +110,8 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            brideName="भावना"
             groomName="उमाशंकर"
+            brideName="भावना"
           />
           
           <CountdownTimer 
@@ -122,17 +122,6 @@ const Invitation = () => {
           <CoupleSection />
           
           <FamilyDetails 
-            brideFamily={{
-              title: "कन्या पक्ष",
-              members: [
-                { 
-                  name: "मानगीलाल शर्मा & लोहरी देवी", 
-                  relation: "माता-पिता (कन्या)",
-                  image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
-                  description: ""
-                }
-              ]
-            }}
             groomFamily={{
               title: "वर पक्ष",
               members: [
@@ -140,6 +129,17 @@ const Invitation = () => {
                   name: "तेजराम शर्मा & ललिता देवी", 
                   relation: "माता-पिता (वर)",
                   image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
+                  description: ""
+                }
+              ]
+            }}
+            brideFamily={{
+              title: "कन्या पक्ष",
+              members: [
+                { 
+                  name: "मानगीलाल शर्मा & लोहरी देवी", 
+                  relation: "माता-पिता (कन्या)",
+                  image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
                   description: ""
                 }
               ]
@@ -153,11 +153,11 @@ const Invitation = () => {
             <div className="relative inline-block">
               {showThankYouMessage ? (
                 <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
-                  <h3 className="text-xl font-kruti text-wedding-maroon mb-3">आपके स्वीकार करने के लिए धन्यवाद</h3>
-                  <p className="text-gray-600 mb-4">हम आपके साथ अपना विशेष दिन मनाने के लिए तत्पर हैं!</p>
-                  <Badge variant="outline" className="bg-wedding-gold/10 text-wedding-gold animate-pulse-soft">
-                    More features coming soon...
-                  </Badge>
+                  <h3 className="text-xl font-kruti text-wedding-maroon mb-3">आपके स्वीकार करने के लिए धन्यवाद!</h3>
+                  <p className="text-gray-600 mb-4">हम आपके साथ अपना विशेष दिन मनाने के लिए अत्यंत उत्साहित हैं!</p>
+                  <p className="text-sm text-wedding-maroon italic">
+                    We are truly honored to have you join us in our celebration of love and commitment.
+                  </p>
                 </div>
               ) : (
                 <Button

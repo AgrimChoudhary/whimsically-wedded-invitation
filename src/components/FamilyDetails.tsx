@@ -30,11 +30,11 @@ interface FamilyDetailsProps {
 
 const FamilyDetails: React.FC<FamilyDetailsProps> = ({ 
   brideFamily = {
-    title: "Sharma Family",
+    title: "कन्या पक्ष",
     members: []
   }, 
   groomFamily = {
-    title: "Patel Family",
+    title: "वर पक्ष",
     members: []
   }
 }) => {
@@ -45,44 +45,20 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
   // Default bride family members if none provided
   const defaultBrideFamily: FamilyMember[] = [
     { 
-      name: "Rajesh & Priya Sharma", 
-      relation: "Parents of the Bride",
+      name: "मानगीलाल शर्मा & लोहरी देवी", 
+      relation: "माता-पिता (कन्या)",
       image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
-      description: "Rajesh is a successful businessman who loves cricket and traveling. Priya is a dedicated homemaker with a passion for classical music and cooking traditional dishes."
-    },
-    { 
-      name: "Ishaan Sharma", 
-      relation: "Brother of the Bride",
-      image: "https://images.unsplash.com/photo-1507081323647-4d250478b919",
-      description: "Ishaan is a software engineer working in Bangalore. He enjoys gaming and photography in his free time."
-    },
-    { 
-      name: "Meera Sharma", 
-      relation: "Sister of the Bride",
-      image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
-      description: "Meera is pursuing her Masters in Psychology. She is an avid reader and loves to paint."
+      description: ""
     }
   ];
   
   // Default groom family members if none provided
   const defaultGroomFamily: FamilyMember[] = [
     { 
-      name: "Vikram & Nisha Patel", 
-      relation: "Parents of the Groom",
+      name: "तेजराम शर्मा & ललिता देवी", 
+      relation: "माता-पिता (वर)",
       image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
-      description: "Vikram is a retired professor who now mentors students. Nisha is a doctor specializing in pediatrics and loves gardening."
-    },
-    { 
-      name: "Aditya Patel", 
-      relation: "Brother of the Groom",
-      image: "https://images.unsplash.com/photo-1502307100811-6bdc0981a85b",
-      description: "Aditya is an entrepreneur who runs a successful startup. He's passionate about fitness and hiking."
-    },
-    { 
-      name: "Riya Patel", 
-      relation: "Sister of the Groom",
-      image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df",
-      description: "Riya is an architect with a love for sustainable design. She enjoys playing the violin and experimenting with fusion cooking."
+      description: ""
     }
   ];
   
@@ -117,13 +93,13 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
     <Dialog>
       <DialogTrigger asChild>
         <div className={`glass-card p-4 sm:p-6 transform transition-all duration-500 cursor-pointer hover:shadow-gold-glow ${
-          isVisible ? side === "Bride's" ? 'animate-slide-in-left' : 'animate-slide-in-right' : 'opacity-0'
+          isVisible ? side === "Groom's" ? 'animate-slide-in-left' : 'animate-slide-in-right' : 'opacity-0'
         }`}>
           <div className="text-center mb-3">
             <span className="inline-block py-1 px-2 bg-wedding-blush rounded-full text-xs text-wedding-maroon mb-1">
               {side} Family
             </span>
-            <h3 className="font-playfair text-xl sm:text-2xl text-wedding-maroon">
+            <h3 className="font-kruti text-xl sm:text-2xl text-wedding-maroon">
               {title}
             </h3>
           </div>
@@ -134,10 +110,10 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
                 <Users size={24} className="text-wedding-gold" />
               </div>
               <div className="text-center">
-                <p className="font-medium text-gray-800 text-sm sm:text-base">
+                <p className="font-medium font-kruti text-gray-800 text-sm sm:text-base">
                   {members.length > 0 ? members[0].name : "Family Members"}
                 </p>
-                <p className="text-xs sm:text-sm text-gray-600">
+                <p className="font-kruti text-xs sm:text-sm text-gray-600">
                   {members.length > 0 ? members[0].relation : ""}
                 </p>
               </div>
@@ -160,7 +136,7 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
             <span className="inline-block py-1 px-3 bg-wedding-gold/10 rounded-full text-xs text-wedding-gold mb-2">
               {side} Family
             </span>
-            <h3 className="font-playfair text-xl sm:text-2xl text-wedding-maroon">{title}</h3>
+            <h3 className="font-kruti text-xl sm:text-2xl text-wedding-maroon">{title}</h3>
           </DialogTitle>
           <DialogClose className="absolute right-4 top-4 p-1 rounded-full bg-wedding-cream/80 hover:bg-wedding-cream transition-colors duration-300">
             <X size={18} className="text-wedding-maroon" />
@@ -189,8 +165,8 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
                 )}
               </div>
               <div>
-                <p className="font-medium text-gray-800 text-sm sm:text-base">{member.name}</p>
-                <p className="text-xs sm:text-sm text-gray-600 mb-1">{member.relation}</p>
+                <p className="font-medium font-kruti text-gray-800 text-sm sm:text-base">{member.name}</p>
+                <p className="font-kruti text-xs sm:text-sm text-gray-600 mb-1">{member.relation}</p>
                 <p className="text-xs text-gray-700">{member.description}</p>
               </div>
             </div>
@@ -218,14 +194,14 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
           <FamilyCard 
-            side="Bride's" 
-            title={brideFamily.title || "Bride's Family"} 
-            members={brideFamilyMembers} 
+            side="Groom's" 
+            title={groomFamily.title || "वर पक्ष"} 
+            members={groomFamilyMembers} 
           />
           <FamilyCard 
-            side="Groom's" 
-            title={groomFamily.title || "Groom's Family"} 
-            members={groomFamilyMembers} 
+            side="Bride's" 
+            title={brideFamily.title || "कन्या पक्ष"} 
+            members={brideFamilyMembers} 
           />
         </div>
       </div>
