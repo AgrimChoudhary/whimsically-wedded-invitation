@@ -83,7 +83,7 @@ const WelcomeForm: React.FC = () => {
         
         <div className="text-center opacity-0 animate-fade-in-up relative" style={{ animationDelay: '0.6s' }}>
           <div className="absolute -left-6 -top-6 text-6xl text-wedding-gold/10 font-great-vibes">"</div>
-          <p className="text-wedding-gold font-kruti text-xl md:text-2xl mb-4 px-4 relative z-10">
+          <p className="text-wedding-gold font-devanagari text-xl md:text-2xl mb-4 px-4 relative z-10">
             {groomName} & {brideName} cordially invite you to celebrate their wedding
           </p>
           <div className="absolute -right-6 -bottom-6 text-6xl text-wedding-gold/10 font-great-vibes">"</div>

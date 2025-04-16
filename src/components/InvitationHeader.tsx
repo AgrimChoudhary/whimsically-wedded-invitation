@@ -105,7 +105,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               <div className="absolute -inset-2 rounded-full border border-wedding-gold/10"></div>
             </div>
             
-            <h2 className="font-kruti text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
+            <h2 className="font-devanagari text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
               <span className="relative">
                 {groomName} <span className="inline-block mx-2">&</span> {brideName}
                 {!isMobile && (

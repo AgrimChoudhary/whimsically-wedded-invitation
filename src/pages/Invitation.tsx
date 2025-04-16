@@ -156,7 +156,7 @@ const Invitation = () => {
             <div className="relative inline-block">
               {showThankYouMessage ? (
                 <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
-                  <h3 className="text-xl font-kruti text-wedding-maroon mb-3">निमंत्रण स्वीकार करने के लिए धन्यवाद!</h3>
+                  <h3 className="text-xl font-devanagari text-wedding-maroon mb-3">निमंत्रण स्वीकार करने के लिए धन्यवाद!</h3>
                   <p className="text-gray-600 mb-4">हम आपके साथ अपना विशेष दिन मनाने के लिए अत्यंत उत्साहित हैं!</p>
                   <p className="text-sm text-wedding-maroon italic">
                     We are truly honored to have you join us in our celebration of love and commitment.

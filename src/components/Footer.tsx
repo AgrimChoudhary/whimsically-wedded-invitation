@@ -12,10 +12,10 @@ const Footer: React.FC = () => {
             <div className="text-center">
               <div className="flex items-center justify-center">
                 <MapPin size={18} className="text-wedding-gold mr-2" />
-                <h3 className="font-kruti text-lg text-wedding-maroon">विवाह स्थल</h3>
+                <h3 className="font-devanagari text-lg text-wedding-maroon">विवाह स्थल</h3>
               </div>
-              <p className="mt-2 text-gray-700 font-kruti">कृष्णा पैलेस</p>
-              <p className="text-sm text-gray-600 mb-2 font-kruti">तीन बड़ के पास, करौली</p>
+              <p className="mt-2 text-gray-700 font-devanagari">कृष्णा पैलेस</p>
+              <p className="text-sm text-gray-600 mb-2 font-devanagari">तीन बड़ के पास, करौली</p>
               <a 
                 href="https://maps.app.goo.gl/yjsSHSkHgyhW54oR6" 
                 target="_blank" 
@@ -29,9 +29,9 @@ const Footer: React.FC = () => {
             <div className="text-center">
               <div className="flex items-center justify-center">
                 <Phone size={18} className="text-wedding-gold mr-2" />
-                <h3 className="font-kruti text-lg text-wedding-maroon">संपर्क</h3>
+                <h3 className="font-devanagari text-lg text-wedding-maroon">संपर्क</h3>
               </div>
-              <p className="mt-2 text-gray-700">भावेश (वर के भाई)</p>
+              <p className="mt-2 text-gray-700">भवेश कौशिक (वर के भाई)</p>
               <a 
                 href="tel:+918302710005" 
                 className="text-sm text-wedding-gold underline-grow"

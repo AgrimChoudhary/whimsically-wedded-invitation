@@ -49,7 +49,7 @@ const EventTimeline: React.FC = () => {
     },
     {
       name: "पाणिग्रहण संस्कार",
-      date: "23rd April 2025",
+      date: "29th April 2025", // Updated date from 23rd to 29th
       time: "11:00 PM",
       venue: "कृष्णा पैलेस",
       address: "तीन बड़ के पास, करौली",
