@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { TriangleRight, Maximize, Heart, Star, Image, Eye } from 'lucide-react';
@@ -14,28 +13,22 @@ import {
 
 const photos = [
   {
-    url: '/lovable-uploads/photo1.jpg',
-    caption: 'Our first date'
+    url: '/lovable-uploads/photo1.jpg'
   },
   {
-    url: '/lovable-uploads/photo2.jpg',
-    caption: 'Beach vacation'
+    url: '/lovable-uploads/photo2.jpg'
   },
   {
-    url: '/lovable-uploads/photo3.jpg',
-    caption: 'City lights'
+    url: '/lovable-uploads/photo3.jpg'
   },
   {
-    url: '/lovable-uploads/photo4.jpg',
-    caption: 'The proposal'
+    url: '/lovable-uploads/photo4.jpg'
   },
   {
-    url: '/lovable-uploads/photo5.jpg',
-    caption: 'Evening walk'
+    url: '/lovable-uploads/photo5.jpg'
   },
   {
-    url: '/lovable-uploads/photo6.jpg',
-    caption: 'Coffee date'
+    url: '/lovable-uploads/photo6.jpg'
   }
 ];
 
@@ -192,7 +185,6 @@ const PhotoGrid: React.FC = () => {
                         </div>
                         
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-70 hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-4">
-                          <p className="text-white font-dancing-script text-lg">{photo.caption}</p>
                         </div>
                       </AspectRatio>
                       
@@ -292,9 +284,6 @@ const PhotoGrid: React.FC = () => {
                   </div>
                   
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end p-4">
-                    <p className="text-white font-dancing-script text-xl mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      {photo.caption}
-                    </p>
                   </div>
                   
                   {/* Enhanced photo frame effect */}
@@ -349,8 +338,6 @@ const PhotoGrid: React.FC = () => {
                     </div>
                   </AspectRatio>
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white">
-                    <h3 className="font-dancing-script text-2xl mb-1">{photos[selectedPhoto].caption}</h3>
-                    <p id="photo-dialog-description" className="sr-only">Fullscreen view of {photos[selectedPhoto].caption}</p>
                   </div>
                   
                   {/* Navigation arrows for the dialog */}

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar } from 'lucide-react';
@@ -25,7 +24,7 @@ const CoupleSection: React.FC = () => {
             <AspectRatio ratio={isMobile ? 4/3 : 21/9} className="bg-wedding-cream">
               <div className="absolute inset-0 overflow-hidden">
                 <img 
-                  src="/lovable-uploads/7f492c44-762e-4c64-86d8-d52fc38e8e39.png" 
+                  src="/lovable-uploads/7f492c44-762e-4c64-86d8-d52fc38e8e39.jpg" 
                   alt="Ananya and Arjun Wedding" 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"

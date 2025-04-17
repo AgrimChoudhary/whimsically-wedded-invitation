@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -129,7 +128,7 @@ const CustomInvitation = () => {
         // Override with our custom data
         setBrideFamily([
           { 
-            name: "मानगीलाल शर्मा & लोहरी देवी", 
+            name: "श्रीमती गीता देवी & बालकृष्ण जी शर्मा", 
             relation: "माता-पिता (कन्या)",
             image: invitation.bride_family && Array.isArray(JSON.parse(invitation.bride_family)) && JSON.parse(invitation.bride_family).length > 0 
               ? JSON.parse(invitation.bride_family)[0].image 
@@ -140,7 +139,7 @@ const CustomInvitation = () => {
         
         setGroomFamily([
           { 
-            name: "तेजराम शर्मा & ललिता देवी", 
+            name: "श्रीमती ललिता देवी & तेजराम शर्मा", 
             relation: "माता-पिता (वर)",
             image: invitation.groom_family && Array.isArray(JSON.parse(invitation.groom_family)) && JSON.parse(invitation.groom_family).length > 0 
               ? JSON.parse(invitation.groom_family)[0].image 
@@ -166,8 +165,8 @@ const CustomInvitation = () => {
           wedding_venue: "कृष्णा पैलेस",
           wedding_address: "तीन बड़ के पास, करौली",
           map_url: "https://maps.app.goo.gl/yjsSHSkHgyhW54oR6",
-          bride_parents: "मानगीलाल शर्मा & लोहरी देवी",
-          groom_parents: "तेजराम शर्मा & ललिता देवी",
+          bride_parents: "श्रीमती गीता देवी & बालकृष्ण जी शर्मा",
+          groom_parents: "श्रीमती ललिता देवी & तेजराम शर्मा",
           rsvp_phone: "8302710005",
           rsvp_email: null,
           gallery_images: galleryImages,
@@ -219,6 +218,14 @@ const CustomInvitation = () => {
               event_time: "8:00 PM",
               event_venue: "निज निवास",
               event_address: "परिता"
+            },
+            {
+              id: "event-7",
+              event_name: "पाणिग्रहण संस्कार",
+              event_date: "2025-04-29",
+              event_time: "11:00 PM",
+              event_venue: "कृष्णा पैलेस",
+              event_address: "तीन बड़ के पास, करौली"
             }
           ]
         });
@@ -415,7 +422,7 @@ const CustomInvitation = () => {
                       
                       {invitationData.rsvp_phone && (
                         <div className="text-gray-600">
-                          <span className="font-medium">भावेश (वर के भाई):</span>{" "}
+                          <span className="font-medium">भवेश कौशिक (वर के भाई):</span>{" "}
                           <a href={`tel:+91${invitationData.rsvp_phone}`} className="text-wedding-maroon hover:underline">
                             +91 {invitationData.rsvp_phone}
                           </a>
@@ -434,7 +441,7 @@ const CustomInvitation = () => {
                       
                       {showThankYouMessage && (
                         <div className="mt-4">
-                          <p className="text-wedding-maroon font-kruti">आपके स्वीकार करने के लिए धन्यवाद</p>
+                          <p className="text-wedding-maroon font-kruti">निमंत्रण स्वीकार करने के लिए धन्यवाद!</p>
                           <p className="text-gray-600 text-sm">हम आपके साथ अपना विशेष दिन मनाने के लिए तत्पर हैं!</p>
                         </div>
                       )}

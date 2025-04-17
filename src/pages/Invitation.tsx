@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -126,7 +125,7 @@ const Invitation = () => {
               title: "वर पक्ष",
               members: [
                 { 
-                  name: "तेजराम शर्मा & ललिता देवी", 
+                  name: "श्रीमती ललिता देवी & तेजराम शर्मा", 
                   relation: "माता-पिता (वर)",
                   image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
                   description: ""
@@ -137,7 +136,7 @@ const Invitation = () => {
               title: "कन्या पक्ष",
               members: [
                 { 
-                  name: "मानगीलाल शर्मा & लोहरी देवी", 
+                  name: "श्रीमती गीता देवी & बालकृष्ण जी शर्मा", 
                   relation: "माता-पिता (कन्या)",
                   image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
                   description: ""

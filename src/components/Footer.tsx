@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MapPin, Phone, ExternalLink } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
@@ -31,7 +30,7 @@ const Footer: React.FC = () => {
                 <Phone size={18} className="text-wedding-gold mr-2" />
                 <h3 className="font-kruti text-lg text-wedding-maroon">संपर्क</h3>
               </div>
-              <p className="mt-2 text-gray-700">भावेश (वर के भाई)</p>
+              <p className="mt-2 text-gray-700">भवेश कौशिक (वर के भाई)</p>
               <a 
                 href="tel:+918302710005" 
                 className="text-sm text-wedding-gold underline-grow"

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calendar, User, Heart, X, Phone } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -78,7 +77,7 @@ const RSVPModal: React.FC<RSVPModalProps> = ({ isOpen, onClose }) => {
                 <div className="mt-4">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <User size={16} className="text-wedding-gold" />
-                    <span className="text-gray-700">भावेश (वर के भाई)</span>
+                    <span className="text-gray-700">भवेश कौशिक (वर के भाई)</span>
                   </div>
                   <a 
                     href="tel:+918302710005" 

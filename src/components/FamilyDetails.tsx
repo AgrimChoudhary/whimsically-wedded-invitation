@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Star, Users, User, UserRound, Heart, X } from 'lucide-react';
@@ -55,7 +54,7 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
   // Default groom family members if none provided
   const defaultGroomFamily: FamilyMember[] = [
     { 
-      name: "तेजराम शर्मा & ललिता देवी", 
+      name: "श्रीमती ललिता देवी & तेजराम शर्मा", 
       relation: "माता-पिता (वर)",
       image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
       description: ""
