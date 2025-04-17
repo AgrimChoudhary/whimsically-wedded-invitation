@@ -54,29 +54,6 @@ const Invitation = () => {
   // Wedding date - April 29, 2025
   const weddingDate = new Date('2025-04-29T20:00:00');
 
-  // Family details
-  const groomFamily = {
-    title: "वर पक्ष",
-    members: [
-      { 
-        name: "श्रीमती ललिता देवी & तेजराम शर्मा", 
-        relation: "माता-पिता (वर)",
-        description: ""
-      }
-    ]
-  };
-  
-  const brideFamily = {
-    title: "कन्या पक्ष",
-    members: [
-      { 
-        name: "श्रीमती गीता देवी & बालकृष्ण जी शर्मा", 
-        relation: "माता-पिता (कन्या)",
-        description: ""
-      }
-    ]
-  };
-
   return (
     <div className="min-h-screen w-full pattern-background">
       {isLoading ? (
@@ -145,8 +122,28 @@ const Invitation = () => {
           <CoupleSection />
           
           <FamilyDetails 
-            groomFamily={groomFamily}
-            brideFamily={brideFamily}
+            groomFamily={{
+              title: "वर पक्ष",
+              members: [
+                { 
+                  name: "तेजराम शर्मा & ललिता देवी", 
+                  relation: "माता-पिता (वर)",
+                  image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
+                  description: ""
+                }
+              ]
+            }}
+            brideFamily={{
+              title: "कन्या पक्ष",
+              members: [
+                { 
+                  name: "मानगीलाल शर्मा & लोहरी देवी", 
+                  relation: "माता-पिता (कन्या)",
+                  image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
+                  description: ""
+                }
+              ]
+            }}
           />
           
           <EventTimeline />
@@ -156,7 +153,7 @@ const Invitation = () => {
             <div className="relative inline-block">
               {showThankYouMessage ? (
                 <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
-                  <h3 className="text-xl font-devanagari text-wedding-maroon mb-3">निमंत्रण स्वीकार करने के लिए धन्यवाद!</h3>
+                  <h3 className="text-xl font-kruti text-wedding-maroon mb-3">आपके स्वीकार करने के लिए धन्यवाद!</h3>
                   <p className="text-gray-600 mb-4">हम आपके साथ अपना विशेष दिन मनाने के लिए अत्यंत उत्साहित हैं!</p>
                   <p className="text-sm text-wedding-maroon italic">
                     We are truly honored to have you join us in our celebration of love and commitment.

@@ -97,7 +97,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           <div className="flex flex-col items-center">
             <div className="relative mb-4 sm:mb-6">
               <img 
-                src="/lovable-uploads/5dd881f6-d881-416e-b698-ac19aad670dd.png"
+                src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
                 alt={`${groomName} and ${brideName}`}
                 className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-float"
                 loading="lazy"
@@ -105,7 +105,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               <div className="absolute -inset-2 rounded-full border border-wedding-gold/10"></div>
             </div>
             
-            <h2 className="font-devanagari text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
+            <h2 className="font-kruti text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
               <span className="relative">
                 {groomName} <span className="inline-block mx-2">&</span> {brideName}
                 {!isMobile && (

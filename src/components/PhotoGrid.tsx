@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { TriangleRight, Maximize, Heart, Star, Image, Eye } from 'lucide-react';
@@ -13,31 +14,32 @@ import {
 
 const photos = [
   {
-    url: '/lovable-uploads/18803395-23cb-484d-aa3e-14c5a849ff43.png',
-    caption: 'Our First Meeting'
+    url: '/lovable-uploads/photo1.jpg',
+    caption: 'Our first date'
   },
   {
-    url: '/lovable-uploads/67153292-d418-4fea-80c2-3a6507d6d812.png',
-    caption: 'Engagement Day'
+    url: '/lovable-uploads/photo2.jpg',
+    caption: 'Beach vacation'
   },
   {
-    url: '/lovable-uploads/7f492c44-762e-4c64-86d8-d52fc38e8e39.png',
-    caption: 'Special Moments'
+    url: '/lovable-uploads/photo3.jpg',
+    caption: 'City lights'
   },
   {
-    url: '/lovable-uploads/b0b6e6c1-770d-4a6e-8f9c-7f3bdcd7c3a4.png',
-    caption: 'Pre-Wedding'
+    url: '/lovable-uploads/photo4.jpg',
+    caption: 'The proposal'
   },
   {
-    url: '/lovable-uploads/e3d55c88-356e-467c-a7c3-e53c761e4c9b.png',
-    caption: 'Together Forever'
+    url: '/lovable-uploads/photo5.jpg',
+    caption: 'Evening walk'
   },
   {
-    url: '/lovable-uploads/fb376b9f-16e7-4db8-9da1-ef6c458b10fb.png',
-    caption: 'Our Journey'
+    url: '/lovable-uploads/photo6.jpg',
+    caption: 'Coffee date'
   }
 ];
 
+// Fallback images if user uploads aren't available
 const fallbackPhotos = [
   'https://images.unsplash.com/photo-1522673607200-164d1b6ce486',
   'https://images.unsplash.com/photo-1529636798458-92182e662485',
@@ -59,6 +61,7 @@ const PhotoGrid: React.FC = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
+  // Check if the user's photos exist, otherwise use fallbacks
   useEffect(() => {
     const img = new window.Image();
     img.onload = () => setImagesLoaded(true);
@@ -132,6 +135,7 @@ const PhotoGrid: React.FC = () => {
           <p className="text-sm text-gray-600 max-w-2xl mx-auto">Moments captured in time, memories that will last forever</p>
         </div>
         
+        {/* Mobile carousel with enhanced navigation */}
         <div className="relative md:hidden mb-6">
           <Carousel className="w-full" setApi={api => api && api.scrollTo(carouselIndex)}>
             <CarouselContent>
@@ -154,6 +158,7 @@ const PhotoGrid: React.FC = () => {
                           loading="lazy"
                         />
                         
+                        {/* Floating hearts animation */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden">
                           {[...Array(5)].map((_, i) => (
                             <Heart 
@@ -172,6 +177,7 @@ const PhotoGrid: React.FC = () => {
                           ))}
                         </div>
                         
+                        {/* View button overlay */}
                         <div className="absolute top-2 right-2 z-10">
                           <button 
                             className="bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-2 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -190,6 +196,7 @@ const PhotoGrid: React.FC = () => {
                         </div>
                       </AspectRatio>
                       
+                      {/* Photo frame effect */}
                       <div className="absolute inset-0 border-[3px] border-white/70 shadow-lg pointer-events-none"></div>
                     </div>
                   </div>
@@ -200,6 +207,7 @@ const PhotoGrid: React.FC = () => {
             <CarouselNext className="right-2 bg-white/70 hover:bg-white" />
           </Carousel>
           
+          {/* Improved mobile indicators */}
           <div className="flex justify-center gap-1 mt-2">
             {photos.map((_, index) => (
               <button
@@ -219,6 +227,7 @@ const PhotoGrid: React.FC = () => {
           </div>
         </div>
         
+        {/* Enhanced desktop grid with honeycomb-inspired layout */}
         <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5">
           {photos.map((photo, index) => (
             <div 
@@ -247,6 +256,7 @@ const PhotoGrid: React.FC = () => {
                     loading="lazy"
                   />
                   
+                  {/* Floating hearts animation - only visible on hover */}
                   {hoveredIndex === index && (
                     <div className="absolute inset-0 pointer-events-none overflow-hidden">
                       {[...Array(8)].map((_, i) => (
@@ -267,6 +277,7 @@ const PhotoGrid: React.FC = () => {
                     </div>
                   )}
                   
+                  {/* Transparent view button */}
                   <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button 
                       className="bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-2 rounded-full transition-all duration-300 transform hover:scale-110"
@@ -286,13 +297,24 @@ const PhotoGrid: React.FC = () => {
                     </p>
                   </div>
                   
+                  {/* Enhanced photo frame effect */}
                   <div className="absolute inset-0 border-4 border-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                  
+                  {/* Decorative corners */}
+                  <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-white/0 group-hover:border-white/70 transition-all duration-300"></div>
+                  <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-white/0 group-hover:border-white/70 transition-all duration-300"></div>
+                  <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-white/0 group-hover:border-white/70 transition-all duration-300"></div>
+                  <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-white/0 group-hover:border-white/70 transition-all duration-300"></div>
                 </AspectRatio>
+                
+                {/* Enhanced glitter effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/40 to-white/0 opacity-0 group-hover:opacity-100 glitter-effect pointer-events-none"></div>
               </div>
             </div>
           ))}
         </div>
         
+        {/* Enhanced Photo Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-0" aria-describedby="photo-dialog-description">
             <DialogClose className="absolute right-4 top-4 z-10 bg-white/70 p-2 rounded-full hover:bg-white transition-colors duration-300" />
@@ -306,12 +328,32 @@ const PhotoGrid: React.FC = () => {
                       alt={photos[selectedPhoto].caption} 
                       className="w-full h-full object-cover"
                     />
+                    
+                    {/* Floating hearts animation in fullscreen view */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                      {[...Array(12)].map((_, i) => (
+                        <Heart 
+                          key={i}
+                          size={16 + Math.random() * 14} 
+                          className="absolute text-wedding-blush/60 animate-float" 
+                          fill="#FFDEE2"
+                          style={{ 
+                            top: `${Math.random() * 100}%`, 
+                            left: `${Math.random() * 100}%`,
+                            animationDuration: `${5 + Math.random() * 5}s`,
+                            animationDelay: `${Math.random() * 5}s`,
+                            opacity: 0.3 + Math.random() * 0.4
+                          }}
+                        />
+                      ))}
+                    </div>
                   </AspectRatio>
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white">
                     <h3 className="font-dancing-script text-2xl mb-1">{photos[selectedPhoto].caption}</h3>
                     <p id="photo-dialog-description" className="sr-only">Fullscreen view of {photos[selectedPhoto].caption}</p>
                   </div>
                   
+                  {/* Navigation arrows for the dialog */}
                   <button 
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 p-2 rounded-full text-white"
                     onClick={(e) => {

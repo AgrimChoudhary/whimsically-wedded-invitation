@@ -18,8 +18,8 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // Set up audio on mount
   useEffect(() => {
-    // Updated wedding song URL
-    audio.src = "https://pagalfree.com/musics/128-Kudmayi%20(Film%20Version)%20-%20Rocky%20Aur%20Rani%20Kii%20Prem%20Kahaani%20128%20Kbps.mp3";
+    // Wedding song from the movie "Rocky Aur Rani Kii Prem Kahaani"
+    audio.src = "https://pagalsong.in/uploads/systemuploads/mp3/Tum%20Kya%20Mile/Tum%20Kya%20Mile%20128%20Kbps.mp3";
     audio.loop = true;
     audio.volume = 0.5;
     audio.preload = "auto";
@@ -63,19 +63,6 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         initializeAudio();
       }
     }, 2000);
-    
-    // Try multiple times to initialize audio
-    const audioRetryInterval = setInterval(() => {
-      if (!isInitialized) {
-        audio.play().then(() => {
-          setIsPlaying(true);
-          setIsInitialized(true);
-          clearInterval(audioRetryInterval);
-        }).catch(e => console.log("Retry failed:", e));
-      } else {
-        clearInterval(audioRetryInterval);
-      }
-    }, 3000);
 
     return () => {
       audio.pause();
@@ -83,33 +70,23 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         document.removeEventListener(event, handleUserInteraction);
       });
       clearTimeout(autoplayTimeout);
-      clearInterval(audioRetryInterval);
     };
   }, []);
 
   // Try to resume playback when the document becomes visible
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden && isInitialized) {
+      if (!document.hidden && isInitialized && !audio.paused) {
         audio.play().catch(console.error);
-        setIsPlaying(true);
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    // Try resuming audio playback periodically when it should be playing
-    const resumeInterval = setInterval(() => {
-      if (isPlaying && audio.paused) {
-        audio.play().catch(e => console.log("Resume failed:", e));
-      }
-    }, 5000);
-    
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      clearInterval(resumeInterval);
     };
-  }, [isInitialized, audio, isPlaying]);
+  }, [isInitialized, audio]);
 
   const toggleMusic = () => {
     if (isPlaying) {
