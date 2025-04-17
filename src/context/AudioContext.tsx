@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
 interface AudioContextType {
@@ -18,8 +17,8 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // Set up audio on mount
   useEffect(() => {
-    // Wedding song from the movie "Rocky Aur Rani Kii Prem Kahaani"
-    audio.src = "https://pagalsong.in/uploads/systemuploads/mp3/Tum%20Kya%20Mile/Tum%20Kya%20Mile%20128%20Kbps.mp3";
+    // Kudmayi song from Rocky Aur Rani Kii Prem Kahaani
+    audio.src = "/audio/Kudmayi.mp3";
     audio.loop = true;
     audio.volume = 0.5;
     audio.preload = "auto";
@@ -27,23 +26,31 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const initializeAudio = () => {
       if (!isInitialized) {
         // Start playing automatically
-        audio.play()
-          .then(() => {
-            setIsPlaying(true);
-            setIsInitialized(true);
-          })
-          .catch((error) => {
-            console.log("Audio playback failed:", error);
-            setIsPlaying(false);
-          });
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+              setIsInitialized(true);
+            })
+            .catch((error) => {
+              console.log("Audio playback failed:", error);
+              setIsPlaying(false);
+            });
+        }
       }
     };
 
     // Multiple event handlers to maximize autoplay chances
-    const autoplayEvents = ['click', 'touchstart', 'scroll', 'mousedown'];
+    const autoplayEvents = [
+      'click', 'touchstart', 'scroll', 'mousedown', 
+      'keydown', 'pointerdown', 'pointerup'
+    ];
     
     const handleUserInteraction = () => {
       initializeAudio();
+      // Remove all event listeners after first interaction
       autoplayEvents.forEach(event => {
         document.removeEventListener(event, handleUserInteraction);
       });
@@ -57,19 +64,25 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       document.addEventListener(event, handleUserInteraction, { once: true });
     });
 
-    // Set a timeout to try again after a delay
-    const autoplayTimeout = setTimeout(() => {
-      if (!isInitialized) {
-        initializeAudio();
-      }
-    }, 2000);
+    // Set multiple timeouts to try again after delays
+    const timeouts = [
+      setTimeout(() => {
+        if (!isInitialized) initializeAudio();
+      }, 1000),
+      setTimeout(() => {
+        if (!isInitialized) initializeAudio();
+      }, 3000),
+      setTimeout(() => {
+        if (!isInitialized) initializeAudio();
+      }, 5000)
+    ];
 
     return () => {
       audio.pause();
       autoplayEvents.forEach(event => {
         document.removeEventListener(event, handleUserInteraction);
       });
-      clearTimeout(autoplayTimeout);
+      timeouts.forEach(timeout => clearTimeout(timeout));
     };
   }, []);
 
@@ -93,8 +106,15 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       audio.pause();
       setIsPlaying(false);
     } else {
-      audio.play().catch(console.error);
-      setIsPlaying(true);
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch(error => {
+            console.error("Playback failed:", error);
+            setIsPlaying(false);
+          });
+      }
     }
   };
 
