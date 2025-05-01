@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX, Users } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 
@@ -21,7 +22,7 @@ const Invitation = () => {
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const { guestName } = useGuest();
+  const { guestName, isLoading: isGuestLoading } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -52,6 +53,17 @@ const Invitation = () => {
 
   // Wedding date - April 29, 2025
   const weddingDate = new Date('2025-04-29T20:00:00');
+  
+  // Get guestId from path to use for navigation
+  const getCurrentGuestId = () => {
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    if (pathParts.length === 2 && pathParts[0] === 'invitation') {
+      return pathParts[1];
+    }
+    return null;
+  };
+  
+  const guestId = getCurrentGuestId();
 
   return (
     <div className="min-h-screen w-full pattern-background">
@@ -85,27 +97,50 @@ const Invitation = () => {
             </Button>
             
             {!isMobile && (
-              <Button 
-                onClick={() => navigate('/')}
-                variant="outline"
-                size="icon"
-                className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
-                aria-label="Go back"
-              >
-                <ArrowLeftCircle size={18} className="text-wedding-maroon" />
-              </Button>
+              <>
+                <Button 
+                  onClick={() => guestId ? navigate(`/${guestId}`) : navigate('/')}
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
+                  aria-label="Go back"
+                >
+                  <ArrowLeftCircle size={18} className="text-wedding-maroon" />
+                </Button>
+                
+                <Button 
+                  onClick={() => navigate('/guest-management')}
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
+                  aria-label="Guest Management"
+                >
+                  <Users size={18} className="text-wedding-maroon" />
+                </Button>
+              </>
             )}
           </div>
           
           {isMobile && (
-            <button 
-              onClick={() => navigate('/')}
-              className="fixed top-4 left-4 z-30 flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm"
-              aria-label="Go back"
-            >
-              <ArrowLeftCircle size={16} className="mr-1" />
-              <span className="text-xs">Back</span>
-            </button>
+            <>
+              <button 
+                onClick={() => guestId ? navigate(`/${guestId}`) : navigate('/')}
+                className="fixed top-4 left-4 z-30 flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm"
+                aria-label="Go back"
+              >
+                <ArrowLeftCircle size={16} className="mr-1" />
+                <span className="text-xs">Back</span>
+              </button>
+              
+              <button
+                onClick={() => navigate('/guest-management')}
+                className="fixed top-4 right-4 z-30 flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm"
+                aria-label="Guest Management"
+              >
+                <Users size={16} className="mr-1" />
+                <span className="text-xs">Manage</span>
+              </button>
+            </>
           )}
           
           <InvitationHeader 
@@ -125,7 +160,7 @@ const Invitation = () => {
               title: "Groom's Family",
               members: [
                 { 
-                  name: "Mrs. Lalita Devi & Mr. Tejram Sharma", 
+                  name: "श्रीमती ललिता देवी & तेजराम शर्मा", 
                   relation: "Parents (Groom)",
                   image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
                   description: ""
@@ -136,7 +171,7 @@ const Invitation = () => {
               title: "Bride's Family",
               members: [
                 { 
-                  name: "Mrs. Geeta Devi & Mr. Balkrishna Ji Sharma", 
+                  name: "श्रीमती गीता देवी & बालकृष्ण जी शर्मा", 
                   relation: "Parents (Bride)",
                   image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
                   description: ""
@@ -153,7 +188,11 @@ const Invitation = () => {
               {showThankYouMessage ? (
                 <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
                   <h3 className="text-xl font-playfair text-wedding-maroon mb-2">
-                    Dear {guestName || 'Guest'},
+                    {isGuestLoading ? (
+                      <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                    ) : (
+                      <>Dear {guestName || 'Guest'},</>
+                    )}
                   </h3>
                   <h3 className="text-xl font-playfair text-wedding-maroon mb-3">Thank You for Accepting!</h3>
                   <p className="text-gray-600 mb-4 font-poppins">We are extremely excited to celebrate our special day with you!</p>

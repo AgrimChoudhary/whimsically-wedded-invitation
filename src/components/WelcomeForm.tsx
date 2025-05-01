@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
 import { useAudio } from '../context/AudioContext';
 import { Button } from "@/components/ui/button";
-import { Heart, Sparkles, Calendar, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Sparkles, Calendar, Volume2, VolumeX, Users } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const WelcomeForm: React.FC = () => {
@@ -14,7 +15,7 @@ const WelcomeForm: React.FC = () => {
   const [groomName, setGroomName] = useState("Umashankar");
   const [weddingDate, setWeddingDate] = useState("April 29, 2025");
   const { isPlaying, toggleMusic } = useAudio();
-  const { guestName } = useGuest();
+  const { guestName, isLoading: isGuestLoading } = useGuest();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -37,7 +38,16 @@ const WelcomeForm: React.FC = () => {
     
     // Simulate loading for better UX
     setTimeout(() => {
-      navigate('/invitation');
+      // Extract guestId from the path if present
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      const guestId = pathParts.length === 1 && pathParts[0] !== 'invitation' ? pathParts[0] : '';
+      
+      // Navigate to invitation page with guestId if available
+      if (guestId) {
+        navigate(`/invitation/${guestId}`);
+      } else {
+        navigate('/invitation');
+      }
     }, 800);
   };
 
@@ -77,7 +87,13 @@ const WelcomeForm: React.FC = () => {
             </div>
             <div className="w-10 h-[1px] bg-gradient-to-l from-transparent to-wedding-gold/70"></div>
           </div>
-          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">Welcome {guestName || 'Guest'}</h2>
+          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">
+            {isGuestLoading ? (
+              <span className="inline-block w-48 h-6 bg-gray-200 animate-pulse rounded"></span>
+            ) : (
+              <>Welcome {guestName || 'Guest'}</>
+            )}
+          </h2>
           <p className="text-sm text-gray-600">Your special invitation awaits</p>
         </div>
         
@@ -144,6 +160,17 @@ const WelcomeForm: React.FC = () => {
             className="p-2 rounded-full bg-wedding-cream/80 border border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream transition-colors duration-300"
           >
             {isPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          </button>
+        </div>
+        
+        {/* Admin link - for guest management */}
+        <div className="absolute bottom-3 left-3">
+          <button
+            onClick={() => navigate('/guest-management')}
+            className="p-2 rounded-full bg-wedding-cream/80 border border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream transition-colors duration-300"
+            title="Guest Management"
+          >
+            <Users size={16} />
           </button>
         </div>
         

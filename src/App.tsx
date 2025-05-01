@@ -9,6 +9,7 @@ import { GuestProvider } from "./context/GuestContext";
 import { AudioProvider } from "./context/AudioContext";
 import Index from "./pages/Index";
 import Invitation from "./pages/Invitation";
+import GuestManagement from "./pages/GuestManagement";
 import NotFound from "./pages/NotFound";
 import "./components/custom-styles.css";
 
@@ -54,6 +55,10 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/invitation" element={<Invitation />} />
+                <Route path="/guest-management" element={<GuestManagement />} />
+                {/* Support for guest-specific routes */}
+                <Route path="/:guestId" element={<Index />} />
+                <Route path="/invitation/:guestId" element={<Invitation />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
