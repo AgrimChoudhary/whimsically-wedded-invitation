@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
 import { useAudio } from '../context/AudioContext';
 import { Button } from "@/components/ui/button";
-import { Heart, Sparkles, Calendar, Volume2, VolumeX, Users } from 'lucide-react';
+import { Heart, Sparkles, Calendar, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const WelcomeForm: React.FC = () => {
@@ -13,7 +13,7 @@ const WelcomeForm: React.FC = () => {
   const [showIcon, setShowIcon] = useState(0);
   const [brideName, setBrideName] = useState("Bhavana");
   const [groomName, setGroomName] = useState("Umashankar");
-  const [weddingDate, setWeddingDate] = useState("April 29, 2025");
+  const [weddingDate, setWeddingDate] = useState("May 15, 2025");
   const { isPlaying, toggleMusic } = useAudio();
   const { guestName, isLoading: isGuestLoading } = useGuest();
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const WelcomeForm: React.FC = () => {
     const interval = setInterval(() => {
       setShowIcon((prev) => (prev + 1) % icons.length);
     }, 2000);
-
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -160,17 +160,6 @@ const WelcomeForm: React.FC = () => {
             className="p-2 rounded-full bg-wedding-cream/80 border border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream transition-colors duration-300"
           >
             {isPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
-          </button>
-        </div>
-        
-        {/* Admin link - for guest management */}
-        <div className="absolute bottom-3 left-3">
-          <button
-            onClick={() => navigate('/guest-management')}
-            className="p-2 rounded-full bg-wedding-cream/80 border border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream transition-colors duration-300"
-            title="Guest Management"
-          >
-            <Users size={16} />
           </button>
         </div>
         

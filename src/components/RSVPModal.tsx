@@ -53,9 +53,9 @@ const RSVPModal: React.FC<RSVPModalProps> = ({ isOpen, onClose }) => {
                   </svg>
                 </div>
               </div>
-              <h3 className="text-lg font-kruti text-wedding-maroon mb-2">निमंत्रण स्वीकार करने के लिए धन्यवाद!</h3>
+              <h3 className="text-lg font-kruti text-wedding-maroon mb-2">Thank you for accepting our invitation!</h3>
               <p className="text-sm text-gray-600 mb-4">
-                Thank you for accepting our invitation. We look forward to celebrating our special day with you!
+                We look forward to celebrating our special day with you!
               </p>
               <div className="flex justify-center gap-4 mt-4">
                 <Button 
@@ -84,7 +84,7 @@ const RSVPModal: React.FC<RSVPModalProps> = ({ isOpen, onClose }) => {
                 <div className="mt-4">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <User size={16} className="text-wedding-gold" />
-                    <span className="text-gray-700">भवेश कौशिक (वर के भाई)</span>
+                    <span className="text-gray-700">Bhavesh Kaushik (Groom's Brother)</span>
                   </div>
                   <a 
                     href="tel:+918302710005" 
