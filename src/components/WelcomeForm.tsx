@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
@@ -11,10 +10,11 @@ const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showIcon, setShowIcon] = useState(0);
-  const [brideName, setBrideName] = useState("भावना");
-  const [groomName, setGroomName] = useState("उमाशंकर");
+  const [brideName, setBrideName] = useState("Bhavana");
+  const [groomName, setGroomName] = useState("Umashankar");
   const [weddingDate, setWeddingDate] = useState("April 29, 2025");
   const { isPlaying, toggleMusic } = useAudio();
+  const { guestName } = useGuest();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -77,7 +77,7 @@ const WelcomeForm: React.FC = () => {
             </div>
             <div className="w-10 h-[1px] bg-gradient-to-l from-transparent to-wedding-gold/70"></div>
           </div>
-          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">Welcome</h2>
+          <h2 className="text-2xl font-playfair text-wedding-maroon mb-1">Welcome {guestName || 'Guest'}</h2>
           <p className="text-sm text-gray-600">Your special invitation awaits</p>
         </div>
         

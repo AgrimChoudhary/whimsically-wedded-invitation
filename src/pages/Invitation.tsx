@@ -109,8 +109,8 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            groomName="उमाशंकर"
-            brideName="भावना"
+            groomName="Umashankar"
+            brideName="Bhavana"
           />
           
           <CountdownTimer 
@@ -122,22 +122,22 @@ const Invitation = () => {
           
           <FamilyDetails 
             groomFamily={{
-              title: "वर पक्ष",
+              title: "Groom's Family",
               members: [
                 { 
-                  name: "श्रीमती ललिता देवी & तेजराम शर्मा", 
-                  relation: "माता-पिता (वर)",
+                  name: "Mrs. Lalita Devi & Mr. Tejram Sharma", 
+                  relation: "Parents (Groom)",
                   image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
                   description: ""
                 }
               ]
             }}
             brideFamily={{
-              title: "कन्या पक्ष",
+              title: "Bride's Family",
               members: [
                 { 
-                  name: "श्रीमती गीता देवी & बालकृष्ण जी शर्मा", 
-                  relation: "माता-पिता (कन्या)",
+                  name: "Mrs. Geeta Devi & Mr. Balkrishna Ji Sharma", 
+                  relation: "Parents (Bride)",
                   image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
                   description: ""
                 }
@@ -152,9 +152,12 @@ const Invitation = () => {
             <div className="relative inline-block">
               {showThankYouMessage ? (
                 <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
-                  <h3 className="text-xl font-kruti text-wedding-maroon mb-3">आपके स्वीकार करने के लिए धन्यवाद!</h3>
-                  <p className="text-gray-600 mb-4">हम आपके साथ अपना विशेष दिन मनाने के लिए अत्यंत उत्साहित हैं!</p>
-                  <p className="text-sm text-wedding-maroon italic">
+                  <h3 className="text-xl font-playfair text-wedding-maroon mb-2">
+                    Dear {guestName || 'Guest'},
+                  </h3>
+                  <h3 className="text-xl font-playfair text-wedding-maroon mb-3">Thank You for Accepting!</h3>
+                  <p className="text-gray-600 mb-4 font-poppins">We are extremely excited to celebrate our special day with you!</p>
+                  <p className="text-sm text-wedding-maroon italic font-poppins">
                     We are truly honored to have you join us in our celebration of love and commitment.
                   </p>
                 </div>

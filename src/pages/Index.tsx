@@ -3,11 +3,13 @@ import WelcomeForm from '@/components/WelcomeForm';
 import { FloatingPetals } from '@/components/AnimatedElements';
 import { Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useGuest } from '@/context/GuestContext';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showSparkle, setShowSparkle] = useState(false);
   const isMobile = useIsMobile();
+  const { guestName } = useGuest();
   
   useEffect(() => {
     // Simulating assets loading

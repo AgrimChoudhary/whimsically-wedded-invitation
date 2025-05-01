@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
@@ -12,8 +11,8 @@ interface InvitationHeaderProps {
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
-  brideName = "भावना", 
-  groomName = "उमाशंकर",
+  brideName = "Bhavana", 
+  groomName = "Umashankar",
   coupleImageUrl
 }) => {
   const { guestName } = useGuest();
@@ -63,14 +62,17 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
             />
           </div>
           <div className="text-center">
-            <p className="font-devanagari text-sm text-wedding-gold mb-1">॥ श्री वक्रतुण्ड महाकाय सूर्य कोटी समप्रभा। निर्विघ्नं कुरु मे देव सर्व-कार्येशु सर्वदा॥</p>
+            <p className="font-devanagari text-sm text-wedding-gold mb-1">
+              वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।
+              निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥
+            </p>
           </div>
         </div>
         
         <div className="text-center mb-6 sm:mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
             <h1 className="font-poppins text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
-              Wedding Invitation
+              Welcome {guestName || 'Guest'}
             </h1>
             {!isMobile && (
               <div className="absolute -right-6 -top-6 opacity-30">
@@ -80,9 +82,15 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               </div>
             )}
           </div>
-          <h2 className="font-kruti text-2xl sm:text-3xl text-wedding-gold animate-bounce-light">
-            आपको सादर आमंत्रित किया जाता है!
+          <h2 className="font-playfair text-2xl sm:text-3xl text-wedding-gold animate-bounce-light">
+            You are cordially invited!
           </h2>
+        </div>
+        
+        <div className="text-center mb-8">
+          <p className="text-lg italic text-gray-700">
+            "Two souls, one destiny, forever entwined in love's eternal journey"
+          </p>
         </div>
         
         <div 

@@ -29,11 +29,11 @@ interface FamilyDetailsProps {
 
 const FamilyDetails: React.FC<FamilyDetailsProps> = ({ 
   brideFamily = {
-    title: "कन्या पक्ष",
+    title: "Bride's Family",
     members: []
   }, 
   groomFamily = {
-    title: "वर पक्ष",
+    title: "Groom's Family",
     members: []
   }
 }) => {
@@ -44,8 +44,8 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
   // Default bride family members if none provided
   const defaultBrideFamily: FamilyMember[] = [
     { 
-      name: "मानगीलाल शर्मा & लोहरी देवी", 
-      relation: "माता-पिता (कन्या)",
+      name: "Mr. Mangilal Sharma & Mrs. Lohri Devi", 
+      relation: "Parents (Bride)",
       image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
       description: ""
     }
@@ -54,8 +54,8 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
   // Default groom family members if none provided
   const defaultGroomFamily: FamilyMember[] = [
     { 
-      name: "श्रीमती ललिता देवी & तेजराम शर्मा", 
-      relation: "माता-पिता (वर)",
+      name: "Mrs. Lalita Devi & Mr. Tejram Sharma", 
+      relation: "Parents (Groom)",
       image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
       description: ""
     }
@@ -194,12 +194,12 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
           <FamilyCard 
             side="Groom's" 
-            title={groomFamily.title || "वर पक्ष"} 
+            title={groomFamily.title || "Groom's Family"} 
             members={groomFamilyMembers} 
           />
           <FamilyCard 
             side="Bride's" 
-            title={brideFamily.title || "कन्या पक्ष"} 
+            title={brideFamily.title || "Bride's Family"} 
             members={brideFamilyMembers} 
           />
         </div>
