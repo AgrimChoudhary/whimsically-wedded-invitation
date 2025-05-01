@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link, Eye, Share, WhatsApp } from 'lucide-react';
+import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link, Eye, Share } from 'lucide-react';
 import { FloatingPetals } from '@/components/AnimatedElements';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -363,7 +363,9 @@ const GuestManagement = () => {
                                     className="h-8 border-wedding-gold/20 text-green-600 hover:bg-green-50"
                                     onClick={() => shareOnWhatsApp(guest)}
                                   >
-                                    <WhatsApp size={14} />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle">
+                                      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+                                    </svg>
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>

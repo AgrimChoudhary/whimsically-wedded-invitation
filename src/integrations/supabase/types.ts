@@ -133,6 +133,8 @@ export type Database = {
           invitation_id: string | null
           mobile: string
           name: string
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
@@ -140,6 +142,8 @@ export type Database = {
           invitation_id?: string | null
           mobile: string
           name: string
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
@@ -147,6 +151,8 @@ export type Database = {
           invitation_id?: string | null
           mobile?: string
           name?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {

@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Calendar, User, Heart, X, Phone } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useAudio } from '@/context/AudioContext';
 import { Confetti } from './AnimatedElements';
+import { useGuest } from '@/context/GuestContext';
 
 interface RSVPModalProps {
   isOpen: boolean;
@@ -14,9 +16,14 @@ const RSVPModal: React.FC<RSVPModalProps> = ({ isOpen, onClose }) => {
   const [hasAccepted, setHasAccepted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const { isPlaying, toggleMusic } = useAudio();
+  const { updateGuestStatus } = useGuest();
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     setShowConfetti(true);
+    
+    // Update the guest status to 'accepted'
+    await updateGuestStatus('accepted');
+    
     setTimeout(() => {
       setHasAccepted(true);
       setShowConfetti(false);
