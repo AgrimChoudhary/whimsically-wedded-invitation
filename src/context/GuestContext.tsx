@@ -2,17 +2,21 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface GuestContextType {
   guestName: string;
   setGuestName: (name: string) => void;
+  guestId: string | null;
   isLoading: boolean;
+  updateGuestStatus: (status: 'viewed' | 'accepted') => Promise<void>;
 }
 
 const GuestContext = createContext<GuestContextType | undefined>(undefined);
 
 export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [guestName, setGuestName] = useState<string>('');
+  const [guestId, setGuestId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const location = useLocation();
   
@@ -23,22 +27,22 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       // Extract guestId from path
       // The format can be either /:guestId or /invitation/:guestId
       const pathParts = location.pathname.split('/').filter(Boolean);
-      let guestId: string | null = null;
+      let currentGuestId: string | null = null;
       
       if (pathParts.length === 1 && pathParts[0] !== 'invitation' && pathParts[0] !== 'guest-management') {
         // Format: /:guestId
-        guestId = pathParts[0];
+        currentGuestId = pathParts[0];
       } else if (pathParts.length === 2 && pathParts[0] === 'invitation') {
         // Format: /invitation/:guestId
-        guestId = pathParts[1];
+        currentGuestId = pathParts[1];
       }
       
-      if (guestId) {
+      if (currentGuestId) {
         try {
           const { data, error } = await supabase
             .from('guests')
             .select('name')
-            .eq('id', guestId)
+            .eq('id', currentGuestId)
             .single();
           
           if (error) {
@@ -46,6 +50,12 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             setGuestName('');
           } else if (data) {
             setGuestName(data.name);
+            setGuestId(currentGuestId);
+            
+            // Update status to 'viewed' when the guest opens the invitation
+            if (location.pathname.includes('invitation') || !location.pathname.includes('guest-management')) {
+              updateGuestStatus('viewed');
+            }
           }
         } catch (error) {
           console.error('Error in guest fetch:', error);
@@ -59,8 +69,34 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     fetchGuestInfo();
   }, [location.pathname]);
 
+  const updateGuestStatus = async (status: 'viewed' | 'accepted') => {
+    if (!guestId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('guests')
+        .update({ 
+          status: status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', guestId);
+      
+      if (error) {
+        console.error(`Error updating guest status to ${status}:`, error);
+      }
+    } catch (error) {
+      console.error(`Error updating guest status to ${status}:`, error);
+    }
+  };
+
   return (
-    <GuestContext.Provider value={{ guestName, setGuestName, isLoading }}>
+    <GuestContext.Provider value={{ 
+      guestName, 
+      setGuestName, 
+      guestId, 
+      isLoading, 
+      updateGuestStatus 
+    }}>
       {children}
     </GuestContext.Provider>
   );

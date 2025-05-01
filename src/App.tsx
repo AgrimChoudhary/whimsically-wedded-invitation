@@ -51,7 +51,7 @@ const App: React.FC = () => {
         <Sonner />
         <BrowserRouter>
           <GuestProvider>
-            <AudioProvider>
+            <AudioProvider isDisabledOnRoutes={["/guest-management"]}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/invitation" element={<Invitation />} />

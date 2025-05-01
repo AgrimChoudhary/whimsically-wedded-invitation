@@ -1,8 +1,15 @@
+
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface AudioContextType {
   isPlaying: boolean;
   toggleMusic: () => void;
+}
+
+interface AudioProviderProps {
+  children: ReactNode;
+  isDisabledOnRoutes?: string[];
 }
 
 const AudioContext = createContext<AudioContextType>({
@@ -10,10 +17,16 @@ const AudioContext = createContext<AudioContextType>({
   toggleMusic: () => {},
 });
 
-export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabledOnRoutes = [] }) => {
   const [audio] = useState(new Audio());
   const [isPlaying, setIsPlaying] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const location = useLocation();
+  
+  // Check if current route is in disabled routes list
+  const isMusicDisabled = isDisabledOnRoutes.some(route => 
+    location.pathname === route || location.pathname.startsWith(`${route}/`)
+  );
 
   // Set up audio on mount
   useEffect(() => {
@@ -24,7 +37,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     audio.preload = "auto";
     
     const initializeAudio = () => {
-      if (!isInitialized) {
+      if (!isInitialized && !isMusicDisabled) {
         // Start playing automatically
         const playPromise = audio.play();
         
@@ -49,31 +62,35 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     ];
     
     const handleUserInteraction = () => {
-      initializeAudio();
-      // Remove all event listeners after first interaction
-      autoplayEvents.forEach(event => {
-        document.removeEventListener(event, handleUserInteraction);
-      });
+      if (!isMusicDisabled) {
+        initializeAudio();
+        // Remove all event listeners after first interaction
+        autoplayEvents.forEach(event => {
+          document.removeEventListener(event, handleUserInteraction);
+        });
+      }
     };
 
     // Try to play immediately (works on some browsers without interaction)
     initializeAudio();
     
     // Add fallback listeners for browsers that require user interaction
-    autoplayEvents.forEach(event => {
-      document.addEventListener(event, handleUserInteraction, { once: true });
-    });
+    if (!isMusicDisabled) {
+      autoplayEvents.forEach(event => {
+        document.addEventListener(event, handleUserInteraction, { once: true });
+      });
+    }
 
     // Set multiple timeouts to try again after delays
     const timeouts = [
       setTimeout(() => {
-        if (!isInitialized) initializeAudio();
+        if (!isInitialized && !isMusicDisabled) initializeAudio();
       }, 1000),
       setTimeout(() => {
-        if (!isInitialized) initializeAudio();
+        if (!isInitialized && !isMusicDisabled) initializeAudio();
       }, 3000),
       setTimeout(() => {
-        if (!isInitialized) initializeAudio();
+        if (!isInitialized && !isMusicDisabled) initializeAudio();
       }, 5000)
     ];
 
@@ -84,12 +101,23 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       });
       timeouts.forEach(timeout => clearTimeout(timeout));
     };
-  }, []);
+  }, [isInitialized, isMusicDisabled]);
+
+  // Watch for route changes and pause music on disabled routes
+  useEffect(() => {
+    if (isMusicDisabled) {
+      audio.pause();
+      setIsPlaying(false);
+    } else if (isInitialized && !audio.paused) {
+      audio.play().catch(console.error);
+      setIsPlaying(true);
+    }
+  }, [location.pathname, isMusicDisabled]);
 
   // Try to resume playback when the document becomes visible
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!document.hidden && isInitialized && !audio.paused) {
+      if (!document.hidden && isInitialized && !audio.paused && !isMusicDisabled) {
         audio.play().catch(console.error);
       }
     };
@@ -99,9 +127,11 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isInitialized, audio]);
+  }, [isInitialized, audio, isMusicDisabled]);
 
   const toggleMusic = () => {
+    if (isMusicDisabled) return;
+    
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);

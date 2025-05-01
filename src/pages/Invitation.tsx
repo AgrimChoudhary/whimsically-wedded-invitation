@@ -22,7 +22,7 @@ const Invitation = () => {
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const { guestName, isLoading: isGuestLoading } = useGuest();
+  const { guestName, isLoading: isGuestLoading, updateGuestStatus } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -45,6 +45,7 @@ const Invitation = () => {
 
   const handleAcceptInvitation = () => {
     setConfetti(true);
+    updateGuestStatus('accepted');
     setTimeout(() => {
       setShowThankYouMessage(true);
       setConfetti(false);

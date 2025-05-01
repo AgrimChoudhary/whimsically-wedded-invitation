@@ -7,13 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link } from 'lucide-react';
+import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link, Eye, Share, WhatsApp } from 'lucide-react';
 import { FloatingPetals } from '@/components/AnimatedElements';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Guest {
   id: string;
   name: string;
   mobile: string;
+  status?: 'viewed' | 'accepted' | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const GuestManagement = () => {
@@ -71,7 +76,12 @@ const GuestManagement = () => {
     try {
       const { data, error } = await supabase
         .from('guests')
-        .insert([{ name, mobile }])
+        .insert([{ 
+          name, 
+          mobile,
+          status: null,
+          updated_at: null
+        }])
         .select();
       
       if (error) {
@@ -130,30 +140,71 @@ const GuestManagement = () => {
     }
   };
   
-  const copyGuestLink = (guestId: string) => {
+  const getGuestLink = (guestId: string) => {
     // Get the base URL of the site
     const baseUrl = window.location.origin;
+    // Create the guest-specific link
+    return `${baseUrl}/${guestId}`;
+  };
+
+  const copyGuestLink = (guestId: string) => {
+    // Get the welcome link
+    const welcomeLink = getGuestLink(guestId);
     
-    // Create the guest-specific links
-    const welcomeLink = `${baseUrl}/${guestId}`;
-    const detailsLink = `${baseUrl}/invitation/${guestId}`;
+    // Copy to clipboard
+    navigator.clipboard.writeText(welcomeLink)
+      .then(() => {
+        toast({
+          title: "Link copied!",
+          description: "Guest invitation link has been copied to clipboard",
+        });
+      })
+      .catch(err => {
+        console.error('Error copying text: ', err);
+        toast({
+          title: "Failed to copy",
+          description: "Please try again",
+          variant: "destructive",
+        });
+      });
+  };
+
+  const shareOnWhatsApp = (guest: Guest) => {
+    const welcomeLink = getGuestLink(guest.id);
+    const message = encodeURIComponent(
+      `Dear ${guest.name},\n\nYou are cordially invited to the wedding ceremony of Umashankar & Bhavana on April 29, 2025.\n\nClick here to view your personalized invitation: ${welcomeLink}\n\nWe look forward to celebrating our special day with you!`
+    );
     
-    // Copy to clipboard with both links
-    navigator.clipboard.writeText(
-      `Welcome Page: ${welcomeLink}\nDetails Page: ${detailsLink}`
-    ).then(() => {
-      toast({
-        title: "Links copied!",
-        description: "Guest links have been copied to clipboard",
-      });
-    }).catch(err => {
-      console.error('Error copying text: ', err);
-      toast({
-        title: "Failed to copy",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    });
+    // Format the phone number (remove any non-digits)
+    let phoneNumber = guest.mobile.replace(/\D/g, "");
+    // If it doesn't start with a country code, add India's country code
+    if (!phoneNumber.startsWith("+") && !phoneNumber.startsWith("00")) {
+      phoneNumber = "91" + phoneNumber;
+    }
+    
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const getStatusBadge = (status: string | null | undefined) => {
+    if (!status) return null;
+    
+    switch (status) {
+      case 'viewed':
+        return (
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            <Eye size={12} className="mr-1" /> Viewed
+          </Badge>
+        );
+      case 'accepted':
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <Check size={12} className="mr-1" /> Accepted
+          </Badge>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -271,35 +322,73 @@ const GuestManagement = () => {
                     <TableRow>
                       <TableHead>Guest Name</TableHead>
                       <TableHead>Mobile</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {guests.map((guest) => (
-                      <TableRow key={guest.id}>
+                      <TableRow key={guest.id} className="hover:bg-wedding-cream/30 transition-colors">
                         <TableCell className="font-medium">{guest.name}</TableCell>
                         <TableCell>{guest.mobile}</TableCell>
+                        <TableCell>
+                          {getStatusBadge(guest.status)}
+                        </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
-                              title="Copy invitation links"
-                              onClick={() => copyGuestLink(guest.id)}
-                            >
-                              <Copy size={14} />
-                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
+                                    onClick={() => copyGuestLink(guest.id)}
+                                  >
+                                    <Copy size={14} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Copy invitation link</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                             
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-red-50"
-                              title="Delete guest"
-                              onClick={() => deleteGuest(guest.id)}
-                            >
-                              <Trash size={14} />
-                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="h-8 border-wedding-gold/20 text-green-600 hover:bg-green-50"
+                                    onClick={() => shareOnWhatsApp(guest)}
+                                  >
+                                    <WhatsApp size={14} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Share on WhatsApp</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-red-50"
+                                    onClick={() => deleteGuest(guest.id)}
+                                  >
+                                    <Trash size={14} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete guest</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
                         </TableCell>
                       </TableRow>
