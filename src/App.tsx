@@ -49,9 +49,9 @@ const App: React.FC = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <GuestProvider>
-          <AudioProvider>
-            <BrowserRouter>
+        <BrowserRouter>
+          <GuestProvider>
+            <AudioProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/invitation" element={<Invitation />} />
@@ -62,9 +62,9 @@ const App: React.FC = () => {
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </BrowserRouter>
-          </AudioProvider>
-        </GuestProvider>
+            </AudioProvider>
+          </GuestProvider>
+        </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
