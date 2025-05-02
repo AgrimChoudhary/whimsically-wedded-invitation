@@ -126,7 +126,7 @@ const Invitation = () => {
             brideName="Bhavana"
           />
           
-          {/* Reordering sections as requested */}
+          {/* Section ordering as requested: countdown, wedding journey, family details, events, photos */}
           <CountdownTimer 
             weddingDate={weddingDate} 
             weddingTime="8:00 PM"
