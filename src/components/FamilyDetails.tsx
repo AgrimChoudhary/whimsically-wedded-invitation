@@ -60,14 +60,12 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({ groomFamily, brideFamily 
             <div className="p-6">
               <div className="text-center mb-4">
                 <h3 className="text-xl font-playfair text-wedding-maroon">{groomFamily.title}</h3>
-                <p className="text-sm text-gray-600">Tap to meet {groomFamily.members.length} family members</p>
               </div>
               
               <FamilyMemberCard
                 name={groomFamily.members[0]?.name || ''}
                 relation={groomFamily.members[0]?.relation || ''}
                 photoUrl={groomFamily.members[0]?.image}
-                description={`Tap to meet the members of the groom's family`}
               />
 
               <div className="mt-4 flex items-center justify-center">
@@ -91,14 +89,12 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({ groomFamily, brideFamily 
             <div className="p-6">
               <div className="text-center mb-4">
                 <h3 className="text-xl font-playfair text-wedding-maroon">{brideFamily.title}</h3>
-                <p className="text-sm text-gray-600">Tap to meet {brideFamily.members.length} family members</p>
               </div>
               
               <FamilyMemberCard
                 name={brideFamily.members[0]?.name || ''}
                 relation={brideFamily.members[0]?.relation || ''}
                 photoUrl={brideFamily.members[0]?.image}
-                description={`Tap to meet the members of the bride's family`}
               />
 
               <div className="mt-4 flex items-center justify-center">
