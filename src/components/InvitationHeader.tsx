@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
@@ -12,7 +11,7 @@ interface InvitationHeaderProps {
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
-  brideName = "Bhavana", 
+  brideName = "Bhavna", 
   groomName = "Umashankar",
   coupleImageUrl
 }) => {

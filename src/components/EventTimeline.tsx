@@ -46,79 +46,13 @@ const EventTimeline: React.FC = () => {
             </div>,
       color: "bg-yellow-50 border-yellow-200"
     },
-    {
-      name: "Pre-Wedding Feast",
-      date: "24th April 2025",
-      time: "12:00 PM",
-      venue: "Private Residence",
-      address: "Parita",
-      mapLink: "https://maps.app.goo.gl/uiZeH8KXRFSx8cE89",
-      icon: <div className="p-2 rounded-full bg-green-100 text-green-600">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 6v6l4 2"/>
-                <circle cx="12" cy="12" r="10"/>
-              </svg>
-            </div>,
-      color: "bg-green-50 border-green-200"
-    },
-    {
-      name: "Haldi & Mehendi",
-      date: "27th April 2025",
-      time: "12:00 PM",
-      venue: "Private Residence",
-      address: "Parita",
-      mapLink: "https://maps.app.goo.gl/uiZeH8KXRFSx8cE89",
-      icon: <div className="p-2 rounded-full bg-yellow-100 text-yellow-600">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 22C12 17.5 7.5 13.5 7.5 10.5C7.5 7.5 10 5 12 5C14 5 16.5 7.5 16.5 10.5C16.5 13.5 12 17.5 12 22Z" fill="currentColor" />
-              </svg>
-            </div>,
-      color: "bg-yellow-50 border-yellow-200"
-    },
-    {
-      name: "Oil Ceremony",
-      date: "27th April 2025",
-      time: "8:00 PM",
-      venue: "Private Residence",
-      address: "Parita",
-      mapLink: "https://maps.app.goo.gl/uiZeH8KXRFSx8cE89",
-      icon: <div className="p-2 rounded-full bg-blue-100 text-blue-600">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/>
-                <path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/>
-              </svg>
-            </div>,
-      color: "bg-blue-50 border-blue-200"
-    },
-    {
-      name: "Music Ceremony",
-      date: "28th April 2025",
-      time: "8:00 PM",
-      venue: "Private Residence",
-      address: "Parita",
-      mapLink: "https://maps.app.goo.gl/uiZeH8KXRFSx8cE89",
-      icon: <div className="p-2 rounded-full bg-purple-100 text-purple-600"><Music size={18} /></div>,
-      color: "bg-purple-50 border-purple-200"
-    },
-    {
-      name: "Wedding Ceremony",
-      date: "29th April 2025",
-      time: "11:00 PM",
-      venue: "Krishna Palace",
-      address: "Near Teen Bada, Karauli",
-      mapLink: "https://maps.app.goo.gl/HfS1URz4grAMhDya6",
-      icon: <div className="p-2 rounded-full bg-red-100 text-red-600">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M8 2v4"/>
-                <path d="M16 2v4"/>
-                <path d="M3 10h18"/>
-                <path d="M4 6h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/>
-                <path d="M12 14v-4"/>
-                <path d="M10 12h4"/>
-              </svg>
-            </div>,
-      color: "bg-red-50 border-red-200"
-    }
+    // Additional events will be dynamically loaded from backend
+    // Each new event will use one of these icon/color combinations:
+    // 1. Green with clock icon
+    // 2. Yellow with drop icon
+    // 3. Blue with message icon
+    // 4. Purple with music icon
+    // 5. Red with calendar icon
   ];
   
   useEffect(() => {

@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +9,7 @@ interface GuestContextType {
   guestId: string | null;
   isLoading: boolean;
   guestStatus: string | null;
+  hasAccepted: boolean;
   updateGuestStatus: (status: 'viewed' | 'accepted' | 'declined') => Promise<void>;
 }
 
@@ -103,6 +103,7 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       guestId, 
       isLoading, 
       guestStatus,
+      hasAccepted: guestStatus === 'accepted',
       updateGuestStatus 
     }}>
       {children}

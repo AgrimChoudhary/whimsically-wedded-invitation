@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar, Heart } from 'lucide-react';
@@ -34,7 +33,7 @@ const CoupleSection: React.FC = () => {
               <div className="absolute inset-0 overflow-hidden">
                 <img 
                   src="/lovable-uploads/7f492c44-762e-4c64-86d8-d52fc38e8e39.jpg" 
-                  alt="Umashankar and Bhavana Wedding" 
+                  alt="PLACEHOLDER_COUPLE_NAMES Wedding" 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"
                 />

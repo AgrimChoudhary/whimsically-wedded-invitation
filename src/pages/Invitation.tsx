@@ -21,7 +21,7 @@ const Invitation = () => {
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId } = useGuest();
+  const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -31,8 +31,13 @@ const Invitation = () => {
       setIsLoading(false);
     }, 1500);
     
+    // If there's a guestId and they've already accepted, show thank you message
+    if (guestId && hasAccepted) {
+      setShowThankYouMessage(true);
+    }
+    
     return () => clearTimeout(timer);
-  }, []);
+  }, [guestId, hasAccepted]);
   
   const handleOpenRSVP = () => {
     setConfetti(true);
@@ -52,7 +57,7 @@ const Invitation = () => {
   };
 
   // Wedding date - May 15, 2025
-  const weddingDate = new Date('2025-05-15T20:00:00');
+  const weddingDate = new Date('2025-05-15T20:00:00'); // PLACEHOLDER_WEDDING_DATE
   
   // Get guestId from path to use for navigation
   const getCurrentGuestId = () => {
@@ -122,7 +127,7 @@ const Invitation = () => {
           
           <InvitationHeader 
             groomName="Umashankar"
-            brideName="Bhavana"
+            brideName="Bhavna"
           />
           
           {/* Section ordering as requested: countdown, wedding journey, family details, events, photos */}
@@ -138,10 +143,42 @@ const Invitation = () => {
               title: "Groom's Family",
               members: [
                 { 
-                  name: "Mrs. Lalita Devi & Mr. Tejram Sharma", 
+                  name: "Mr. Tejram Sharma & Mrs. Lalita Devi", 
                   relation: "Parents of the Groom",
                   image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
-                  description: ""
+                  description: "Loving parents who have guided him through life's journey."
+                },
+                { 
+                  name: "Mr. Tejram Sharma", 
+                  relation: "Father of the Groom",
+                  image: "https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8",
+                  description: "A father who has always been his son's strength and inspiration.",
+                  showInDialogOnly: true
+                },
+                { 
+                  name: "Mrs. Lalita Devi", 
+                  relation: "Mother of the Groom",
+                  image: "https://images.unsplash.com/photo-1581579438747-104c53d7fbc4",
+                  description: "A mother whose love knows no bounds.",
+                  showInDialogOnly: true
+                },
+                {
+                  name: "Mr. Rakesh Sharma",
+                  relation: "Brother of the Groom",
+                  image: "https://images.unsplash.com/photo-1600486913747-55e5470d6f40",
+                  description: "Elder brother who has always been a mentor and guide."
+                },
+                {
+                  name: "Mrs. Priya Sharma",
+                  relation: "Sister-in-law of the Groom",
+                  image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+                  description: "Loving sister-in-law who brings joy to the family."
+                },
+                {
+                  name: "Ms. Sunita Sharma",
+                  relation: "Sister of the Groom",
+                  image: "https://images.unsplash.com/photo-1619946794135-5bc917a27793",
+                  description: "Younger sister who has always been his confidant."
                 }
               ]
             }}
@@ -149,10 +186,42 @@ const Invitation = () => {
               title: "Bride's Family",
               members: [
                 { 
-                  name: "Mrs. Geeta Devi & Mr. Balkrishna Sharma", 
+                  name: "Mr. Balkrishna Sharma & Mrs. Geeta Devi", 
                   relation: "Parents of the Bride",
                   image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
-                  description: ""
+                  description: "Loving parents who have always been her strength."
+                },
+                { 
+                  name: "Mr. Balkrishna Sharma", 
+                  relation: "Father of the Bride",
+                  image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d",
+                  description: "A father who has been her first hero and teacher.",
+                  showInDialogOnly: true
+                },
+                { 
+                  name: "Mrs. Geeta Devi", 
+                  relation: "Mother of the Bride",
+                  image: "https://images.unsplash.com/photo-1544717305-2782549b5136",
+                  description: "A mother whose love and support knows no bounds.",
+                  showInDialogOnly: true
+                },
+                {
+                  name: "Mrs. Savita Sharma",
+                  relation: "Elder Sister of the Bride",
+                  image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604",
+                  description: "Caring older sister who has always protected her."
+                },
+                {
+                  name: "Mr. Anil Sharma",
+                  relation: "Brother-in-law of the Bride",
+                  image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5",
+                  description: "Supportive brother-in-law who treats her like his own sister."
+                },
+                {
+                  name: "Mr. Manish Sharma",
+                  relation: "Brother of the Bride",
+                  image: "https://images.unsplash.com/photo-1566492031773-4f4e44671857",
+                  description: "Younger brother who has been her best friend since childhood."
                 }
               ]
             }}
@@ -180,28 +249,23 @@ const Invitation = () => {
                   </p>
                 </div>
               ) : (
-                <>
-                  {guestId && (
-                    <Button
-                      onClick={handleAcceptInvitation}
-                      className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
-                      disabled={showThankYouMessage}
-                    >
-                      <span className="relative z-10 flex items-center font-medium">
-                        <Heart size={18} className="mr-2" />
-                        Accept Invitation
-                      </span>
-                      <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
-                      
-                      <span className="absolute -top-6 -left-6 text-white/10">
-                        <User size={24} />
-                      </span>
-                      <span className="absolute -bottom-6 -right-6 text-white/10">
-                        <Heart size={24} />
-                      </span>
-                    </Button>
-                  )}
-                </>
+                <Button
+                  onClick={handleAcceptInvitation}
+                  className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
+                >
+                  <span className="relative z-10 flex items-center font-medium">
+                    <Heart size={18} className="mr-2" />
+                    Accept Invitation
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
+                  
+                  <span className="absolute -top-6 -left-6 text-white/10">
+                    <User size={24} />
+                  </span>
+                  <span className="absolute -bottom-6 -right-6 text-white/10">
+                    <Heart size={24} />
+                  </span>
+                </Button>
               )}
               
               <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-wedding-blush/40 rounded-tl-lg"></div>

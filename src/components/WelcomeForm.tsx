@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
@@ -11,7 +10,7 @@ const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showIcon, setShowIcon] = useState(0);
-  const [brideName, setBrideName] = useState("Bhavana");
+  const [brideName, setBrideName] = useState("Bhavna");
   const [groomName, setGroomName] = useState("Umashankar");
   const [weddingDate, setWeddingDate] = useState("May 15, 2025");
   const { isPlaying, toggleMusic } = useAudio();
