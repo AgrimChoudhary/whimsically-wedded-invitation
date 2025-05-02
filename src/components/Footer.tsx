@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
                 <Phone size={18} className="text-wedding-gold mr-2" />
                 <h3 className="font-playfair text-lg text-wedding-maroon">Contact</h3>
               </div>
-              <p className="mt-2 text-gray-700 font-poppins">भवेश कौशिक (Groom's Brother)</p>
+              <p className="mt-2 text-gray-700 font-poppins">Bhavesh Kaushik (Groom's Brother)</p>
               <a 
                 href="tel:+918302710005" 
                 className="text-sm text-wedding-gold underline-grow"
@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
           
           <div className="mt-4 pt-3 border-t border-wedding-gold/20 text-center">
             <p className="text-xs text-gray-500">
-              With love, Umashankar & Bhavana | April 29, 2025
+              With love, Umashankar & Bhavana | May 15, 2025
             </p>
           </div>
         </div>

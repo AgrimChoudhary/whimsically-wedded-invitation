@@ -1,219 +1,252 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Zoom animation for event cards */
-.event-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  will-change: transform;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --primary: 222.1 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+ 
+    --ring: 222.1 83.2% 53.3%;
+
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 47.4% 11.2%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 47.4% 11.2%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.4% 60.6%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.9%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+ 
+    --ring: 217.2 91.4% 60.6%;
+  }
 }
 
-.event-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  z-index: 10;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
 }
 
-/* Fix for shimmer effect */
-.shimmer-text {
-  background: linear-gradient(to right, #D4AF37 0%, #FFF8E1 50%, #D4AF37 100%);
-  background-size: 200% auto;
-  color: transparent;
-  background-clip: text;
-  -webkit-background-clip: text;
-  animation: shimmer 3s linear infinite;
+/* Custom Styles */
+.pattern-background {
+  background-image: url('/floral-pattern.svg');
+  background-size: 300px auto;
+  background-repeat: repeat;
 }
 
-@keyframes shimmer {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
+.gold-highlight {
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.7);
 }
 
-/* Optimize animations for performance */
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-  will-change: transform;
+.underline-grow {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
 }
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+.underline-grow:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #D4AF37;
+  transition: width 0.3s ease;
 }
 
-.animate-pulse-soft {
-  animation: pulse-soft 3s ease-in-out infinite;
+.underline-grow:hover:after {
+  width: 100%;
 }
 
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-/* Photo frame and 3D effects */
-.photo-frame {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  transform-style: preserve-3d;
-  perspective: 1000px;
-  transition: all 0.5s ease;
-  border-radius: 8px;
-}
-
-.photo-frame:hover {
-  transform: translateZ(10px);
-  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.2);
-}
-
-.photo-3d-effect {
-  transform-style: preserve-3d;
-  perspective: 1000px;
-}
-
-.photo-3d-effect:hover img {
-  transform: translateZ(20px) scale(1.05);
-}
-
-/* Animation for hearts */
-@keyframes scale-up-fade {
-  0% { transform: scale(0.5); opacity: 0; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1.5); opacity: 0; }
-}
-
-.animate-scale-up-fade {
-  animation: scale-up-fade 1s ease-out forwards;
-}
-
-/* Enhance photo grid */
 .glass-card {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .shadow-gold-soft {
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
 }
 
 .shadow-gold-glow {
-  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 0 15px 5px rgba(212, 175, 55, 0.4);
 }
 
-/* Optimize for mobile */
-@media (max-width: 640px) {
-  .event-card:hover {
-    transform: scale(1.02);
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
   }
-  
-  .animate-float {
-    animation-duration: 4s;
+  50% {
+    transform: translateY(-10px);
   }
-  
-  .font-kruti {
-    font-size: 110%; /* Slightly larger font size for Hindi on mobile */
-  }
-  
-  /* More touch-friendly buttons on mobile */
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
+  100% {
+    transform: translateY(0px);
   }
 }
 
-/* Hindi text optimizations */
-.font-kruti {
-  font-family: 'Noto Sans Devanagari', 'Hind', 'Poppins', sans-serif;
-  letter-spacing: 0.01em;
-  line-height: 1.6;
-  font-weight: 500;
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.font-devanagari {
-  font-family: 'Noto Sans Devanagari', 'Poppins', sans-serif;
-  letter-spacing: 0.01em;
-  line-height: 1.6;
-}
-
-/* Better rendering for Hindi text */
-@supports (-webkit-font-smoothing: antialiased) {
-  .font-kruti, .font-devanagari {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.2;
   }
 }
 
-/* Improved readability for Hindi text on different backgrounds */
-.glass-card .font-kruti,
-.glass-card .font-devanagari {
-  text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+.animate-glow-soft {
+  animation: glow-soft 3s ease-in-out infinite;
 }
 
-.font-kruti.text-wedding-maroon,
-.font-devanagari.text-wedding-maroon {
-  text-shadow: 0 0 0.5px rgba(139, 69, 89, 0.2);
+@keyframes glow-soft {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
+  }
 }
 
-/* Underline effect for links */
-.underline-grow {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
+.animate-fade-in {
+  animation: fade-in 1s forwards;
 }
 
-.underline-grow::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 1px;
-  bottom: -2px;
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1s forwards;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-bounce-light {
+  animation: bounce-light 2s infinite;
+}
+
+@keyframes bounce-light {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
   left: 0;
-  background-color: currentColor;
-  transform: scaleX(0);
-  transform-origin: bottom right;
-  transition: transform 0.3s ease-out;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.underline-grow:hover::after {
-  transform: scaleX(1);
-  transform-origin: bottom left;
+.loading-spinner {
+  border-color: #D4AF37 transparent #D4AF37 transparent;
 }
 
-/* Enhanced countdown styling */
-#countdown-timer .glass-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,248,231,0.8) 100%);
-}
-
-/* Enhanced event card styling */
-.event-timeline-card {
-  transition: all 0.3s ease;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.event-timeline-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.15);
-}
-
-/* Better fonts for specific sections */
-.footer-title {
-  font-family: 'Great Vibes', 'Dancing Script', cursive;
-  font-size: 1.5rem;
-  color: #800020;
-}
-
-/* Enhance mobile experience */
-@media (max-width: 768px) {
-  .countdown-timer-box {
-    margin: 0 auto;
-    max-width: 85%;
+@keyframes scale-up-fade {
+  0% {
+    transform: scale(1);
+    opacity: 1;
   }
-  
-  .event-title {
-    font-size: 1.2rem;
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
   }
-  
-  .glass-card {
-    padding: 1rem;
+  100% {
+    transform: scale(2);
+    opacity: 0;
   }
+}
+
+.animate-scale-up-fade {
+  animation: scale-up-fade 1s forwards;
 }

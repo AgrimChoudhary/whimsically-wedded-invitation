@@ -88,12 +88,6 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           </h2>
         </div>
         
-        <div className="text-center mb-8">
-          <p className="text-lg italic text-gray-700">
-            "Two souls, one destiny, forever entwined in love's eternal journey"
-          </p>
-        </div>
-        
         <div 
           className="text-center relative opacity-0 animate-fade-in-up cursor-pointer"
           style={{ animationDelay: '0.9s' }}
