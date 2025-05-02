@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import FamilyMemberCard from './FamilyMemberCard';
-import { ChevronDown, Heart, Users, Info } from 'lucide-react';
+import { Heart, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { AspectRatio } from "./ui/aspect-ratio";
 import { Button } from "./ui/button";
@@ -75,13 +75,9 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({ groomFamily, brideFamily 
                   <Users size={14} className="mr-1" /> View Family Details
                 </Badge>
               </div>
-              
-              <div className="absolute bottom-3 left-0 right-0 flex justify-center animate-bounce">
-                <Info size={18} className="text-wedding-gold/80" />
-              </div>
             </div>
             
-            {/* Hover effect */}
+            {/* Subtle border effect on hover */}
             <div className="absolute inset-0 border-2 border-wedding-gold/0 rounded-xl group-hover:border-wedding-gold/20 pointer-events-none transition-all duration-300"></div>
           </motion.div>
 
@@ -110,13 +106,9 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({ groomFamily, brideFamily 
                   <Users size={14} className="mr-1" /> View Family Details
                 </Badge>
               </div>
-              
-              <div className="absolute bottom-3 left-0 right-0 flex justify-center animate-bounce">
-                <Info size={18} className="text-wedding-gold/80" />
-              </div>
             </div>
             
-            {/* Hover effect */}
+            {/* Subtle border effect on hover */}
             <div className="absolute inset-0 border-2 border-wedding-gold/0 rounded-xl group-hover:border-wedding-gold/20 pointer-events-none transition-all duration-300"></div>
           </motion.div>
         </div>

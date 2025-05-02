@@ -9,11 +9,10 @@ import CoupleSection from '@/components/CoupleSection';
 import CountdownTimer from '@/components/CountdownTimer';
 import FamilyDetails from '@/components/FamilyDetails';
 import EventTimeline from '@/components/EventTimeline';
-import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Sparkles, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeftCircle, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 
@@ -133,6 +132,8 @@ const Invitation = () => {
           
           <CoupleSection />
           
+          <EventTimeline />
+          
           <FamilyDetails 
             groomFamily={{
               title: "Groom's Family",
@@ -157,9 +158,6 @@ const Invitation = () => {
               ]
             }}
           />
-          
-          <EventTimeline />
-          <PhotoGrid />
           
           <div className="py-10 w-full text-center bg-floral-pattern">
             <div className="relative inline-block">

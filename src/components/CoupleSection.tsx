@@ -1,7 +1,7 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Calendar, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Heart, ExpandIcon } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface PhotoSlide {
   url: string;
@@ -47,26 +48,26 @@ const memories = [
 
 const CoupleSection: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
-  const [likedPhotos, setLikedPhotos] = useState<{[key: number]: boolean}>({});
-  const [likeAnimation, setLikeAnimation] = useState<{[key: number]: boolean}>({});
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [showFullImage, setShowFullImage] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleLikePhoto = (index: number) => {
-    setLikedPhotos(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
-    setLikeAnimation(prev => ({
-      ...prev,
-      [index]: true
-    }));
-    setTimeout(() => {
-      setLikeAnimation(prev => ({
-        ...prev,
-        [index]: false
-      }));
-    }, 1000);
+  const handleNextPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev === memories.length - 1 ? 0 : prev + 1));
   };
+
+  const handlePrevPhoto = () => {
+    setCurrentPhotoIndex((prev) => (prev === 0 ? memories.length - 1 : prev - 1));
+  };
+
+  // Auto-advance the slideshow every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      handleNextPhoto();
+    }, 5000);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <section className="w-full py-8 md:py-12 overflow-hidden bg-wedding-cream/20">
@@ -136,9 +137,9 @@ const CoupleSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Our Memories Carousel */}
+        {/* Our Memories Slideshow */}
         <div className="mt-16 mb-12">
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <h2 className="font-dancing-script text-3xl sm:text-4xl text-wedding-maroon mb-2">Our Memories</h2>
             <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
               Explore our collection of cherished moments that tell the story of our love
@@ -150,86 +151,122 @@ const CoupleSection: React.FC = () => {
             </div>
           </div>
 
-          <div className="w-full px-4 sm:px-8 md:px-12 lg:px-24">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-4 md:-ml-6">
-                {memories.map((memory, index) => (
-                  <CarouselItem key={index} className="pl-4 md:pl-6 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 relative">
-                    <div className="relative group">
-                      <Card className="rounded-xl overflow-hidden border-2 border-wedding-gold/10 hover:border-wedding-gold/30 transition-all duration-300 shadow-lg hover:shadow-xl">
-                        <CardContent className="p-0 relative">
-                          <AspectRatio ratio={3/4} className="bg-wedding-cream">
-                            <img 
-                              src={memory.url} 
-                              alt={memory.caption || "Wedding memory"} 
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                          </AspectRatio>
+          <div className="relative bg-white/70 backdrop-blur-md p-4 rounded-xl shadow-gold-soft border border-wedding-gold/20">
+            <div className="relative overflow-hidden rounded-lg aspect-[4/3] md:aspect-[16/9]">
+              {/* Current image with transition */}
+              <div className="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-100">
+                <img 
+                  src={memories[currentPhotoIndex].url} 
+                  alt={memories[currentPhotoIndex].caption || "Wedding memory"} 
+                  className="w-full h-full object-cover object-center"
+                />
+                
+                {/* Elegant frame effect */}
+                <div className="absolute inset-0 pointer-events-none border-[8px] border-white/40"></div>
+                <div className="absolute inset-4 pointer-events-none border border-wedding-gold/20"></div>
 
-                          {/* Elegant frame effect */}
-                          <div className="absolute inset-0 pointer-events-none border-[8px] border-white/40"></div>
-                          <div className="absolute inset-4 pointer-events-none border border-wedding-gold/20"></div>
-                          <div className="absolute top-6 left-6 w-3 h-3 border-t border-l border-wedding-gold/40"></div>
-                          <div className="absolute top-6 right-6 w-3 h-3 border-t border-r border-wedding-gold/40"></div>
-                          <div className="absolute bottom-6 left-6 w-3 h-3 border-b border-l border-wedding-gold/40"></div>
-                          <div className="absolute bottom-6 right-6 w-3 h-3 border-b border-r border-wedding-gold/40"></div>
-
-                          {/* Overlay gradient */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          
-                          {/* Caption */}
-                          {memory.caption && (
-                            <div className="absolute bottom-0 left-0 right-0 p-3 text-center text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent pt-8">
-                              <p className="font-medium text-sm md:text-base">{memory.caption}</p>
-                            </div>
-                          )}
-
-                          {/* Like button */}
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className={`absolute bottom-3 right-3 h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white shadow-md transition-all duration-300 ${likedPhotos[index] ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLikePhoto(index);
-                            }}
-                            aria-label={likedPhotos[index] ? "Unlike photo" : "Like photo"}
-                          >
-                            <Heart
-                              size={16}
-                              className={`transition-colors ${likedPhotos[index] ? 'text-red-500 fill-red-500' : 'text-gray-600'}`}
-                            />
-                          </Button>
-                          
-                          {/* Heart animation */}
-                          {likeAnimation[index] && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <Heart
-                                size={48}
-                                className="text-red-500 fill-red-500 animate-scale-up-fade opacity-0"
-                              />
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <div className="flex items-center justify-center gap-2 mt-6">
-                <CarouselPrevious className="static transform-none h-9 w-9 rounded-full border-wedding-gold/30 bg-white/80 hover:bg-wedding-gold/10" />
-                <CarouselNext className="static transform-none h-9 w-9 rounded-full border-wedding-gold/30 bg-white/80 hover:bg-wedding-gold/10" />
+                {/* Caption overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                  <p className="text-white text-center text-sm md:text-base">
+                    {memories[currentPhotoIndex].caption}
+                  </p>
+                </div>
+                
+                {/* Fullscreen hint */}
+                <Button 
+                  size="icon" 
+                  variant="outline" 
+                  className="absolute top-3 right-3 h-8 w-8 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-300"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowFullImage(true);
+                  }}
+                >
+                  <ExpandIcon size={16} className="text-wedding-maroon" />
+                </Button>
               </div>
-            </Carousel>
+            </div>
+
+            {/* Navigation controls */}
+            <div className="absolute inset-y-0 left-0 flex items-center">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-10 w-10 rounded-full bg-white/50 hover:bg-white/80"
+                onClick={handlePrevPhoto}
+              >
+                <ChevronLeft size={24} className="text-wedding-maroon" />
+              </Button>
+            </div>
+            <div className="absolute inset-y-0 right-0 flex items-center">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-10 w-10 rounded-full bg-white/50 hover:bg-white/80"
+                onClick={handleNextPhoto}
+              >
+                <ChevronRight size={24} className="text-wedding-maroon" />
+              </Button>
+            </div>
+
+            {/* Indicator dots */}
+            <div className="absolute bottom-[-20px] left-0 right-0 flex justify-center gap-1.5">
+              {memories.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentPhotoIndex ? 'bg-wedding-gold scale-125' : 'bg-wedding-gold/30'
+                  }`}
+                  onClick={() => setCurrentPhotoIndex(index)}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Fullscreen image dialog */}
+      <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/95 border-wedding-gold/30">
+          <div className="relative">
+            <img 
+              src={memories[currentPhotoIndex].url} 
+              alt={memories[currentPhotoIndex].caption || "Wedding memory"} 
+              className="w-full h-auto"
+            />
+            
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
+              <p className="text-white text-center">
+                {memories[currentPhotoIndex].caption}
+              </p>
+            </div>
+            
+            {/* Navigation in fullscreen */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute top-1/2 left-2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/80"
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePrevPhoto();
+              }}
+            >
+              <ChevronLeft size={24} className="text-white" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute top-1/2 right-2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/80"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextPhoto();
+              }}
+            >
+              <ChevronRight size={24} className="text-white" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
