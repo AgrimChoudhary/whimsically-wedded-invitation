@@ -9,20 +9,34 @@ interface FamilyMemberProps {
   relation: string;
   photoUrl?: string;
   description?: string;
+  // Add these new props to match what's being passed in FamilyDetails.tsx
+  title?: string;
+  imageUrl?: string;
 }
 
 const FamilyMemberCard: React.FC<FamilyMemberProps> = ({ 
   name, 
   relation, 
   photoUrl, 
-  description 
+  description,
+  // Handle the new props
+  title,
+  imageUrl
 }) => {
-  const initials = name
-    .split(' ')
-    .map(part => part[0])
-    .join('')
-    .toUpperCase()
-    .substring(0, 2);
+  // Make sure name is defined before calling split()
+  // If title is provided, use that as the name (for compatibility)
+  const displayName = title || name || '';
+  const actualPhotoUrl = imageUrl || photoUrl; // Use imageUrl if provided
+
+  // Generate initials safely
+  const initials = displayName
+    ? displayName
+        .split(' ')
+        .map(part => part[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2)
+    : '';
 
   return (
     <Card className="border border-wedding-gold/20 bg-white/70 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:shadow-gold-soft hover:scale-105">
@@ -30,7 +44,7 @@ const FamilyMemberCard: React.FC<FamilyMemberProps> = ({
         <div className="flex flex-col items-center text-center">
           <div className="relative mb-3">
             <Avatar className="w-16 h-16 border-2 border-wedding-gold/20">
-              <AvatarImage src={photoUrl} alt={name} />
+              <AvatarImage src={actualPhotoUrl} alt={displayName} />
               <AvatarFallback className="bg-wedding-maroon/10 text-wedding-maroon">
                 {initials}
               </AvatarFallback>
@@ -40,7 +54,7 @@ const FamilyMemberCard: React.FC<FamilyMemberProps> = ({
             </div>
           </div>
           
-          <h3 className="font-medium text-wedding-maroon">{name}</h3>
+          <h3 className="font-medium text-wedding-maroon">{displayName}</h3>
           <p className="text-sm text-gray-600 italic">{relation}</p>
           
           {description && (

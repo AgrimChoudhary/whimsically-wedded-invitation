@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import FamilyMemberCard from './FamilyMemberCard';
-import { ChevronDown, Heart, Users } from 'lucide-react';
+import { ChevronDown, Heart, Users, Info } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { AspectRatio } from "./ui/aspect-ratio";
 import { Button } from "./ui/button";
@@ -58,18 +58,26 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({ groomFamily, brideFamily 
             onClick={() => handleShowFamily(groomFamily)}
           >
             <div className="p-6">
+              <div className="text-center mb-4">
+                <h3 className="text-xl font-playfair text-wedding-maroon">{groomFamily.title}</h3>
+                <p className="text-sm text-gray-600">Tap to meet {groomFamily.members.length} family members</p>
+              </div>
+              
               <FamilyMemberCard
-                title={groomFamily.title}
-                description={`Tap to meet ${groomFamily.members.length > 1 ? 'the members' : 'a member'} of the groom's family`}
-                imageUrl={groomFamily.members[0]?.image || "/placeholder.svg"}
+                name={groomFamily.members[0]?.name || ''}
+                relation={groomFamily.members[0]?.relation || ''}
+                photoUrl={groomFamily.members[0]?.image}
+                description={`Tap to meet the members of the groom's family`}
               />
+
               <div className="mt-4 flex items-center justify-center">
                 <Badge variant="outline" className="bg-wedding-gold/10 text-wedding-maroon border-wedding-gold/20 group-hover:bg-wedding-gold/20 transition-colors">
                   <Users size={14} className="mr-1" /> View Family Details
                 </Badge>
               </div>
-              <div className="absolute bottom-3 left-0 right-0 flex justify-center">
-                <ChevronDown size={20} className="text-wedding-gold/60 animate-bounce" />
+              
+              <div className="absolute bottom-3 left-0 right-0 flex justify-center animate-bounce">
+                <Info size={18} className="text-wedding-gold/80" />
               </div>
             </div>
             
@@ -85,18 +93,26 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({ groomFamily, brideFamily 
             onClick={() => handleShowFamily(brideFamily)}
           >
             <div className="p-6">
+              <div className="text-center mb-4">
+                <h3 className="text-xl font-playfair text-wedding-maroon">{brideFamily.title}</h3>
+                <p className="text-sm text-gray-600">Tap to meet {brideFamily.members.length} family members</p>
+              </div>
+              
               <FamilyMemberCard
-                title={brideFamily.title}
-                description={`Tap to meet ${brideFamily.members.length > 1 ? 'the members' : 'a member'} of the bride's family`}
-                imageUrl={brideFamily.members[0]?.image || "/placeholder.svg"}
+                name={brideFamily.members[0]?.name || ''}
+                relation={brideFamily.members[0]?.relation || ''}
+                photoUrl={brideFamily.members[0]?.image}
+                description={`Tap to meet the members of the bride's family`}
               />
+
               <div className="mt-4 flex items-center justify-center">
                 <Badge variant="outline" className="bg-wedding-gold/10 text-wedding-maroon border-wedding-gold/20 group-hover:bg-wedding-gold/20 transition-colors">
                   <Users size={14} className="mr-1" /> View Family Details
                 </Badge>
               </div>
-              <div className="absolute bottom-3 left-0 right-0 flex justify-center">
-                <ChevronDown size={20} className="text-wedding-gold/60 animate-bounce" />
+              
+              <div className="absolute bottom-3 left-0 right-0 flex justify-center animate-bounce">
+                <Info size={18} className="text-wedding-gold/80" />
               </div>
             </div>
             
