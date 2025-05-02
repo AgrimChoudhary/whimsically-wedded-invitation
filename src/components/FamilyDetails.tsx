@@ -1,7 +1,9 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Star, Users, User, UserRound, Heart, X } from 'lucide-react';
+import { Star, Users, User, UserRound, Heart, X, ChevronRight, PlusCircle, Info } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { motion } from 'framer-motion';
 
 export interface FamilyMember {
   name: string;
@@ -38,6 +40,7 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
   }
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [pulseHint, setPulseHint] = useState(true);
   const sectionRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
@@ -70,6 +73,15 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
     ? groomFamily.members
     : defaultGroomFamily;
   
+  // Auto hide pulse effect after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPulseHint(false);
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -88,12 +100,37 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
     return () => observer.disconnect();
   }, []);
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: (side: string) => ({
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.6,
+        delay: side === "Groom's" ? 0.2 : 0.4,
+        ease: "easeOut"
+      }
+    }),
+    hover: { 
+      y: -10,
+      boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+      transition: { duration: 0.3 }
+    },
+    tap: { scale: 0.98 }
+  };
+
   const FamilyCard: React.FC<FamilyDetailProps> = ({ side, title, members }) => (
     <Dialog>
       <DialogTrigger asChild>
-        <div className={`glass-card p-4 sm:p-6 transform transition-all duration-500 cursor-pointer hover:shadow-gold-glow ${
-          isVisible ? side === "Groom's" ? 'animate-slide-in-left' : 'animate-slide-in-right' : 'opacity-0'
-        }`}>
+        <motion.div 
+          className="glass-card p-4 sm:p-6 cursor-pointer relative overflow-hidden rounded-lg border border-wedding-gold/20"
+          variants={cardVariants}
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          whileHover="hover"
+          whileTap="tap"
+          custom={side}
+        >
           <div className="text-center mb-3">
             <span className="inline-block py-1 px-2 bg-wedding-blush rounded-full text-xs text-wedding-maroon mb-1">
               {side} Family
@@ -118,15 +155,28 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
               </div>
             </div>
             
-            <div className="text-center mt-2">
-              <span className="text-xs sm:text-sm text-wedding-maroon inline-flex items-center gap-1">
-                <Heart size={12} className="text-wedding-blush" />
-                <span>Meet the family</span>
-                <Heart size={12} className="text-wedding-blush" />
-              </span>
+            {/* Interactive button with animation to show it's clickable */}
+            <div className="text-center mt-4 relative">
+              <div className={`inline-flex items-center gap-1 bg-wedding-blush/70 py-1 px-3 rounded-full cursor-pointer text-wedding-maroon text-sm font-medium transition-all hover:bg-wedding-blush/90 ${pulseHint ? 'animate-pulse' : ''}`}>
+                <Info size={14} className="text-wedding-maroon" />
+                <span>View Family Details</span>
+                <ChevronRight size={14} className="text-wedding-maroon" />
+              </div>
+              {pulseHint && (
+                <div className="absolute -right-2 -top-2 w-4 h-4 bg-wedding-gold rounded-full animate-ping opacity-75"></div>
+              )}
             </div>
           </div>
-        </div>
+          
+          {/* Visual indicator that it's clickable */}
+          <div className="absolute bottom-2 right-2 opacity-70">
+            <PlusCircle size={16} className="text-wedding-gold" />
+          </div>
+          
+          {/* Decorative elements */}
+          <div className="absolute top-2 right-2 w-4 h-4 border-t border-r border-wedding-gold/30"></div>
+          <div className="absolute bottom-2 left-2 w-4 h-4 border-b border-l border-wedding-gold/30"></div>
+        </motion.div>
       </DialogTrigger>
       
       <DialogContent className="max-w-2xl glass-card border-wedding-gold/30">
@@ -189,6 +239,12 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
             With Blessings From
           </span>
           <h2 className="font-playfair text-2xl sm:text-3xl text-wedding-maroon">Our Families</h2>
+          
+          {/* Added hint about clicking to see more details */}
+          <p className="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1">
+            <Info size={12} /> 
+            Click on cards to view more family members
+          </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">

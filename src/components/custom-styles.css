@@ -47,6 +47,57 @@
   50% { opacity: 0.7; }
 }
 
+/* Photo frame and 3D effects */
+.photo-frame {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: all 0.5s ease;
+  border-radius: 8px;
+}
+
+.photo-frame:hover {
+  transform: translateZ(10px);
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.2);
+}
+
+.photo-3d-effect {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.photo-3d-effect:hover img {
+  transform: translateZ(20px) scale(1.05);
+}
+
+/* Animation for hearts */
+@keyframes scale-up-fade {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.animate-scale-up-fade {
+  animation: scale-up-fade 1s ease-out forwards;
+}
+
+/* Enhance photo grid */
+.glass-card {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.shadow-gold-soft {
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+}
+
+.shadow-gold-glow {
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+}
+
 /* Optimize for mobile */
 @media (max-width: 640px) {
   .event-card:hover {
@@ -59,6 +110,12 @@
   
   .font-kruti {
     font-size: 110%; /* Slightly larger font size for Hindi on mobile */
+  }
+  
+  /* More touch-friendly buttons on mobile */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 
