@@ -22,7 +22,7 @@ const Invitation = () => {
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const { guestName, isLoading: isGuestLoading, updateGuestStatus } = useGuest();
+  const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -64,7 +64,7 @@ const Invitation = () => {
     return null;
   };
   
-  const guestId = getCurrentGuestId();
+  const currentGuestId = getCurrentGuestId();
 
   return (
     <div className="min-h-screen w-full pattern-background">
@@ -99,7 +99,7 @@ const Invitation = () => {
             
             {!isMobile && (
               <Button 
-                onClick={() => guestId ? navigate(`/${guestId}`) : navigate('/')}
+                onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
                 variant="outline"
                 size="icon"
                 className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
@@ -112,7 +112,7 @@ const Invitation = () => {
           
           {isMobile && (
             <button 
-              onClick={() => guestId ? navigate(`/${guestId}`) : navigate('/')}
+              onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
               className="fixed top-4 left-4 z-30 flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm"
               aria-label="Go back"
             >
@@ -181,23 +181,28 @@ const Invitation = () => {
                   </p>
                 </div>
               ) : (
-                <Button
-                  onClick={handleAcceptInvitation}
-                  className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
-                >
-                  <span className="relative z-10 flex items-center font-medium">
-                    <Heart size={18} className="mr-2" />
-                    Accept Invitation
-                  </span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
-                  
-                  <span className="absolute -top-6 -left-6 text-white/10">
-                    <User size={24} />
-                  </span>
-                  <span className="absolute -bottom-6 -right-6 text-white/10">
-                    <Heart size={24} />
-                  </span>
-                </Button>
+                <>
+                  {guestId && (
+                    <Button
+                      onClick={handleAcceptInvitation}
+                      className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
+                      disabled={showThankYouMessage}
+                    >
+                      <span className="relative z-10 flex items-center font-medium">
+                        <Heart size={18} className="mr-2" />
+                        Accept Invitation
+                      </span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
+                      
+                      <span className="absolute -top-6 -left-6 text-white/10">
+                        <User size={24} />
+                      </span>
+                      <span className="absolute -bottom-6 -right-6 text-white/10">
+                        <Heart size={24} />
+                      </span>
+                    </Button>
+                  )}
+                </>
               )}
               
               <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-wedding-blush/40 rounded-tl-lg"></div>

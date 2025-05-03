@@ -7,10 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link, Eye, Share } from 'lucide-react';
+import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link, Eye, Share, Settings } from 'lucide-react';
 import { FloatingPetals } from '@/components/AnimatedElements';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 interface Guest {
   id: string;
@@ -21,17 +27,27 @@ interface Guest {
   updated_at?: string;
 }
 
+const defaultMessageTemplate = "Dear {guest-name},\n\nYou are cordially invited to the wedding ceremony of Umashankar & Bhavana on April 29, 2025.\n\nClick here to view your personalized invitation: {unique-link}\n\nWe look forward to celebrating our special day with you!";
+
 const GuestManagement = () => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [guests, setGuests] = useState<Guest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [guestToDelete, setGuestToDelete] = useState<Guest | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [messageTemplate, setMessageTemplate] = useState(defaultMessageTemplate);
   const navigate = useNavigate();
   
   // Fetch existing guests
   useEffect(() => {
     fetchGuests();
+    // Load saved message template from localStorage if it exists
+    const savedTemplate = localStorage.getItem('whatsappMessageTemplate');
+    if (savedTemplate) {
+      setMessageTemplate(savedTemplate);
+    }
   }, []);
   
   const fetchGuests = async () => {
@@ -112,19 +128,25 @@ const GuestManagement = () => {
     }
   };
   
-  const deleteGuest = async (id: string) => {
+  const confirmDeleteGuest = (guest: Guest) => {
+    setGuestToDelete(guest);
+  };
+  
+  const deleteGuest = async () => {
+    if (!guestToDelete) return;
+    
     try {
       const { error } = await supabase
         .from('guests')
         .delete()
-        .eq('id', id);
+        .eq('id', guestToDelete.id);
       
       if (error) {
         throw error;
       }
       
       // Update the local state
-      setGuests(guests.filter(guest => guest.id !== id));
+      setGuests(guests.filter(guest => guest.id !== guestToDelete.id));
       
       toast({
         title: "Guest removed",
@@ -137,6 +159,8 @@ const GuestManagement = () => {
         description: "Failed to remove guest",
         variant: "destructive",
       });
+    } finally {
+      setGuestToDelete(null);
     }
   };
   
@@ -171,9 +195,14 @@ const GuestManagement = () => {
 
   const shareOnWhatsApp = (guest: Guest) => {
     const welcomeLink = getGuestLink(guest.id);
-    const message = encodeURIComponent(
-      `Dear ${guest.name},\n\nYou are cordially invited to the wedding ceremony of Umashankar & Bhavana on April 29, 2025.\n\nClick here to view your personalized invitation: ${welcomeLink}\n\nWe look forward to celebrating our special day with you!`
-    );
+    
+    // Replace template variables with actual values
+    let personalizedMessage = messageTemplate
+      .replace(/{guest-name}/g, guest.name)
+      .replace(/{unique-link}/g, welcomeLink);
+    
+    // Encode for URL
+    const message = encodeURIComponent(personalizedMessage);
     
     // Format the phone number (remove any non-digits)
     let phoneNumber = guest.mobile.replace(/\D/g, "");
@@ -207,6 +236,20 @@ const GuestManagement = () => {
     }
   };
 
+  const saveMessageTemplate = () => {
+    localStorage.setItem('whatsappMessageTemplate', messageTemplate);
+    setIsSettingsOpen(false);
+    toast({
+      title: "Success",
+      description: "Message template saved successfully",
+      variant: "default",
+    });
+  };
+
+  const resetMessageTemplate = () => {
+    setMessageTemplate(defaultMessageTemplate);
+  };
+
   return (
     <div className="min-h-screen pattern-background">
       <FloatingPetals />
@@ -219,6 +262,15 @@ const GuestManagement = () => {
           </div>
           
           <div className="mt-4 md:mt-0 flex gap-2">
+            <Button 
+              variant="outline" 
+              className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
+              onClick={() => setIsSettingsOpen(true)}
+            >
+              <Settings size={16} className="mr-2 text-wedding-gold" />
+              Settings
+            </Button>
+            
             <Button 
               variant="outline" 
               className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
@@ -381,7 +433,7 @@ const GuestManagement = () => {
                                     size="sm" 
                                     variant="outline" 
                                     className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-red-50"
-                                    onClick={() => deleteGuest(guest.id)}
+                                    onClick={() => confirmDeleteGuest(guest)}
                                   >
                                     <Trash size={14} />
                                   </Button>
@@ -402,6 +454,85 @@ const GuestManagement = () => {
           </div>
         </div>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!guestToDelete} onOpenChange={(open) => !open && setGuestToDelete(null)}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove <span className="font-medium text-wedding-maroon">{guestToDelete?.name}</span> from your guest list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={deleteGuest}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      {/* Settings Dialog */}
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent className="bg-white max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-wedding-maroon">WhatsApp Message Settings</DialogTitle>
+            <DialogDescription>
+              Customize the message that will be sent to guests via WhatsApp. Use <span className="font-mono text-xs bg-gray-100 p-1 rounded">{"{guest-name}"}</span> and <span className="font-mono text-xs bg-gray-100 p-1 rounded">{"{unique-link}"}</span> as placeholders.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="messageTemplate">Message Template</Label>
+              <Textarea 
+                id="messageTemplate"
+                value={messageTemplate}
+                onChange={(e) => setMessageTemplate(e.target.value)}
+                className="min-h-[200px] border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
+                placeholder="Type your message here..."
+              />
+              <div className="text-sm text-gray-500 flex items-center gap-x-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                You can use <span className="font-mono text-xs bg-gray-100 p-0.5 rounded">{"{guest-name}"}</span> and <span className="font-mono text-xs bg-gray-100 p-0.5 rounded">{"{unique-link}"}</span> in your message.
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetMessageTemplate}
+                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
+              >
+                Reset to Default
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsSettingsOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={saveMessageTemplate}
+                className="bg-wedding-gold hover:bg-wedding-deep-gold text-white"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
