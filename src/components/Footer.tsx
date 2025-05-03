@@ -2,8 +2,11 @@
 import React from 'react';
 import { MapPin, Phone, ExternalLink } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Footer: React.FC = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <footer className="w-full py-8 bg-wedding-cream">
       <div className="w-full max-w-5xl mx-auto px-4">

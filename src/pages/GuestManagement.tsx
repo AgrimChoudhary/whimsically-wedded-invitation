@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,13 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link, Eye, Share, Settings } from 'lucide-react';
+import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link, Eye, Share, Settings, Edit, PanelRight } from 'lucide-react';
 import { FloatingPetals } from '@/components/AnimatedElements';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -29,6 +31,38 @@ interface Guest {
 
 const defaultMessageTemplate = "Dear {guest-name},\n\nYou are cordially invited to the wedding ceremony of Umashankar & Bhavana on April 29, 2025.\n\nClick here to view your personalized invitation: {unique-link}\n\nWe look forward to celebrating our special day with you!";
 
+const messageTemplates = [
+  {
+    name: "Formal Invitation",
+    template: "Dear {guest-name},\n\nWe are delighted to invite you to the wedding ceremony of Umashankar & Bhavana on April 29, 2025.\n\nPlease find your personalized invitation here: {unique-link}\n\nYour presence would make our special day complete.\n\nWarm regards,\nUmashankar & Bhavana"
+  },
+  {
+    name: "Casual & Friendly",
+    template: "Hey {guest-name}! 🎉\n\nWe're tying the knot! You're invited to our wedding celebration on April 29, 2025.\n\nCheck out your personal invitation: {unique-link}\n\nCan't wait to celebrate with you!\n\nUmashankar & Bhavana"
+  },
+  {
+    name: "Short & Sweet",
+    template: "Hi {guest-name},\n\nYou're invited! Umashankar & Bhavana are getting married on April 29, 2025.\n\nYour invitation: {unique-link}"
+  },
+  {
+    name: "Elegant Request",
+    template: "Dear {guest-name},\n\nThe honor of your presence is requested at the marriage of Umashankar & Bhavana on April 29, 2025.\n\nKindly view your invitation: {unique-link}\n\nWe would be delighted by your attendance."
+  },
+  {
+    name: "Family Focused",
+    template: "Dear {guest-name},\n\nWith great joy, our families invite you to share in our happiness as we unite in marriage on April 29, 2025.\n\nYour personal invitation awaits: {unique-link}\n\nWith love,\nUmashankar & Bhavana and Families"
+  }
+];
+
+const generateShortId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 const GuestManagement = () => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
@@ -38,7 +72,12 @@ const GuestManagement = () => {
   const [guestToDelete, setGuestToDelete] = useState<Guest | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [messageTemplate, setMessageTemplate] = useState(defaultMessageTemplate);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [guestToEdit, setGuestToEdit] = useState<Guest | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editMobile, setEditMobile] = useState('');
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Fetch existing guests
   useEffect(() => {
@@ -90,9 +129,13 @@ const GuestManagement = () => {
     setIsSubmitting(true);
     
     try {
+      // Generate a short ID (5 characters)
+      const shortId = generateShortId();
+      
       const { data, error } = await supabase
         .from('guests')
         .insert([{ 
+          id: shortId,
           name, 
           mobile,
           status: null,
@@ -101,14 +144,37 @@ const GuestManagement = () => {
         .select();
       
       if (error) {
-        throw error;
+        // If there's an error with the custom ID (e.g., it already exists), try again
+        if (error.code === '23505') { // Unique violation
+          const { data: retryData, error: retryError } = await supabase
+            .from('guests')
+            .insert([{ 
+              name, 
+              mobile,
+              status: null,
+              updated_at: null
+            }])
+            .select();
+          
+          if (retryError) {
+            throw retryError;
+          }
+          
+          toast({
+            title: "Success",
+            description: "Guest added successfully (with auto-generated ID)",
+            variant: "default",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Guest added successfully",
+          variant: "default",
+        });
       }
-      
-      toast({
-        title: "Success",
-        description: "Guest added successfully",
-        variant: "default",
-      });
       
       // Reset the form
       setName('');
@@ -161,6 +227,52 @@ const GuestManagement = () => {
       });
     } finally {
       setGuestToDelete(null);
+    }
+  };
+  
+  const openEditDialog = (guest: Guest) => {
+    setGuestToEdit(guest);
+    setEditName(guest.name);
+    setEditMobile(guest.mobile);
+    setIsEditDialogOpen(true);
+  };
+  
+  const saveGuestEdit = async () => {
+    if (!guestToEdit) return;
+    
+    try {
+      const { error } = await supabase
+        .from('guests')
+        .update({ 
+          name: editName,
+          mobile: editMobile
+        })
+        .eq('id', guestToEdit.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Update the local state
+      setGuests(guests.map(guest => 
+        guest.id === guestToEdit.id 
+          ? { ...guest, name: editName, mobile: editMobile } 
+          : guest
+      ));
+      
+      toast({
+        title: "Guest updated",
+        variant: "default",
+      });
+      
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Error updating guest:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update guest",
+        variant: "destructive",
+      });
     }
   };
   
@@ -236,6 +348,28 @@ const GuestManagement = () => {
     }
   };
 
+  const insertPlaceholder = (placeholder: string) => {
+    setMessageTemplate(prev => {
+      const textArea = document.getElementById('messageTemplate') as HTMLTextAreaElement;
+      if (textArea) {
+        const start = textArea.selectionStart;
+        const end = textArea.selectionEnd;
+        
+        const text = prev;
+        const before = text.substring(0, start);
+        const after = text.substring(end, text.length);
+        
+        textArea.focus();
+        return before + placeholder + after;
+      }
+      return prev + placeholder;
+    });
+  };
+
+  const selectTemplate = (template: string) => {
+    setMessageTemplate(template);
+  };
+
   const saveMessageTemplate = () => {
     localStorage.setItem('whatsappMessageTemplate', messageTemplate);
     setIsSettingsOpen(false);
@@ -261,7 +395,7 @@ const GuestManagement = () => {
             <p className="text-gray-600">Create personalized invitation links for your guests</p>
           </div>
           
-          <div className="mt-4 md:mt-0 flex gap-2">
+          <div className="mt-4 md:mt-0 flex flex-wrap gap-2 justify-center md:justify-end">
             <Button 
               variant="outline" 
               className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
@@ -277,7 +411,7 @@ const GuestManagement = () => {
               onClick={() => navigate('/')}
             >
               <Heart size={16} className="mr-2 text-wedding-blush" />
-              Welcome Page
+              Welcome
             </Button>
             
             <Button 
@@ -369,86 +503,161 @@ const GuestManagement = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Guest Name</TableHead>
-                      <TableHead>Mobile</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                {isMobile ? (
+                  // Mobile card view for guests
+                  <div className="space-y-4">
                     {guests.map((guest) => (
-                      <TableRow key={guest.id} className="hover:bg-wedding-cream/30 transition-colors">
-                        <TableCell className="font-medium">{guest.name}</TableCell>
-                        <TableCell>{guest.mobile}</TableCell>
-                        <TableCell>
+                      <div key={guest.id} className="border border-wedding-gold/20 rounded-lg p-4 bg-white/80">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-medium text-wedding-maroon">{guest.name}</h3>
                           {getStatusBadge(guest.status)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
-                                    onClick={() => copyGuestLink(guest.id)}
-                                  >
-                                    <Copy size={14} />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Copy invitation link</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="h-8 border-wedding-gold/20 text-green-600 hover:bg-green-50"
-                                    onClick={() => shareOnWhatsApp(guest)}
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle">
-                                      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
-                                    </svg>
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Share on WhatsApp</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-red-50"
-                                    onClick={() => confirmDeleteGuest(guest)}
-                                  >
-                                    <Trash size={14} />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Delete guest</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                        <p className="text-gray-600 mb-3">{guest.mobile}</p>
+                        
+                        <div className="flex flex-wrap gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
+                            onClick={() => copyGuestLink(guest.id)}
+                          >
+                            <Copy size={14} className="mr-1" /> Copy Link
+                          </Button>
+                          
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8 border-wedding-gold/20 text-green-600 hover:bg-green-50"
+                            onClick={() => shareOnWhatsApp(guest)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                              <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+                            </svg>
+                            Share
+                          </Button>
+                          
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8 border-wedding-gold/20 text-blue-600 hover:bg-blue-50"
+                            onClick={() => openEditDialog(guest)}
+                          >
+                            <Edit size={14} className="mr-1" /> Edit
+                          </Button>
+                          
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8 border-wedding-gold/20 text-red-600 hover:bg-red-50"
+                            onClick={() => confirmDeleteGuest(guest)}
+                          >
+                            <Trash size={14} className="mr-1" /> Delete
+                          </Button>
+                        </div>
+                      </div>
                     ))}
-                  </TableBody>
-                </Table>
+                  </div>
+                ) : (
+                  // Desktop table view
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Guest Name</TableHead>
+                        <TableHead>Mobile</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {guests.map((guest) => (
+                        <TableRow key={guest.id} className="hover:bg-wedding-cream/30 transition-colors">
+                          <TableCell className="font-medium">{guest.name}</TableCell>
+                          <TableCell>{guest.mobile}</TableCell>
+                          <TableCell>
+                            {getStatusBadge(guest.status)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
+                                      onClick={() => copyGuestLink(guest.id)}
+                                    >
+                                      <Copy size={14} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Copy invitation link</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="h-8 border-wedding-gold/20 text-green-600 hover:bg-green-50"
+                                      onClick={() => shareOnWhatsApp(guest)}
+                                    >
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle">
+                                        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+                                      </svg>
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Share on WhatsApp</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="h-8 border-wedding-gold/20 text-blue-600 hover:bg-blue-50"
+                                      onClick={() => openEditDialog(guest)}
+                                    >
+                                      <Edit size={14} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Edit guest</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-red-50"
+                                      onClick={() => confirmDeleteGuest(guest)}
+                                    >
+                                      <Trash size={14} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete guest</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </div>
             )}
           </div>
@@ -476,19 +685,90 @@ const GuestManagement = () => {
         </AlertDialogContent>
       </AlertDialog>
       
+      {/* Edit Guest Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-white max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-wedding-maroon">Edit Guest</DialogTitle>
+            <DialogDescription>
+              Update the guest information below.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="editName">Name</Label>
+              <Input 
+                id="editName"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editMobile">Mobile Number</Label>
+              <Input 
+                id="editMobile"
+                value={editMobile}
+                onChange={(e) => setEditMobile(e.target.value)}
+                className="border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={saveGuestEdit}
+              className="bg-wedding-gold hover:bg-wedding-deep-gold text-white"
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
       {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="bg-white max-w-xl">
+        <DialogContent className={`bg-white ${isMobile ? 'max-w-[95%]' : 'max-w-xl'}`}>
           <DialogHeader>
             <DialogTitle className="text-wedding-maroon">WhatsApp Message Settings</DialogTitle>
             <DialogDescription>
-              Customize the message that will be sent to guests via WhatsApp. Use <span className="font-mono text-xs bg-gray-100 p-1 rounded">{"{guest-name}"}</span> and <span className="font-mono text-xs bg-gray-100 p-1 rounded">{"{unique-link}"}</span> as placeholders.
+              Customize the message that will be sent to guests via WhatsApp.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label htmlFor="messageTemplate">Message Template</Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                <Button 
+                  type="button" 
+                  size="sm"
+                  variant="outline" 
+                  className="h-8 text-xs border-wedding-gold/30 text-wedding-maroon"
+                  onClick={() => insertPlaceholder('{guest-name}')}
+                >
+                  Insert Guest Name
+                </Button>
+                <Button 
+                  type="button" 
+                  size="sm"
+                  variant="outline" 
+                  className="h-8 text-xs border-wedding-gold/30 text-wedding-maroon"
+                  onClick={() => insertPlaceholder('{unique-link}')}
+                >
+                  Insert Unique Link
+                </Button>
+              </div>
+              
               <Textarea 
                 id="messageTemplate"
                 value={messageTemplate}
@@ -496,14 +776,35 @@ const GuestManagement = () => {
                 className="min-h-[200px] border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
                 placeholder="Type your message here..."
               />
+              
               <div className="text-sm text-gray-500 flex items-center gap-x-1">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                You can use <span className="font-mono text-xs bg-gray-100 p-0.5 rounded">{"{guest-name}"}</span> and <span className="font-mono text-xs bg-gray-100 p-0.5 rounded">{"{unique-link}"}</span> in your message.
+                Use <span className="font-mono text-xs bg-gray-100 p-0.5 rounded">{"{guest-name}"}</span> and <span className="font-mono text-xs bg-gray-100 p-0.5 rounded">{"{unique-link}"}</span> in your message.
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Message Templates</Label>
+              <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-2`}>
+                {messageTemplates.map((template, index) => (
+                  <Button
+                    key={index}
+                    type="button"
+                    variant="outline"
+                    className="h-auto py-2 px-4 border-wedding-gold/30 hover:bg-wedding-cream justify-start text-left"
+                    onClick={() => selectTemplate(template.template)}
+                  >
+                    <div>
+                      <div className="font-medium text-wedding-maroon">{template.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{template.template.substring(0, 60)}...</div>
+                    </div>
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
           
-          <DialogFooter className="flex justify-between sm:justify-between">
+          <DialogFooter className="flex flex-wrap justify-between sm:justify-between gap-2">
             <div className="flex gap-2">
               <Button
                 type="button"

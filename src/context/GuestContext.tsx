@@ -9,6 +9,7 @@ interface GuestContextType {
   setGuestName: (name: string) => void;
   guestId: string | null;
   isLoading: boolean;
+  guestStatus: string | null;
   updateGuestStatus: (status: 'viewed' | 'accepted') => Promise<void>;
 }
 
@@ -17,6 +18,7 @@ const GuestContext = createContext<GuestContextType | undefined>(undefined);
 export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [guestName, setGuestName] = useState<string>('');
   const [guestId, setGuestId] = useState<string | null>(null);
+  const [guestStatus, setGuestStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const location = useLocation();
   
@@ -41,25 +43,28 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         try {
           const { data, error } = await supabase
             .from('guests')
-            .select('name')
+            .select('name, status')
             .eq('id', currentGuestId)
             .single();
           
           if (error) {
             console.error('Error fetching guest:', error);
             setGuestName('');
+            setGuestStatus(null);
           } else if (data) {
             setGuestName(data.name);
             setGuestId(currentGuestId);
+            setGuestStatus(data.status);
             
             // Update status to 'viewed' when the guest opens the invitation
-            if (location.pathname.includes('invitation') || !location.pathname.includes('guest-management')) {
+            if ((location.pathname.includes('invitation') || !location.pathname.includes('guest-management')) && data.status !== 'accepted') {
               updateGuestStatus('viewed');
             }
           }
         } catch (error) {
           console.error('Error in guest fetch:', error);
           setGuestName('');
+          setGuestStatus(null);
         }
       }
       
@@ -83,6 +88,8 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       
       if (error) {
         console.error(`Error updating guest status to ${status}:`, error);
+      } else {
+        setGuestStatus(status);
       }
     } catch (error) {
       console.error(`Error updating guest status to ${status}:`, error);
@@ -95,6 +102,7 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setGuestName, 
       guestId, 
       isLoading, 
+      guestStatus,
       updateGuestStatus 
     }}>
       {children}
