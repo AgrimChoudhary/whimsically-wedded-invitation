@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -214,7 +213,7 @@ const Invitation = () => {
           
           <Footer />
           
-          <RSVPModal isOpen={showRSVP} onClose={() => setShowRSVP(false)} />
+          <RSVPModal open={showRSVP} onOpenChange={() => setShowRSVP(false)} />
         </div>
       )}
     </div>
