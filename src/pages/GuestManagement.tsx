@@ -2,29 +2,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { Settings, Heart, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Heart, Trash, Copy, X, Plus, Check, User, Phone, Link, Eye, Share, Settings, Edit, PanelRight } from 'lucide-react';
 import { FloatingPetals } from '@/components/AnimatedElements';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { GuestCard } from '@/components/GuestCard';
+import { GuestForm } from '@/components/GuestForm';
+import { TemplateSelector } from '@/components/TemplateSelector';
 
 interface Guest {
   id: string;
   name: string;
   mobile: string;
-  status?: 'viewed' | 'accepted' | null;
+  status?: 'viewed' | 'accepted' | 'declined' | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -54,21 +52,9 @@ const messageTemplates = [
   }
 ];
 
-const generateShortId = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 5; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
 const GuestManagement = () => {
-  const [name, setName] = useState('');
-  const [mobile, setMobile] = useState('');
   const [guests, setGuests] = useState<Guest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [guestToDelete, setGuestToDelete] = useState<Guest | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [messageTemplate, setMessageTemplate] = useState(defaultMessageTemplate);
@@ -112,88 +98,6 @@ const GuestManagement = () => {
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!name.trim() || !mobile.trim()) {
-      toast({
-        title: "Missing information",
-        description: "Please provide both name and mobile number",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      // Generate a short ID (5 characters)
-      const shortId = generateShortId();
-      
-      const { data, error } = await supabase
-        .from('guests')
-        .insert([{ 
-          id: shortId,
-          name, 
-          mobile,
-          status: null,
-          updated_at: null
-        }])
-        .select();
-      
-      if (error) {
-        // If there's an error with the custom ID (e.g., it already exists), try again
-        if (error.code === '23505') { // Unique violation
-          const newShortId = generateShortId();
-          const { data: retryData, error: retryError } = await supabase
-            .from('guests')
-            .insert([{ 
-              id: newShortId,
-              name, 
-              mobile,
-              status: null,
-              updated_at: null
-            }])
-            .select();
-          
-          if (retryError) {
-            throw retryError;
-          }
-          
-          toast({
-            title: "Success",
-            description: "Guest added successfully (with auto-generated ID)",
-            variant: "default",
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({
-          title: "Success",
-          description: "Guest added successfully",
-          variant: "default",
-        });
-      }
-      
-      // Reset the form
-      setName('');
-      setMobile('');
-      
-      // Refresh guest list
-      fetchGuests();
-    } catch (error) {
-      console.error('Error adding guest:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add guest",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
     }
   };
   
@@ -330,27 +234,6 @@ const GuestManagement = () => {
     window.open(whatsappUrl, '_blank');
   };
 
-  const getStatusBadge = (status: string | null | undefined) => {
-    if (!status) return null;
-    
-    switch (status) {
-      case 'viewed':
-        return (
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            <Eye size={12} className="mr-1" /> Viewed
-          </Badge>
-        );
-      case 'accepted':
-        return (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            <Check size={12} className="mr-1" /> Accepted
-          </Badge>
-        );
-      default:
-        return null;
-    }
-  };
-
   const insertPlaceholder = (placeholder: string) => {
     setMessageTemplate(prev => {
       const textArea = document.getElementById('messageTemplate') as HTMLTextAreaElement;
@@ -407,7 +290,7 @@ const GuestManagement = () => {
               onClick={() => setIsSettingsOpen(true)}
             >
               <Settings size={16} className="mr-2 text-wedding-gold" />
-              Settings
+              Message Settings
             </Button>
             
             <div className="flex gap-2 w-full sm:w-auto">
@@ -438,57 +321,7 @@ const GuestManagement = () => {
           <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b-2 border-l-2 border-wedding-gold/50 rounded-bl-lg"></div>
           <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b-2 border-r-2 border-wedding-gold/50 rounded-br-lg"></div>
           
-          <form onSubmit={handleSubmit} className="p-6">
-            <h2 className="font-playfair text-xl text-wedding-maroon mb-4 text-center">
-              <Plus size={18} className="inline-block mr-2 text-wedding-gold" />
-              Add New Guest
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <User size={18} className="text-wedding-gold flex-shrink-0" />
-                <Input
-                  placeholder="Guest Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
-                />
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <Phone size={18} className="text-wedding-gold flex-shrink-0" />
-                <Input
-                  placeholder="Mobile Number"
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
-                  className="border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
-                />
-              </div>
-            </div>
-            
-            <div className="flex justify-center">
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="bg-wedding-gold hover:bg-wedding-deep-gold text-white"
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Plus size={16} className="mr-2" />
-                    Add Guest
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
+          <GuestForm onSuccess={fetchGuests} />
         </div>
         
         <div className="glass-card">
@@ -514,66 +347,14 @@ const GuestManagement = () => {
                   // Mobile card view for guests - Improved layout
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {guests.map((guest) => (
-                      <div key={guest.id} className="border border-wedding-gold/20 rounded-lg overflow-hidden bg-white/95 shadow-sm hover:shadow transition-all">
-                        <div className="flex justify-between items-center p-3 border-b border-wedding-gold/10 bg-wedding-cream/30">
-                          <h3 className="font-medium text-wedding-maroon truncate">{guest.name}</h3>
-                          <div className="flex items-center">
-                            {getStatusBadge(guest.status)}
-                            
-                            <button 
-                              onClick={() => openEditDialog(guest)} 
-                              className="ml-2 text-blue-600 hover:bg-blue-50 p-1 rounded"
-                              aria-label="Edit guest"
-                            >
-                              <Edit size={16} />
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <div className="p-3">
-                          <p className="text-gray-600 mb-3 text-sm flex items-center">
-                            <Phone size={14} className="mr-2 text-wedding-gold" />
-                            {guest.mobile}
-                          </p>
-                          
-                          <p className="text-gray-600 mb-3 text-sm flex items-center">
-                            <Link size={14} className="mr-2 text-wedding-gold" />
-                            ID: {guest.id}
-                          </p>
-                          
-                          <div className="grid grid-cols-3 gap-2 mt-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-9 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
-                              onClick={() => copyGuestLink(guest.id)}
-                            >
-                              <Copy size={14} className="mr-1" /> Copy
-                            </Button>
-                            
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-9 border-wedding-gold/20 text-green-600 hover:bg-green-50"
-                              onClick={() => shareOnWhatsApp(guest)}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
-                              </svg>
-                              Share
-                            </Button>
-                            
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="h-9 border-wedding-gold/20 text-red-600 hover:bg-red-50"
-                              onClick={() => confirmDeleteGuest(guest)}
-                            >
-                              <Trash size={14} className="mr-1" /> Delete
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
+                      <GuestCard
+                        key={guest.id}
+                        guest={guest}
+                        onCopy={copyGuestLink}
+                        onShare={shareOnWhatsApp}
+                        onEdit={openEditDialog}
+                        onDelete={confirmDeleteGuest}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -593,7 +374,15 @@ const GuestManagement = () => {
                           <TableCell className="font-medium">{guest.name}</TableCell>
                           <TableCell>{guest.mobile}</TableCell>
                           <TableCell>
-                            {getStatusBadge(guest.status)}
+                            {guest.status && (
+                              <Badge variant="outline" className={`
+                                ${guest.status === 'viewed' ? 'bg-blue-50 text-blue-700 border-blue-200' : 
+                                  guest.status === 'accepted' ? 'bg-green-50 text-green-700 border-green-200' :
+                                  'bg-red-50 text-red-700 border-red-200'}
+                              `}>
+                                {guest.status.charAt(0).toUpperCase() + guest.status.slice(1)}
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
@@ -804,23 +593,11 @@ const GuestManagement = () => {
             
             <div className="space-y-2">
               <Label>Message Templates</Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {messageTemplates.map((template, index) => (
-                  <Button
-                    key={index}
-                    type="button"
-                    variant="outline"
-                    className={`h-auto py-2 px-4 border-wedding-gold/30 hover:bg-wedding-cream justify-start text-left ${
-                      selectedTemplate === template.name ? "bg-wedding-cream border-wedding-gold" : ""
-                    }`}
-                    onClick={() => selectTemplate(template.template, template.name)}
-                  >
-                    <div className="truncate">
-                      <div className="font-medium text-wedding-maroon">{template.name}</div>
-                    </div>
-                  </Button>
-                ))}
-              </div>
+              <TemplateSelector 
+                templates={messageTemplates}
+                selectedTemplate={selectedTemplate}
+                onSelect={selectTemplate}
+              />
             </div>
           </div>
           

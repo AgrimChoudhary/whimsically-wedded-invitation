@@ -138,7 +138,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          id?: string
+          id: string
           invitation_id?: string | null
           mobile: string
           name: string

@@ -10,7 +10,7 @@ interface GuestContextType {
   guestId: string | null;
   isLoading: boolean;
   guestStatus: string | null;
-  updateGuestStatus: (status: 'viewed' | 'accepted') => Promise<void>;
+  updateGuestStatus: (status: 'viewed' | 'accepted' | 'declined') => Promise<void>;
 }
 
 const GuestContext = createContext<GuestContextType | undefined>(undefined);
@@ -57,7 +57,7 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             setGuestStatus(data.status);
             
             // Update status to 'viewed' when the guest opens the invitation
-            if ((location.pathname.includes('invitation') || !location.pathname.includes('guest-management')) && data.status !== 'accepted') {
+            if ((location.pathname.includes('invitation') || !location.pathname.includes('guest-management')) && data.status !== 'accepted' && data.status !== 'declined') {
               updateGuestStatus('viewed');
             }
           }
@@ -74,7 +74,7 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     fetchGuestInfo();
   }, [location.pathname]);
 
-  const updateGuestStatus = async (status: 'viewed' | 'accepted') => {
+  const updateGuestStatus = async (status: 'viewed' | 'accepted' | 'declined') => {
     if (!guestId) return;
     
     try {
