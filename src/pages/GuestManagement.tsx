@@ -76,6 +76,7 @@ const GuestManagement = () => {
   const [guestToEdit, setGuestToEdit] = useState<Guest | null>(null);
   const [editName, setEditName] = useState('');
   const [editMobile, setEditMobile] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
@@ -146,9 +147,11 @@ const GuestManagement = () => {
       if (error) {
         // If there's an error with the custom ID (e.g., it already exists), try again
         if (error.code === '23505') { // Unique violation
+          const newShortId = generateShortId();
           const { data: retryData, error: retryError } = await supabase
             .from('guests')
             .insert([{ 
+              id: newShortId,
               name, 
               mobile,
               status: null,
@@ -366,8 +369,9 @@ const GuestManagement = () => {
     });
   };
 
-  const selectTemplate = (template: string) => {
+  const selectTemplate = (template: string, name: string) => {
     setMessageTemplate(template);
+    setSelectedTemplate(name);
   };
 
   const saveMessageTemplate = () => {
@@ -382,6 +386,7 @@ const GuestManagement = () => {
 
   const resetMessageTemplate = () => {
     setMessageTemplate(defaultMessageTemplate);
+    setSelectedTemplate(null);
   };
 
   return (
@@ -395,33 +400,35 @@ const GuestManagement = () => {
             <p className="text-gray-600">Create personalized invitation links for your guests</p>
           </div>
           
-          <div className="mt-4 md:mt-0 flex flex-wrap gap-2 justify-center md:justify-end">
+          <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
             <Button 
               variant="outline" 
-              className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
+              className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream w-full sm:w-auto"
               onClick={() => setIsSettingsOpen(true)}
             >
               <Settings size={16} className="mr-2 text-wedding-gold" />
               Settings
             </Button>
             
-            <Button 
-              variant="outline" 
-              className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
-              onClick={() => navigate('/')}
-            >
-              <Heart size={16} className="mr-2 text-wedding-blush" />
-              Welcome
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
-              onClick={() => navigate('/invitation')}
-            >
-              <Heart size={16} className="mr-2 text-wedding-blush" />
-              Invitation
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream flex-1 sm:flex-auto"
+                onClick={() => navigate('/')}
+              >
+                <Heart size={16} className="mr-2 text-wedding-blush" />
+                Welcome
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream flex-1 sm:flex-auto"
+                onClick={() => navigate('/invitation')}
+              >
+                <Heart size={16} className="mr-2 text-wedding-blush" />
+                Invitation
+              </Button>
+            </div>
           </div>
         </div>
         
@@ -504,55 +511,67 @@ const GuestManagement = () => {
             ) : (
               <div className="overflow-x-auto">
                 {isMobile ? (
-                  // Mobile card view for guests
-                  <div className="space-y-4">
+                  // Mobile card view for guests - Improved layout
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {guests.map((guest) => (
-                      <div key={guest.id} className="border border-wedding-gold/20 rounded-lg p-4 bg-white/80">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-medium text-wedding-maroon">{guest.name}</h3>
-                          {getStatusBadge(guest.status)}
+                      <div key={guest.id} className="border border-wedding-gold/20 rounded-lg overflow-hidden bg-white/95 shadow-sm hover:shadow transition-all">
+                        <div className="flex justify-between items-center p-3 border-b border-wedding-gold/10 bg-wedding-cream/30">
+                          <h3 className="font-medium text-wedding-maroon truncate">{guest.name}</h3>
+                          <div className="flex items-center">
+                            {getStatusBadge(guest.status)}
+                            
+                            <button 
+                              onClick={() => openEditDialog(guest)} 
+                              className="ml-2 text-blue-600 hover:bg-blue-50 p-1 rounded"
+                              aria-label="Edit guest"
+                            >
+                              <Edit size={16} />
+                            </button>
+                          </div>
                         </div>
-                        <p className="text-gray-600 mb-3">{guest.mobile}</p>
                         
-                        <div className="flex flex-wrap gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
-                            onClick={() => copyGuestLink(guest.id)}
-                          >
-                            <Copy size={14} className="mr-1" /> Copy Link
-                          </Button>
+                        <div className="p-3">
+                          <p className="text-gray-600 mb-3 text-sm flex items-center">
+                            <Phone size={14} className="mr-2 text-wedding-gold" />
+                            {guest.mobile}
+                          </p>
                           
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-8 border-wedding-gold/20 text-green-600 hover:bg-green-50"
-                            onClick={() => shareOnWhatsApp(guest)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                              <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
-                            </svg>
-                            Share
-                          </Button>
+                          <p className="text-gray-600 mb-3 text-sm flex items-center">
+                            <Link size={14} className="mr-2 text-wedding-gold" />
+                            ID: {guest.id}
+                          </p>
                           
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-8 border-wedding-gold/20 text-blue-600 hover:bg-blue-50"
-                            onClick={() => openEditDialog(guest)}
-                          >
-                            <Edit size={14} className="mr-1" /> Edit
-                          </Button>
-                          
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-8 border-wedding-gold/20 text-red-600 hover:bg-red-50"
-                            onClick={() => confirmDeleteGuest(guest)}
-                          >
-                            <Trash size={14} className="mr-1" /> Delete
-                          </Button>
+                          <div className="grid grid-cols-3 gap-2 mt-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-9 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
+                              onClick={() => copyGuestLink(guest.id)}
+                            >
+                              <Copy size={14} className="mr-1" /> Copy
+                            </Button>
+                            
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-9 border-wedding-gold/20 text-green-600 hover:bg-green-50"
+                              onClick={() => shareOnWhatsApp(guest)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+                              </svg>
+                              Share
+                            </Button>
+                            
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-9 border-wedding-gold/20 text-red-600 hover:bg-red-50"
+                              onClick={() => confirmDeleteGuest(guest)}
+                            >
+                              <Trash size={14} className="mr-1" /> Delete
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -735,9 +754,9 @@ const GuestManagement = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Settings Dialog */}
+      {/* Settings Dialog - Improved Mobile Friendly */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className={`bg-white ${isMobile ? 'max-w-[95%]' : 'max-w-xl'}`}>
+        <DialogContent className="bg-white max-w-xl overflow-auto">
           <DialogHeader>
             <DialogTitle className="text-wedding-maroon">WhatsApp Message Settings</DialogTitle>
             <DialogDescription>
@@ -745,7 +764,7 @@ const GuestManagement = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-2">
+          <div className="space-y-4 py-2 max-h-[calc(80vh-200px)] overflow-y-auto">
             <div className="space-y-2">
               <Label htmlFor="messageTemplate">Message Template</Label>
               <div className="flex flex-wrap gap-2 mb-2">
@@ -773,7 +792,7 @@ const GuestManagement = () => {
                 id="messageTemplate"
                 value={messageTemplate}
                 onChange={(e) => setMessageTemplate(e.target.value)}
-                className="min-h-[200px] border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
+                className="min-h-[150px] border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
                 placeholder="Type your message here..."
               />
               
@@ -785,18 +804,19 @@ const GuestManagement = () => {
             
             <div className="space-y-2">
               <Label>Message Templates</Label>
-              <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-2`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {messageTemplates.map((template, index) => (
                   <Button
                     key={index}
                     type="button"
                     variant="outline"
-                    className="h-auto py-2 px-4 border-wedding-gold/30 hover:bg-wedding-cream justify-start text-left"
-                    onClick={() => selectTemplate(template.template)}
+                    className={`h-auto py-2 px-4 border-wedding-gold/30 hover:bg-wedding-cream justify-start text-left ${
+                      selectedTemplate === template.name ? "bg-wedding-cream border-wedding-gold" : ""
+                    }`}
+                    onClick={() => selectTemplate(template.template, template.name)}
                   >
-                    <div>
+                    <div className="truncate">
                       <div className="font-medium text-wedding-maroon">{template.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{template.template.substring(0, 60)}...</div>
                     </div>
                   </Button>
                 ))}
@@ -804,29 +824,30 @@ const GuestManagement = () => {
             </div>
           </div>
           
-          <DialogFooter className="flex flex-wrap justify-between sm:justify-between gap-2">
-            <div className="flex gap-2">
+          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2">
+            <div className="flex w-full sm:w-auto">
               <Button
                 type="button"
                 variant="outline"
                 onClick={resetMessageTemplate}
-                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
+                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream w-full sm:w-auto"
               >
                 Reset to Default
               </Button>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsSettingsOpen(false)}
+                className="flex-1 sm:flex-auto"
               >
                 Cancel
               </Button>
               <Button
                 type="button"
                 onClick={saveMessageTemplate}
-                className="bg-wedding-gold hover:bg-wedding-deep-gold text-white"
+                className="bg-wedding-gold hover:bg-wedding-deep-gold text-white flex-1 sm:flex-auto"
               >
                 Save Changes
               </Button>
