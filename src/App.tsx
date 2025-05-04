@@ -11,8 +11,6 @@ import Index from "./pages/Index";
 import Invitation from "./pages/Invitation";
 import GuestManagement from "./pages/GuestManagement";
 import NotFound from "./pages/NotFound";
-import CustomizeInvitation from "./pages/CustomizeInvitation";
-import Dashboard from "./pages/Dashboard";
 import "./components/custom-styles.css";
 
 // Create a client
@@ -53,15 +51,14 @@ const App: React.FC = () => {
         <Sonner />
         <BrowserRouter>
           <GuestProvider>
-            <AudioProvider isDisabledOnRoutes={["/guest-management", "/create-invitation", "/dashboard"]}>
+            <AudioProvider isDisabledOnRoutes={["/guest-management"]}>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/invitation/:invitationId" element={<Invitation />} />
+                <Route path="/invitation" element={<Invitation />} />
                 <Route path="/guest-management" element={<GuestManagement />} />
-                <Route path="/create-invitation" element={<CustomizeInvitation />} />
-                <Route path="/dashboard/:invitationId" element={<Dashboard />} />
-                {/* Support for invitation-specific routes */}
-                <Route path="/:invitationId" element={<Index />} />
+                {/* Support for guest-specific routes */}
+                <Route path="/:guestId" element={<Index />} />
+                <Route path="/invitation/:guestId" element={<Invitation />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
