@@ -82,8 +82,9 @@ export const GuestCard: React.FC<GuestCardProps> = ({
             variant="outline" 
             className="h-9 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
             onClick={() => onCopy(guest.id)}
+            title="Copy"
           >
-            <Copy size={14} className="mr-1" /> Copy
+            <Copy size={16} />
           </Button>
           
           <Button 
@@ -91,8 +92,9 @@ export const GuestCard: React.FC<GuestCardProps> = ({
             variant="outline" 
             className="h-9 border-wedding-gold/20 text-green-600 hover:bg-green-50"
             onClick={() => onShare(guest)}
+            title="Share"
           >
-            <Share2 size={14} className="mr-1" /> Share
+            <Share2 size={16} />
           </Button>
           
           <Button 
@@ -100,8 +102,9 @@ export const GuestCard: React.FC<GuestCardProps> = ({
             variant="outline" 
             className="h-9 border-wedding-gold/20 text-red-600 hover:bg-red-50"
             onClick={() => onDelete(guest)}
+            title="Delete"
           >
-            <Trash size={14} className="mr-1" /> Delete
+            <Trash size={16} />
           </Button>
         </div>
       </div>

@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Heart, User } from 'lucide-react';
+import { Settings, Heart, User, Copy, Edit, Trash, Share2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { FloatingPetals } from '@/components/AnimatedElements';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -283,7 +283,7 @@ const GuestManagement = () => {
             <p className="text-gray-600">Create personalized invitation links for your guests</p>
           </div>
           
-          <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
+          <div className="mt-4 md:mt-0">
             <Button 
               variant="outline" 
               className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream w-full sm:w-auto"
@@ -292,26 +292,6 @@ const GuestManagement = () => {
               <Settings size={16} className="mr-2 text-wedding-gold" />
               Message Settings
             </Button>
-            
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button 
-                variant="outline" 
-                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream flex-1 sm:flex-auto"
-                onClick={() => navigate('/')}
-              >
-                <Heart size={16} className="mr-2 text-wedding-blush" />
-                Welcome
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream flex-1 sm:flex-auto"
-                onClick={() => navigate('/invitation')}
-              >
-                <Heart size={16} className="mr-2 text-wedding-blush" />
-                Invitation
-              </Button>
-            </div>
           </div>
         </div>
         
@@ -413,9 +393,7 @@ const GuestManagement = () => {
                                       className="h-8 border-wedding-gold/20 text-green-600 hover:bg-green-50"
                                       onClick={() => shareOnWhatsApp(guest)}
                                     >
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle">
-                                        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
-                                      </svg>
+                                      <Share2 size={14} />
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent>

@@ -71,40 +71,15 @@ export const Footer: React.FC = () => {
           </div>
         ) : (
           // Desktop footer
-          <div className="flex justify-center">
-            <div className="flex space-x-6">
-              <Button
-                variant="link"
-                className="text-wedding-maroon hover:text-wedding-deep-gold focus:text-wedding-deep-gold"
-                onClick={() => navigate('/')}
-              >
-                <Heart size={16} className="mr-1" /> Welcome
-              </Button>
-              
-              <Button
-                variant="link"
-                className="text-wedding-maroon hover:text-wedding-deep-gold focus:text-wedding-deep-gold"
-                onClick={() => navigate('/invitation')}
-              >
-                <Heart size={16} className="mr-1" /> Invitation
-              </Button>
-              
-              <Button
-                variant="link"
-                className="text-wedding-maroon hover:text-wedding-deep-gold focus:text-wedding-deep-gold"
-                onClick={() => navigate('/guest-management')}
-              >
-                <Settings size={16} className="mr-1" /> Guest Management
-              </Button>
-            </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-500 font-dancing-script text-lg">
+              With love, Umashankar &amp; Bhavana
+            </p>
+            <p className="text-xs text-gray-400 mt-2">
+              Powered by Utsavy
+            </p>
           </div>
         )}
-        
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-500 font-dancing-script text-lg">
-            With love, Umashankar &amp; Bhavana
-          </p>
-        </div>
       </div>
       
       {/* Add padding at the bottom for mobile to account for fixed navigation */}
