@@ -56,13 +56,12 @@ const App: React.FC = () => {
             <AudioProvider isDisabledOnRoutes={["/guest-management", "/create-invitation", "/dashboard"]}>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/invitation" element={<Invitation />} />
+                <Route path="/invitation/:invitationId" element={<Invitation />} />
                 <Route path="/guest-management" element={<GuestManagement />} />
                 <Route path="/create-invitation" element={<CustomizeInvitation />} />
                 <Route path="/dashboard/:invitationId" element={<Dashboard />} />
-                {/* Support for guest-specific routes */}
-                <Route path="/:guestId" element={<Index />} />
-                <Route path="/invitation/:guestId" element={<Invitation />} />
+                {/* Support for invitation-specific routes */}
+                <Route path="/:invitationId" element={<Index />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

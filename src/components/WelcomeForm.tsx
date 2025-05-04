@@ -32,8 +32,14 @@ const WelcomeForm = () => {
     
     setIsSubmitting(true);
     
-    // Navigate to the invitation page using the guest code directly
-    navigate(`/invitation/${guestCode}`);
+    // Check if the code is in the format invitationId-guestId
+    if (guestCode.includes('-')) {
+      // This is a guest-specific invitation
+      navigate(`/invitation/${guestCode}`);
+    } else {
+      // This is just an invitation ID
+      navigate(`/invitation/${guestCode}`);
+    }
   };
   
   const handleTypingComplete = () => {

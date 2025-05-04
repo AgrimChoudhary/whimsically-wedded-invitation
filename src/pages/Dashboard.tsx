@@ -177,13 +177,13 @@ const Dashboard = () => {
                   ) : previewGuestId ? (
                     <div className="space-y-3">
                       <Button 
-                        onClick={() => navigate(`/${invitationId}-${previewGuestId}`)}
+                        onClick={() => navigate(`/${invitationId}`)}
                         className="w-full bg-wedding-gold hover:bg-wedding-deep-gold text-white"
                       >
                         Preview Welcome Page
                       </Button>
                       <Button 
-                        onClick={() => navigate(`/invitation/${invitationId}-${previewGuestId}`)}
+                        onClick={() => navigate(`/invitation/${invitationId}`)}
                         className="w-full bg-wedding-gold hover:bg-wedding-deep-gold text-white"
                       >
                         Preview Invitation Page
