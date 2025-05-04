@@ -5,6 +5,7 @@ import { useAudio } from '../context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { Heart, Sparkles, Calendar, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import AnimatedGuestName from './AnimatedGuestName';
 
 const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -90,7 +91,15 @@ const WelcomeForm: React.FC = () => {
             {isGuestLoading ? (
               <span className="inline-block w-48 h-6 bg-gray-200 animate-pulse rounded"></span>
             ) : (
-              <>Welcome {guestName || 'Guest'}</>
+              <>
+                Welcome{' '}
+                <AnimatedGuestName 
+                  name={guestName}
+                  animationType="brush"
+                  className="font-playfair"
+                  delay={600}
+                />
+              </>
             )}
           </h2>
           <p className="text-sm text-gray-600">Your special invitation awaits</p>

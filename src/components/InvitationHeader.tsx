@@ -3,6 +3,7 @@ import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
 import { Sparkles, Star, Music } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import AnimatedGuestName from './AnimatedGuestName';
 
 interface InvitationHeaderProps {
   brideName?: string;
@@ -72,7 +73,14 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
         <div className="text-center mb-6 sm:mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="relative inline-block">
             <h1 className="font-poppins text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-maroon mb-2 gold-highlight">
-              Welcome {guestName || 'Guest'}
+              Welcome{' '}
+              <AnimatedGuestName 
+                name={guestName} 
+                fallback="Guest"
+                animationType="sparkle"
+                className="font-poppins relative inline-block"
+                delay={800}
+              />
             </h1>
             {!isMobile && (
               <div className="absolute -right-6 -top-6 opacity-30">

@@ -200,6 +200,23 @@ export default {
 						transform: 'scale(2)',
 						opacity: '0'
 					}
+				},
+				'blink': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0' }
+				},
+				'handwriting': {
+					'0%': { 
+						strokeDashoffset: '1000',
+						opacity: '0.3'
+					},
+					'80%': {
+						opacity: '0.8'
+					},
+					'100%': { 
+						strokeDashoffset: '0',
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
@@ -217,7 +234,9 @@ export default {
 				'glow-soft': 'glow-soft 3s infinite ease-in-out',
 				'bounce-light': 'bounce-light 2s infinite',
 				'confetti': 'confetti 5s linear forwards',
-				'firework': 'firework-explosion 1.5s ease-out forwards'
+				'firework': 'firework-explosion 1.5s ease-out forwards',
+				'blink': 'blink 0.8s infinite',
+				'handwriting': 'handwriting 3s ease-out forwards'
 			},
 			fontFamily: {
 				'great-vibes': ['"Great Vibes"', 'cursive'],

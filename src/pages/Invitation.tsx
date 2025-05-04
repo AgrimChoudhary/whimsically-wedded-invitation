@@ -15,6 +15,7 @@ import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/Animate
 import { ArrowLeftCircle, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
+import AnimatedGuestName from '../components/AnimatedGuestName';
 
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -239,7 +240,15 @@ const Invitation = () => {
                     {isGuestLoading ? (
                       <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
                     ) : (
-                      <>Dear {guestName || 'Guest'},</>
+                      <>
+                        Dear{' '}
+                        <AnimatedGuestName 
+                          name={guestName}
+                          animationType="brush"
+                          className="font-playfair text-wedding-maroon"
+                          delay={700}
+                        />,
+                      </>
                     )}
                   </h3>
                   <h3 className="text-xl font-playfair text-wedding-maroon mb-3">Thank You for Accepting!</h3>
