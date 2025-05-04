@@ -37,48 +37,61 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (pathParts.length === 1 && pathParts[0] !== 'invitation' && 
           pathParts[0] !== 'guest-management' && pathParts[0] !== 'create-invitation' &&
           !pathParts[0].startsWith('dashboard')) {
-        // Format: /:invitationId-:guestId
+        // Format: /:invitationId-:guestId or /:invitationId
         combinedId = pathParts[0];
       } else if (pathParts.length === 2 && pathParts[0] === 'invitation') {
-        // Format: /invitation/:invitationId-:guestId
+        // Format: /invitation/:invitationId-:guestId or /invitation/:invitationId
         combinedId = pathParts[1];
       }
       
-      if (combinedId && combinedId.includes('-')) {
-        const [currentInvitationId, currentGuestId] = combinedId.split('-');
-        
-        if (currentInvitationId && currentGuestId) {
-          setInvitationId(currentInvitationId);
-          setGuestId(currentGuestId);
+      if (combinedId) {
+        // Check if it's in the format invitationId-guestId
+        if (combinedId.includes('-')) {
+          const [currentInvitationId, currentGuestId] = combinedId.split('-');
           
-          try {
-            const { data, error } = await supabase
-              .from('guests')
-              .select('name, status')
-              .eq('id', currentGuestId)
-              .eq('invitation_id', currentInvitationId)
-              .single();
+          if (currentInvitationId && currentGuestId) {
+            setInvitationId(currentInvitationId);
+            setGuestId(currentGuestId);
             
-            if (error) {
-              console.error('Error fetching guest:', error);
+            try {
+              const { data, error } = await supabase
+                .from('guests')
+                .select('name, status')
+                .eq('id', currentGuestId)
+                .eq('invitation_id', currentInvitationId)
+                .single();
+              
+              if (error) {
+                console.error('Error fetching guest:', error);
+                setGuestName('');
+                setGuestStatus(null);
+              } else if (data) {
+                setGuestName(data.name);
+                setGuestStatus(data.status);
+                
+                // Update status to 'viewed' when the guest opens the invitation
+                if ((location.pathname.includes('invitation') || !location.pathname.includes('guest-management')) && 
+                    data.status !== 'accepted' && data.status !== 'declined') {
+                  updateGuestStatus('viewed');
+                }
+              }
+            } catch (error) {
+              console.error('Error in guest fetch:', error);
               setGuestName('');
               setGuestStatus(null);
-            } else if (data) {
-              setGuestName(data.name);
-              setGuestStatus(data.status);
-              
-              // Update status to 'viewed' when the guest opens the invitation
-              if ((location.pathname.includes('invitation') || !location.pathname.includes('guest-management')) && 
-                  data.status !== 'accepted' && data.status !== 'declined') {
-                updateGuestStatus('viewed');
-              }
             }
-          } catch (error) {
-            console.error('Error in guest fetch:', error);
-            setGuestName('');
-            setGuestStatus(null);
           }
+        } else {
+          // It's just an invitation ID with no guest ID
+          setInvitationId(combinedId);
+          setGuestId(null);
+          setGuestName('');
+          setGuestStatus(null);
         }
+      } else if (pathParts.length === 2 && pathParts[0] === 'dashboard') {
+        // Format: /dashboard/:invitationId
+        setInvitationId(pathParts[1]);
+        setGuestId(null);
       }
       
       setIsLoading(false);

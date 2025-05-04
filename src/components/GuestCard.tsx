@@ -1,114 +1,190 @@
 
-import React from 'react';
-import { Phone, Copy, Edit, Trash, Share2 } from 'lucide-react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { Trash2, User, Phone, CheckCircle, XCircle, Loader2, Copy, ExternalLink, Clock, Eye } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
-interface Guest {
+export interface Guest {
   id: string;
   name: string;
   mobile: string;
-  status?: string | null;
+  status: string | null;
+  invitation_id: string | null;
 }
 
-interface GuestCardProps {
+export interface GuestCardProps {
   guest: Guest;
-  onCopy: (id: string) => void;
-  onShare: (guest: Guest) => void; 
-  onEdit: (guest: Guest) => void;
-  onDelete: (guest: Guest) => void;
+  invitationId: string;
+  onDelete: () => void;
 }
 
-export const GuestCard: React.FC<GuestCardProps> = ({ 
-  guest, 
-  onCopy, 
-  onShare, 
-  onEdit, 
-  onDelete 
-}) => {
-  const getStatusBadge = (status: string | null | undefined) => {
-    if (!status) return null;
-    
-    switch (status) {
-      case 'viewed':
-        return (
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            Viewed
-          </Badge>
-        );
-      case 'accepted':
-        return (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            Accepted
-          </Badge>
-        );
-      case 'declined':
-        return (
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-            Declined
-          </Badge>
-        );
-      default:
-        return null;
+export const GuestCard: React.FC<GuestCardProps> = ({ guest, invitationId, onDelete }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('guests')
+        .delete()
+        .eq('id', guest.id)
+        .eq('invitation_id', invitationId);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Guest has been removed",
+      });
+      
+      onDelete();
+    } catch (error) {
+      console.error('Error deleting guest:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete guest",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
-
+  
+  const getStatusColor = () => {
+    switch (guest.status) {
+      case 'accepted':
+        return 'text-green-600';
+      case 'declined':
+        return 'text-red-600';
+      case 'viewed':
+        return 'text-blue-600';
+      default:
+        return 'text-gray-500';
+    }
+  };
+  
+  const getStatusLabel = () => {
+    switch (guest.status) {
+      case 'accepted':
+        return 'Accepted';
+      case 'declined':
+        return 'Declined';
+      case 'viewed':
+        return 'Viewed';
+      default:
+        return 'Pending';
+    }
+  };
+  
+  const getStatusIcon = () => {
+    switch (guest.status) {
+      case 'accepted':
+        return <CheckCircle size={16} className="text-green-600" />;
+      case 'declined':
+        return <XCircle size={16} className="text-red-600" />;
+      case 'viewed':
+        return <Eye size={16} className="text-blue-600" />;
+      default:
+        return <Clock size={16} className="text-gray-500" />;
+    }
+  };
+  
+  const copyInvitationLink = () => {
+    const guestLink = `${window.location.origin}/invitation/${invitationId}-${guest.id}`;
+    navigator.clipboard.writeText(guestLink);
+    setIsCopied(true);
+    
+    toast({
+      title: "Copied!",
+      description: "Invitation link copied to clipboard",
+    });
+    
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+  
+  const openInvitationLink = () => {
+    const guestLink = `${window.location.origin}/invitation/${invitationId}-${guest.id}`;
+    window.open(guestLink, '_blank');
+  };
+  
   return (
-    <div className="border border-wedding-gold/20 rounded-lg overflow-hidden bg-white/95 shadow-sm hover:shadow-md transition-all">
-      <div className="flex justify-between items-center p-3 border-b border-wedding-gold/10 bg-wedding-cream/30">
-        <div className="flex flex-col">
-          <h3 className="font-medium text-wedding-maroon truncate">{guest.name}</h3>
-          {getStatusBadge(guest.status)}
+    <Card className="bg-white border-wedding-gold/20">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-semibold text-wedding-maroon flex items-center">
+              <User size={16} className="mr-1" />
+              {guest.name}
+            </h3>
+            <p className="text-gray-600 text-sm flex items-center mt-1">
+              <Phone size={14} className="mr-1" />
+              {guest.mobile}
+            </p>
+          </div>
+          <div className={`px-2 py-1 rounded-full text-xs flex items-center ${getStatusColor()} bg-opacity-10`}>
+            {getStatusIcon()}
+            <span className="ml-1">{getStatusLabel()}</span>
+          </div>
         </div>
-        <Button 
-          onClick={() => onEdit(guest)} 
-          variant="ghost" 
-          size="sm"
-          className="h-8 w-8 p-0 rounded-full"
-        >
-          <Edit size={16} className="text-blue-600" />
-        </Button>
-      </div>
-      
-      <div className="p-4">
-        <p className="text-gray-600 mb-4 text-sm flex items-center">
-          <Phone size={14} className="mr-2 text-wedding-gold" />
-          {guest.mobile}
-        </p>
         
-        <div className="grid grid-cols-3 gap-2">
+        <div className="flex flex-wrap gap-2 mt-4">
           <Button 
-            size="sm" 
             variant="outline" 
-            className="h-9 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
-            onClick={() => onCopy(guest.id)}
-            title="Copy"
+            size="sm"
+            className="text-xs border-wedding-gold/50 text-wedding-maroon"
+            onClick={copyInvitationLink}
           >
-            <Copy size={16} />
+            {isCopied ? <CheckCircle size={14} className="mr-1" /> : <Copy size={14} className="mr-1" />}
+            Copy Link
           </Button>
           
           <Button 
-            size="sm" 
-            variant="outline" 
-            className="h-9 border-wedding-gold/20 text-green-600 hover:bg-green-50"
-            onClick={() => onShare(guest)}
-            title="Share"
+            variant="outline"
+            size="sm"
+            className="text-xs border-wedding-gold/50 text-wedding-maroon"
+            onClick={openInvitationLink}
           >
-            <Share2 size={16} />
+            <ExternalLink size={14} className="mr-1" />
+            View
           </Button>
           
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="h-9 border-wedding-gold/20 text-red-600 hover:bg-red-50"
-            onClick={() => onDelete(guest)}
-            title="Delete"
-          >
-            <Trash size={16} />
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs border-red-200 text-red-600 hover:bg-red-50"
+              >
+                <Trash2 size={14} className="mr-1" />
+                Remove
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently remove {guest.name} from your guest list.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDelete}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
