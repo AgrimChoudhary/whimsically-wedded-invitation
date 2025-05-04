@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSearchParams } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Settings, Heart, User, Copy, Edit, Trash, Share2 } from 'lucide-react';
@@ -65,6 +65,9 @@ const GuestManagement = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+  const invitationIdFromUrl = searchParams.get('invitationId');
+  const [invitationId, setInvitationId] = useState<string | null>(invitationIdFromUrl);
   
   // Fetch existing guests
   useEffect(() => {
@@ -75,6 +78,13 @@ const GuestManagement = () => {
       setMessageTemplate(savedTemplate);
     }
   }, []);
+  
+  useEffect(() => {
+    if (invitationIdFromUrl) {
+      setInvitationId(invitationIdFromUrl);
+      setShowInvitationIdInput(false);
+    }
+  }, [invitationIdFromUrl]);
   
   const fetchGuests = async () => {
     setIsLoading(true);
@@ -270,6 +280,78 @@ const GuestManagement = () => {
   const resetMessageTemplate = () => {
     setMessageTemplate(defaultMessageTemplate);
     setSelectedTemplate(null);
+  };
+
+  const generateLink = (guestId: string) => {
+    if (!invitationId) return "";
+    
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/${invitationId}-${guestId}`;
+  };
+
+  const generateInvitationLink = (guestId: string) => {
+    if (!invitationId) return "";
+    
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/invitation/${invitationId}-${guestId}`;
+  };
+
+  const handleSubmitGuestForm = async (formData: CreateGuestFormType) => {
+    try {
+      if (!formData.name || !formData.mobile || !invitationId) {
+        toast({
+          title: "Error",
+          description: "Please fill all required fields.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setIsSubmitting(true);
+      
+      // Generate a random 5-character ID for the guest
+      const guestId = Math.random().toString(36).substring(2, 7);
+      
+      const response = await supabase
+        .from('guests')
+        .insert({
+          id: guestId,
+          name: formData.name,
+          mobile: formData.mobile,
+          invitation_id: invitationId,
+          status: 'created'
+        });
+      
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      
+      toast({
+        title: "Success",
+        description: "Guest added successfully",
+      });
+      
+      // Refetch the guests list
+      if (getGuestsListQuery) {
+        getGuestsListQuery.refetch();
+      }
+      
+      // Reset the form
+      reset();
+      
+      // Close the create modal
+      setOpenCreateGuestForm(false);
+      
+    } catch (error) {
+      console.error("Error creating guest:", error);
+      toast({
+        title: "Error creating guest",
+        description: error instanceof Error ? error.message : "An unknown error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
