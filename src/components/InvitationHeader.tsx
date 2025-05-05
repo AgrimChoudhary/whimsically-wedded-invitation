@@ -82,7 +82,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               Welcome{' '}
               <AnimatedGuestName 
                 name={guestName} 
-                fallback="Guest"
+                fallback="Guest Name"
                 animationType="sparkle"
                 className="font-poppins relative inline-block"
                 delay={800}

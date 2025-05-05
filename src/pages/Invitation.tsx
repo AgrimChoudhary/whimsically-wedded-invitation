@@ -269,6 +269,7 @@ const Invitation = () => {
                           animationType="brush"
                           className="font-playfair text-wedding-maroon"
                           delay={700}
+                          fallback="Guest Name"
                         />,
                       </>
                     )}

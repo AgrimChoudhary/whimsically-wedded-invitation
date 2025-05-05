@@ -105,6 +105,7 @@ const WelcomeForm: React.FC = () => {
                   animationType="brush"
                   className="font-playfair"
                   delay={600}
+                  fallback="Guest Name"
                 />
               </>
             )}
