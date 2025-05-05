@@ -5,6 +5,11 @@ import { useAudio } from "@/context/AudioContext";
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX } from 'lucide-react';
 
+// Couple names as placeholders for easy future changes
+const GROOM_FIRST_NAME = "Sidharth";
+const BRIDE_FIRST_NAME = "Kiara";
+const WEDDING_DATE = "May 15, 2025";
+
 export const Footer: React.FC = () => {
   const isMobile = useIsMobile();
   const { isPlaying, toggleMusic } = useAudio();
@@ -124,7 +129,7 @@ export const Footer: React.FC = () => {
           </p>
           
           <p className="text-sm text-gray-500 font-dancing-script text-lg mt-2">
-            With love, Umashankar &amp; Bhavana | May 15, 2025
+            With love, {GROOM_FIRST_NAME} &amp; {BRIDE_FIRST_NAME} | {WEDDING_DATE}
           </p>
         </div>
       </div>

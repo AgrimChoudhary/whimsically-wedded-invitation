@@ -1,10 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
 import WelcomeForm from '@/components/WelcomeForm';
 import { FloatingPetals } from '@/components/AnimatedElements';
 import { Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGuest } from '@/context/GuestContext';
+
+// Couple names as placeholders for easy future changes
+const GROOM_FIRST_NAME = "Sidharth";
+const BRIDE_FIRST_NAME = "Kiara";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +48,7 @@ const Index = () => {
           
           <div className="relative z-10 text-center mb-8">
             <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
-              Umashankar & Bhavna
+              {GROOM_FIRST_NAME} & {BRIDE_FIRST_NAME}
               {showSparkle && (
                 <Sparkles 
                   size={isMobile ? 16 : 24} 

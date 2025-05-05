@@ -18,6 +18,11 @@ import { GuestCard } from '@/components/GuestCard';
 import { GuestForm } from '@/components/GuestForm';
 import { TemplateSelector } from '@/components/TemplateSelector';
 
+// Couple names as placeholders for easy future changes
+const GROOM_FIRST_NAME = "Sidharth";
+const BRIDE_FIRST_NAME = "Kiara";
+const WEDDING_DATE = "May 15, 2025";
+
 interface Guest {
   id: string;
   name: string;
@@ -27,28 +32,28 @@ interface Guest {
   updated_at?: string;
 }
 
-const defaultMessageTemplate = "Dear {guest-name},\n\nYou are cordially invited to the wedding ceremony of Umashankar & Bhavana on April 29, 2025.\n\nClick here to view your personalized invitation: {unique-link}\n\nWe look forward to celebrating our special day with you!";
+const defaultMessageTemplate = `Dear {guest-name},\n\nYou are cordially invited to the wedding ceremony of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nClick here to view your personalized invitation: {unique-link}\n\nWe look forward to celebrating our special day with you!`;
 
 const messageTemplates = [
   {
     name: "Formal Invitation",
-    template: "Dear {guest-name},\n\nWe are delighted to invite you to the wedding ceremony of Umashankar & Bhavana on April 29, 2025.\n\nPlease find your personalized invitation here: {unique-link}\n\nYour presence would make our special day complete.\n\nWarm regards,\nUmashankar & Bhavana"
+    template: `Dear {guest-name},\n\nWe are delighted to invite you to the wedding ceremony of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nPlease find your personalized invitation here: {unique-link}\n\nYour presence would make our special day complete.\n\nWarm regards,\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME}`
   },
   {
     name: "Casual & Friendly",
-    template: "Hey {guest-name}! 🎉\n\nWe're tying the knot! You're invited to our wedding celebration on April 29, 2025.\n\nCheck out your personal invitation: {unique-link}\n\nCan't wait to celebrate with you!\n\nUmashankar & Bhavana"
+    template: `Hey {guest-name}! 🎉\n\nWe're tying the knot! You're invited to our wedding celebration on ${WEDDING_DATE}.\n\nCheck out your personal invitation: {unique-link}\n\nCan't wait to celebrate with you!\n\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME}`
   },
   {
     name: "Short & Sweet",
-    template: "Hi {guest-name},\n\nYou're invited! Umashankar & Bhavana are getting married on April 29, 2025.\n\nYour invitation: {unique-link}"
+    template: `Hi {guest-name},\n\nYou're invited! ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} are getting married on ${WEDDING_DATE}.\n\nYour invitation: {unique-link}`
   },
   {
     name: "Elegant Request",
-    template: "Dear {guest-name},\n\nThe honor of your presence is requested at the marriage of Umashankar & Bhavana on April 29, 2025.\n\nKindly view your invitation: {unique-link}\n\nWe would be delighted by your attendance."
+    template: `Dear {guest-name},\n\nThe honor of your presence is requested at the marriage of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nKindly view your invitation: {unique-link}\n\nWe would be delighted by your attendance.`
   },
   {
     name: "Family Focused",
-    template: "Dear {guest-name},\n\nWith great joy, our families invite you to share in our happiness as we unite in marriage on April 29, 2025.\n\nYour personal invitation awaits: {unique-link}\n\nWith love,\nUmashankar & Bhavana and Families"
+    template: `Dear {guest-name},\n\nWith great joy, our families invite you to share in our happiness as we unite in marriage on ${WEDDING_DATE}.\n\nYour personal invitation awaits: {unique-link}\n\nWith love,\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} and Families`
   }
 ];
 

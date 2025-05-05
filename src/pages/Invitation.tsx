@@ -27,6 +27,16 @@ const Invitation = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
+  // Couple names as placeholders for easy future changes
+  const GROOM_FIRST_NAME = "Sidharth";
+  const GROOM_LAST_NAME = "Malhotra";
+  const BRIDE_FIRST_NAME = "Kiara";
+  const BRIDE_LAST_NAME = "Advani";
+  const GROOM_FATHER = "Sunil Malhotra";
+  const GROOM_MOTHER = "Rimma Malhotra";
+  const BRIDE_FATHER = "Jagdeep Advani";
+  const BRIDE_MOTHER = "Genevieve Advani";
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -127,8 +137,8 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            groomName="Sidharth Malhotra"
-            brideName="Kiara Advani"
+            groomName={GROOM_FIRST_NAME}
+            brideName={BRIDE_FIRST_NAME}
           />
           
           {/* Section ordering as requested: countdown, wedding journey, family details, events, photos */}
@@ -142,29 +152,29 @@ const Invitation = () => {
               title: "Groom's Family",
               members: [
                 { 
-                  name: "Mr. Sunil Malhotra & Mrs. Rimma Malhotra", 
+                  name: `Mr. ${GROOM_FATHER} & Mrs. ${GROOM_MOTHER}`, 
                   relation: "Parents of the Groom",
-                  image: "https://i.imgur.com/0ptttDA.jpg",
+                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2021/11/sunil-malhotra-with-wife-rimma-malhotra.webp",
                   description: "Loving parents who have guided him through life's journey."
                 },
                 { 
-                  name: "Mr. Sunil Malhotra", 
+                  name: `Mr. ${GROOM_FATHER}`, 
                   relation: "Father of the Groom",
-                  image: "https://i.imgur.com/gyWCv9j.jpg",
+                  image: "https://i.redd.it/cpy26r2olopc1.jpeg",
                   description: "A captain in the merchant navy who has been his son's strength and inspiration.",
                   showInDialogOnly: true
                 },
                 { 
                   name: "Mrs. Rimma Malhotra", 
                   relation: "Mother of the Groom",
-                  image: "https://i.imgur.com/inlRoXu.jpg",
+                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlLzeDQRuyataQCZvhLYG9Zmnt5Ukhga_Y4s-7kapr87PeSxxd",
                   description: "A homemaker whose love and support have been the foundation of their family.",
                   showInDialogOnly: true
                 },
                 { 
                   name: "Mr. Harshad Malhotra", 
                   relation: "Brother of the Groom",
-                  image: "https://i.imgur.com/wXn3A6m.jpg",
+                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSky-6UnO7vxLPnf6QWlgLPKcgqNNQpkVVwHvtzeEDgnZcMkPPA8y5nsMJzf63z58v6WPBhb37K3tVNKO72k8iuCg",
                   description: "An elder brother who works in the banking sector and has always been Sidharth's role model.",
                   showInDialogOnly: true
                 },
@@ -174,29 +184,29 @@ const Invitation = () => {
               title: "Bride's Family",
               members: [
                 { 
-                  name: "Mr. Jagdeep Advani & Mrs. Genevieve Advani", 
+                  name: `Mr. ${BRIDE_FATHER} & Mrs. ${BRIDE_MOTHER}`, 
                   relation: "Parents of the Bride",
-                  image: "https://i.imgur.com/sc58DrO.jpg",
+                  image: "https://static.toiimg.com/thumb/imgsize-23456,msid-70473421,width-600,resizemode-4/70473421.jpg",
                   description: "Loving parents who have always encouraged her to follow her dreams."
                 },
                 { 
-                  name: "Mr. Jagdeep Advani", 
+                  name: `Mr. ${BRIDE_FATHER}`, 
                   relation: "Father of the Bride",
-                  image: "https://i.imgur.com/LtWkc4z.jpg",
+                  image: "https://starsunfolded.com/wp-content/uploads/2023/02/Jagdeep-Advani.jpg",
                   description: "A successful businessman from a Sindhi family who has been her pillar of strength.",
                   showInDialogOnly: true
                 },
                 { 
                   name: "Mrs. Genevieve Advani", 
                   relation: "Mother of the Bride",
-                  image: "https://i.imgur.com/NmpDsyO.jpg",
+                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2023/02/Genevieve-Jaffrey.jpg",
                   description: "A former teacher with Scottish, Irish, and Portuguese ancestry who has been her guiding light.",
                   showInDialogOnly: true
                 },
                 { 
                   name: "Mr. Mishaal Advani", 
                   relation: "Brother of the Bride",
-                  image: "https://i.imgur.com/hYL8v2C.jpg",
+                  image: "https://static.sociofyme.com/thumb/97725020/97725020.jpg?imgsize=702924&width=420&height=746&resizemode=76",
                   description: "A musician who followed his passion after working as a software engineer.",
                   showInDialogOnly: true
                 },
@@ -212,32 +222,32 @@ const Invitation = () => {
             title="Our Photo Gallery" 
             photos={[
               { 
-                url: "https://i.imgur.com/6a2Edjt.jpg",
+                url: "https://shaadiwish.com/blog/wp-content/uploads/2023/02/Kiara-Advani-Pink-Lehenga-1.jpg",
                 title: "Our Wedding Day",
                 description: "The most magical day of our lives"
               },
               { 
-                url: "https://i.imgur.com/OvJZV2K.jpg",
+                url: "https://i.ytimg.com/vi/ie5LRcmvSss/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBa2_kuZKn5ezhF-rnkbiN_HPK4bA",
                 title: "Mehendi Celebration",
                 description: "Celebrating our mehendi ceremony with loved ones"
               },
               { 
-                url: "https://i.imgur.com/ST4jeDE.jpg",
+                url: "https://i.ytimg.com/vi/PuDFCIGk0Ow/sddefault.jpg",
                 title: "Mumbai Reception",
                 description: "Our reception with friends and family"
               },
               { 
-                url: "https://i.imgur.com/gV5IYa8.jpg",
-                title: "Shershaah Promotion",
-                description: "Together at the Shershaah promotional event"
+                url: "https://cdn.shopify.com/s/files/1/0665/6222/8454/files/Kiara_Advani_wedding_jewellery_480x480.jpg?v=1681196092",
+                title: "Wedding Jewelry",
+                description: "Beautiful jewelry for our special day"
               },
               { 
-                url: "https://i.imgur.com/D74vxms.jpg",
-                title: "Haldi Ceremony",
-                description: "Joyful moments from our haldi ceremony"
+                url: "https://peepingmoon-cdn.sgp1.digitaloceanspaces.com/engpeepingmoon/060223115000-63e0e9683fa72sidharth-malhotra-kiara-advani-sangeet-resized.jpg",
+                title: "Sangeet Ceremony",
+                description: "Joyful moments from our sangeet celebration"
               },
               { 
-                url: "https://i.imgur.com/ZrQMiH6.jpg",
+                url: "https://data1.ibtimes.co.in/en/full/781807/sidharth-malhotra-kiara-advani-wedding.jpg?h=450&l=50&t=40",
                 title: "Wedding Portrait",
                 description: "A special portrait after our wedding"
               },

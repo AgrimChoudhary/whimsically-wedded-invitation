@@ -7,13 +7,20 @@ import { Heart, Sparkles, Calendar, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AnimatedGuestName from './AnimatedGuestName';
 
+// Couple names as placeholders for easy future changes
+const GROOM_FIRST_NAME = "Sidharth";
+const GROOM_LAST_NAME = "Malhotra";
+const BRIDE_FIRST_NAME = "Kiara";
+const BRIDE_LAST_NAME = "Advani";
+const WEDDING_DATE = "May 15, 2025";
+
 const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showIcon, setShowIcon] = useState(0);
-  const [brideName, setBrideName] = useState("Kiara Advani");
-  const [groomName, setGroomName] = useState("Sidharth Malhotra");
-  const [weddingDate, setWeddingDate] = useState("May 15, 2025");
+  const [brideName, setBrideName] = useState(BRIDE_FIRST_NAME);
+  const [groomName, setGroomName] = useState(GROOM_FIRST_NAME);
+  const [weddingDate, setWeddingDate] = useState(WEDDING_DATE);
   const { isPlaying, toggleMusic } = useAudio();
   const { guestName, isLoading: isGuestLoading } = useGuest();
   const navigate = useNavigate();
