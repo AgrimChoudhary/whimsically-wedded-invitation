@@ -32,8 +32,8 @@ const CoupleSection: React.FC = () => {
             <AspectRatio ratio={isMobile ? 4/3 : 21/9} className="bg-wedding-cream">
               <div className="absolute inset-0 overflow-hidden">
                 <img 
-                  src="/lovable-uploads/7f492c44-762e-4c64-86d8-d52fc38e8e39.jpg" 
-                  alt="PLACEHOLDER_COUPLE_NAMES Wedding" 
+                  src="https://i.imgur.com/Z4aPmMV.jpg" 
+                  alt="Sidharth Malhotra and Kiara Advani Wedding" 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"
                 />

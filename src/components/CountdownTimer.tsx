@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Clock, Heart, Calendar, Sparkles } from 'lucide-react';
+import { Clock, Heart, Calendar, Sparkles, MapPin } from 'lucide-react';
 import { FireworksDisplay } from './AnimatedElements';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -94,7 +93,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
-    }) : 'April 29, 2025';
+    }) : 'May 15, 2025';
     
   const displayTime = weddingTime || '8:00 PM';
 

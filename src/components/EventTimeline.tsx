@@ -21,22 +21,22 @@ const EventTimeline: React.FC = () => {
   
   const events: Event[] = [
     {
-      name: "Engagement Ceremony",
-      date: "23rd April 2025",
-      time: "4:00 PM",
-      venue: "Royal Palace",
-      address: "Gangapur Road, Near Petrol Pump, Wazirpur",
-      mapLink: "https://maps.app.goo.gl/vnvgKXrfw6wBgrZk8",
+      name: "Mehendi Ceremony",
+      date: "14th May 2025",
+      time: "11:00 AM",
+      venue: "Suryagarh Palace",
+      address: "near Kahala Phata, Sam Road, Jaisalmer, Rajasthan",
+      mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
       icon: <div className="p-2 rounded-full bg-red-100 text-red-600"><Heart size={18} /></div>,
       color: "bg-red-50 border-red-200"
     },
     {
-      name: "Rice Ceremony",
-      date: "23rd April 2025",
-      time: "8:00 PM",
-      venue: "Royal Palace",
-      address: "Gangapur Road, Near Petrol Pump, Wazirpur",
-      mapLink: "https://maps.app.goo.gl/vnvgKXrfw6wBgrZk8",
+      name: "Sangeet Ceremony",
+      date: "14th May 2025",
+      time: "7:00 PM",
+      venue: "Suryagarh Palace",
+      address: "near Kahala Phata, Sam Road, Jaisalmer, Rajasthan",
+      mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
       icon: <div className="p-2 rounded-full bg-yellow-100 text-yellow-600">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M8.21 13.89L7 23L12 20L17 23L15.79 13.88"/>
@@ -46,13 +46,40 @@ const EventTimeline: React.FC = () => {
             </div>,
       color: "bg-yellow-50 border-yellow-200"
     },
-    // Additional events will be dynamically loaded from backend
-    // Each new event will use one of these icon/color combinations:
-    // 1. Green with clock icon
-    // 2. Yellow with drop icon
-    // 3. Blue with message icon
-    // 4. Purple with music icon
-    // 5. Red with calendar icon
+    {
+      name: "Wedding Ceremony",
+      date: "15th May 2025",
+      time: "8:00 PM",
+      venue: "Suryagarh Palace",
+      address: "near Kahala Phata, Sam Road, Jaisalmer, Rajasthan",
+      mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
+      icon: <div className="p-2 rounded-full bg-purple-100 text-purple-600">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A8 8 0 1 0 4 16.2"/>
+                <path d="M12 10v10"/>
+                <path d="m8 14 4-4 4 4"/>
+              </svg>
+            </div>,
+      color: "bg-purple-50 border-purple-200"
+    },
+    {
+      name: "Reception",
+      date: "16th May 2025",
+      time: "7:00 PM",
+      venue: "Suryagarh Palace",
+      address: "near Kahala Phata, Sam Road, Jaisalmer, Rajasthan",
+      mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
+      icon: <div className="p-2 rounded-full bg-green-100 text-green-600">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                <path d="M7 2v20"/>
+                <path d="M21 15V2"/>
+                <path d="M18 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
+                <path d="M18 21a6 6 0 0 0-6-6h-3"/>
+              </svg>
+            </div>,
+      color: "bg-green-50 border-green-200"
+    },
   ];
   
   useEffect(() => {

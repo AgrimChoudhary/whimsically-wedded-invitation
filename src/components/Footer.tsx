@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MapPin, Phone, Heart } from 'lucide-react';
@@ -38,11 +37,11 @@ export const Footer: React.FC = () => {
                   <MapPin size={24} className="text-wedding-maroon" />
                 </div>
                 <h3 className="text-xl font-playfair text-wedding-maroon mb-2">Venue</h3>
-                <p className="text-base font-medium text-gray-700 mb-1">Krishna Palace</p>
-                <p className="text-sm text-gray-600 mb-3">Near Teen Bad, Karauli</p>
+                <p className="text-base font-medium text-gray-700 mb-1">Suryagarh Palace</p>
+                <p className="text-sm text-gray-600 mb-3">near Kahala Phata, Sam Road, Jaisalmer, Rajasthan</p>
                 
                 <a 
-                  href="https://maps.app.goo.gl/jU8zkCVQ98jZfSe97" 
+                  href="https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-4 py-2 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-sm font-medium"
@@ -67,15 +66,15 @@ export const Footer: React.FC = () => {
                   <Phone size={24} className="text-wedding-maroon" />
                 </div>
                 <h3 className="text-xl font-playfair text-wedding-maroon mb-2">Contact</h3>
-                <p className="text-base font-medium text-gray-700 mb-1">Bhavesh Kaushik</p>
-                <p className="text-sm text-gray-600 mb-3">Groom's Brother</p>
+                <p className="text-base font-medium text-gray-700 mb-1">Sidharth Malhotra</p>
+                <p className="text-sm text-gray-600 mb-3">Groom</p>
                 
                 <a 
-                  href="tel:+918302710005" 
+                  href="tel:+919876543210" 
                   className="inline-flex items-center px-4 py-2 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-sm font-medium"
                 >
                   <Phone size={14} className="mr-1" />
-                  +91 8302 710 005
+                  +91 98765 43210
                 </a>
               </div>
             </div>

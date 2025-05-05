@@ -12,8 +12,8 @@ interface InvitationHeaderProps {
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
-  brideName = "Bhavna", 
-  groomName = "Umashankar",
+  brideName = "Kiara Advani", 
+  groomName = "Sidharth Malhotra",
   coupleImageUrl
 }) => {
   const { guestName } = useGuest();

@@ -127,8 +127,8 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            groomName="Umashankar"
-            brideName="Bhavna"
+            groomName="Sidharth Malhotra"
+            brideName="Kiara Advani"
           />
           
           {/* Section ordering as requested: countdown, wedding journey, family details, events, photos */}
@@ -137,100 +137,112 @@ const Invitation = () => {
             weddingTime="8:00 PM"
           />
           
-          <CoupleSection />
-          
           <FamilyDetails 
             groomFamily={{
               title: "Groom's Family",
               members: [
                 { 
-                  name: "Mr. Tejram Sharma & Mrs. Lalita Devi", 
+                  name: "Mr. Sunil Malhotra & Mrs. Rimma Malhotra", 
                   relation: "Parents of the Groom",
-                  image: "https://images.unsplash.com/photo-1604849329114-a8c9f4e4b926",
+                  image: "https://i.imgur.com/0ptttDA.jpg",
                   description: "Loving parents who have guided him through life's journey."
                 },
                 { 
-                  name: "Mr. Tejram Sharma", 
+                  name: "Mr. Sunil Malhotra", 
                   relation: "Father of the Groom",
-                  image: "https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8",
-                  description: "A father who has always been his son's strength and inspiration.",
+                  image: "https://i.imgur.com/gyWCv9j.jpg",
+                  description: "A captain in the merchant navy who has been his son's strength and inspiration.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mrs. Lalita Devi", 
+                  name: "Mrs. Rimma Malhotra", 
                   relation: "Mother of the Groom",
-                  image: "https://images.unsplash.com/photo-1581579438747-104c53d7fbc4",
-                  description: "A mother whose love knows no bounds.",
+                  image: "https://i.imgur.com/inlRoXu.jpg",
+                  description: "A homemaker whose love and support have been the foundation of their family.",
                   showInDialogOnly: true
                 },
-                {
-                  name: "Mr. Rakesh Sharma",
+                { 
+                  name: "Mr. Harshad Malhotra", 
                   relation: "Brother of the Groom",
-                  image: "https://images.unsplash.com/photo-1600486913747-55e5470d6f40",
-                  description: "Elder brother who has always been a mentor and guide."
+                  image: "https://i.imgur.com/wXn3A6m.jpg",
+                  description: "An elder brother who works in the banking sector and has always been Sidharth's role model.",
+                  showInDialogOnly: true
                 },
-                {
-                  name: "Mrs. Priya Sharma",
-                  relation: "Sister-in-law of the Groom",
-                  image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
-                  description: "Loving sister-in-law who brings joy to the family."
-                },
-                {
-                  name: "Ms. Sunita Sharma",
-                  relation: "Sister of the Groom",
-                  image: "https://images.unsplash.com/photo-1619946794135-5bc917a27793",
-                  description: "Younger sister who has always been his confidant."
-                }
-              ]
+              ],
             }}
             brideFamily={{
               title: "Bride's Family",
               members: [
                 { 
-                  name: "Mr. Balkrishna Sharma & Mrs. Geeta Devi", 
+                  name: "Mr. Jagdeep Advani & Mrs. Genevieve Advani", 
                   relation: "Parents of the Bride",
-                  image: "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f",
-                  description: "Loving parents who have always been her strength."
+                  image: "https://i.imgur.com/sc58DrO.jpg",
+                  description: "Loving parents who have always encouraged her to follow her dreams."
                 },
                 { 
-                  name: "Mr. Balkrishna Sharma", 
+                  name: "Mr. Jagdeep Advani", 
                   relation: "Father of the Bride",
-                  image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d",
-                  description: "A father who has been her first hero and teacher.",
+                  image: "https://i.imgur.com/LtWkc4z.jpg",
+                  description: "A successful businessman from a Sindhi family who has been her pillar of strength.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mrs. Geeta Devi", 
+                  name: "Mrs. Genevieve Advani", 
                   relation: "Mother of the Bride",
-                  image: "https://images.unsplash.com/photo-1544717305-2782549b5136",
-                  description: "A mother whose love and support knows no bounds.",
+                  image: "https://i.imgur.com/NmpDsyO.jpg",
+                  description: "A former teacher with Scottish, Irish, and Portuguese ancestry who has been her guiding light.",
                   showInDialogOnly: true
                 },
-                {
-                  name: "Mrs. Savita Sharma",
-                  relation: "Elder Sister of the Bride",
-                  image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604",
-                  description: "Caring older sister who has always protected her."
-                },
-                {
-                  name: "Mr. Anil Sharma",
-                  relation: "Brother-in-law of the Bride",
-                  image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5",
-                  description: "Supportive brother-in-law who treats her like his own sister."
-                },
-                {
-                  name: "Mr. Manish Sharma",
+                { 
+                  name: "Mr. Mishaal Advani", 
                   relation: "Brother of the Bride",
-                  image: "https://images.unsplash.com/photo-1566492031773-4f4e44671857",
-                  description: "Younger brother who has been her best friend since childhood."
-                }
-              ]
+                  image: "https://i.imgur.com/hYL8v2C.jpg",
+                  description: "A musician who followed his passion after working as a software engineer.",
+                  showInDialogOnly: true
+                },
+              ],
             }}
           />
 
+          <CoupleSection />
+  
           <EventTimeline />
           
-          <PhotoGrid />
+          <PhotoGrid
+            title="Our Photo Gallery" 
+            photos={[
+              { 
+                url: "https://i.imgur.com/6a2Edjt.jpg",
+                title: "Our Wedding Day",
+                description: "The most magical day of our lives"
+              },
+              { 
+                url: "https://i.imgur.com/OvJZV2K.jpg",
+                title: "Mehendi Celebration",
+                description: "Celebrating our mehendi ceremony with loved ones"
+              },
+              { 
+                url: "https://i.imgur.com/ST4jeDE.jpg",
+                title: "Mumbai Reception",
+                description: "Our reception with friends and family"
+              },
+              { 
+                url: "https://i.imgur.com/gV5IYa8.jpg",
+                title: "Shershaah Promotion",
+                description: "Together at the Shershaah promotional event"
+              },
+              { 
+                url: "https://i.imgur.com/D74vxms.jpg",
+                title: "Haldi Ceremony",
+                description: "Joyful moments from our haldi ceremony"
+              },
+              { 
+                url: "https://i.imgur.com/ZrQMiH6.jpg",
+                title: "Wedding Portrait",
+                description: "A special portrait after our wedding"
+              },
+            ]}
+          />
           
           <div className="py-10 w-full text-center bg-floral-pattern">
             <div className="relative inline-block">
