@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -20,11 +19,12 @@ import AnimatedGuestName from '../components/AnimatedGuestName';
 import TransitionScreen from '@/components/TransitionScreen';
 
 const Invitation = () => {
+  // Only show transition if it's a direct navigation (not from WelcomeForm)
+  const [showTransition, setShowTransition] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const [showTransition, setShowTransition] = useState(true); // Start with transition shown
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
@@ -43,13 +43,17 @@ const Invitation = () => {
   
   useEffect(() => {
     // Check if user is coming directly to the invitation page (not via welcome)
-    // or if this is from the browser history (back/forward navigation)
-    const fromNavigation = window.history.state?.navigationType === 'push';
+    // We can identify this by checking sessionStorage for a flag set by WelcomeForm
+    const hasSeenTransition = sessionStorage.getItem('has_seen_transition');
     
-    // If coming directly, show transition; if from welcome page (which already showed transition), skip it
-    if (window.history.state?.state?.skipTransition) {
-      setShowTransition(false);
-      setTimeout(() => setIsLoading(false), 200);
+    if (!hasSeenTransition) {
+      // This is direct navigation, show transition
+      setShowTransition(true);
+      // Set flag to avoid showing transition again during the session
+      sessionStorage.setItem('has_seen_transition', 'true');
+    } else {
+      // Skip transition if already seen
+      setIsLoading(false);
     }
     
     // If there's a guestId and they've already accepted, show thank you message
@@ -57,26 +61,6 @@ const Invitation = () => {
       setShowThankYouMessage(true);
     }
   }, [guestId, hasAccepted]);
-  
-  const handleOpenRSVP = () => {
-    setConfetti(true);
-    setTimeout(() => {
-      setShowRSVP(true);
-      setConfetti(false);
-    }, 800);
-  };
-
-  const handleAcceptInvitation = () => {
-    setConfetti(true);
-    updateGuestStatus('accepted');
-    setTimeout(() => {
-      setShowThankYouMessage(true);
-      setConfetti(false);
-    }, 800);
-  };
-
-  // Wedding date - May 15, 2025
-  const weddingDate = new Date('2025-05-15T20:00:00'); // PLACEHOLDER_WEDDING_DATE
   
   // Parse path to extract invitationId and guestId
   const parsePathInfo = () => {
@@ -99,6 +83,12 @@ const Invitation = () => {
   
   const { invitationId, guestId: urlGuestId } = parsePathInfo();
   
+  // Handle transition completion
+  const handleTransitionComplete = () => {
+    setShowTransition(false);
+    setIsLoading(false);
+  };
+  
   // Get navigation path for back button
   const getBackPath = () => {
     if (urlGuestId) {
@@ -109,13 +99,33 @@ const Invitation = () => {
     }
     return '/';
   };
+  
+  const handleOpenRSVP = () => {
+    setConfetti(true);
+    setTimeout(() => {
+      setShowRSVP(true);
+      setConfetti(false);
+    }, 800);
+  };
+
+  const handleAcceptInvitation = () => {
+    setConfetti(true);
+    updateGuestStatus('accepted');
+    setTimeout(() => {
+      setShowThankYouMessage(true);
+      setConfetti(false);
+    }, 800);
+  };
+
+  // Wedding date - May 15, 2025
+  const weddingDate = new Date('2025-05-15T20:00:00'); // PLACEHOLDER_WEDDING_DATE
 
   if (showTransition) {
     return (
       <TransitionScreen
         familyName={`${GROOM_LAST_NAME} Family`}
         redirectPath=""
-        onComplete={() => setShowTransition(false)}
+        onComplete={handleTransitionComplete}
       />
     );
   }

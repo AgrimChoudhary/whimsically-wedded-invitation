@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
@@ -36,7 +35,7 @@ const WelcomeForm: React.FC = () => {
     <Calendar key="calendar" className="text-wedding-maroon" />
   ];
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setShowIcon((prev) => (prev + 1) % icons.length);
     }, 2000);
@@ -64,8 +63,16 @@ const WelcomeForm: React.FC = () => {
       }
     }
     
+    // Set the session storage flag so Invitation component knows transition was shown
+    sessionStorage.setItem('has_seen_transition', 'true');
+    
     setRedirectPath(path);
     setShowTransition(true);
+  };
+  
+  // Handle transition completion
+  const handleTransitionComplete = () => {
+    navigate(redirectPath);
   };
 
   return (
@@ -74,6 +81,7 @@ const WelcomeForm: React.FC = () => {
         <TransitionScreen 
           familyName={`${GROOM_LAST_NAME} Family`}
           redirectPath={redirectPath}
+          onComplete={handleTransitionComplete}
         />
       )}
     
