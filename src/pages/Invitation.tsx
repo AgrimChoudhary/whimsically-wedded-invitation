@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -23,7 +24,7 @@ const Invitation = () => {
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const [showTransition, setShowTransition] = useState(true); // Show transition by default
+  const [showTransition, setShowTransition] = useState(true); // Start with transition shown
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
@@ -41,21 +42,21 @@ const Invitation = () => {
   const BRIDE_MOTHER = "Genevieve Advani";
   
   useEffect(() => {
-    // If user is coming directly to invitation page (not via welcome), show transition
-    const directAccess = window.history.state?.navigationType !== 'push';
+    // Check if user is coming directly to the invitation page (not via welcome)
+    // or if this is from the browser history (back/forward navigation)
+    const fromNavigation = window.history.state?.navigationType === 'push';
     
-    // Set loading to false after transition is complete
-    if (!showTransition) {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
+    // If coming directly, show transition; if from welcome page (which already showed transition), skip it
+    if (window.history.state?.state?.skipTransition) {
+      setShowTransition(false);
+      setTimeout(() => setIsLoading(false), 200);
     }
     
     // If there's a guestId and they've already accepted, show thank you message
     if (guestId && hasAccepted) {
       setShowThankYouMessage(true);
     }
-  }, [guestId, hasAccepted, showTransition]);
+  }, [guestId, hasAccepted]);
   
   const handleOpenRSVP = () => {
     setConfetti(true);

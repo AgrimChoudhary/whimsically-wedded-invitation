@@ -52,7 +52,12 @@ const TransitionScreen: React.FC<TransitionScreenProps> = ({
 
   return (
     <div className={`fixed inset-0 bg-wedding-cream z-50 flex items-center justify-center overflow-hidden transition-opacity duration-700 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
-      <FloatingPetals count={isMobile ? 8 : 15} />
+      {/* Use conditional rendering to properly handle the FloatingPetals component */}
+      {isMobile ? (
+        <FloatingPetals count={8} />
+      ) : (
+        <FloatingPetals count={15} />
+      )}
       
       <div className="w-full max-w-lg mx-auto px-6 relative">
         <div className="absolute inset-0 z-0 opacity-20">

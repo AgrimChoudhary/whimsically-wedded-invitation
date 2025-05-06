@@ -66,3 +66,73 @@
   width: 1em;
   text-align: left;
 }
+
+/* Enhanced glow effects */
+@keyframes radialGlow {
+  0%, 100% { box-shadow: 0 0 5px 2px rgba(212, 175, 55, 0.2); }
+  50% { box-shadow: 0 0 15px 5px rgba(212, 175, 55, 0.4); }
+}
+
+.glow-effect {
+  animation: radialGlow 3s infinite ease-in-out;
+}
+
+/* Gentle reveal animation */
+@keyframes gentleReveal {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.gentle-reveal {
+  animation: gentleReveal 0.8s forwards ease-out;
+}
+
+/* Sparkle effect */
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.sparkle-container {
+  position: relative;
+}
+
+.sparkle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #ffdc73;
+  opacity: 0;
+  animation: sparkle 2s infinite;
+}
+
+/* For mobile performance */
+@media (max-width: 768px) {
+  .animate-pulse-soft, .animate-bounce-light {
+    animation-duration: 4s; /* Slower animations on mobile for better performance */
+  }
+}
+
+/* Enhanced page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 400ms, transform 400ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 300ms, transform 300ms;
+}
