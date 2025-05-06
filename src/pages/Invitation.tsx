@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from '@/components/ui/button';
@@ -16,16 +16,19 @@ import { ArrowLeftCircle, Heart, MapPin, User, Music, Volume2, VolumeX } from 'l
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 import AnimatedGuestName from '../components/AnimatedGuestName';
+import TransitionScreen from '@/components/TransitionScreen';
 
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
+  const [showTransition, setShowTransition] = useState(true); // Show transition by default
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { pathname } = useLocation();
   
   // Couple names as placeholders for easy future changes
   const GROOM_FIRST_NAME = "Sidharth";
@@ -38,17 +41,21 @@ const Invitation = () => {
   const BRIDE_MOTHER = "Genevieve Advani";
   
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    // If user is coming directly to invitation page (not via welcome), show transition
+    const directAccess = window.history.state?.navigationType !== 'push';
+    
+    // Set loading to false after transition is complete
+    if (!showTransition) {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+    }
     
     // If there's a guestId and they've already accepted, show thank you message
     if (guestId && hasAccepted) {
       setShowThankYouMessage(true);
     }
-    
-    return () => clearTimeout(timer);
-  }, [guestId, hasAccepted]);
+  }, [guestId, hasAccepted, showTransition]);
   
   const handleOpenRSVP = () => {
     setConfetti(true);
@@ -70,16 +77,47 @@ const Invitation = () => {
   // Wedding date - May 15, 2025
   const weddingDate = new Date('2025-05-15T20:00:00'); // PLACEHOLDER_WEDDING_DATE
   
-  // Get guestId from path to use for navigation
-  const getCurrentGuestId = () => {
-    const pathParts = window.location.pathname.split('/').filter(Boolean);
-    if (pathParts.length === 2 && pathParts[0] === 'invitation') {
-      return pathParts[1];
+  // Parse path to extract invitationId and guestId
+  const parsePathInfo = () => {
+    const pathParts = pathname.split('/').filter(Boolean);
+    
+    // Handle /invitation/invitationId or /invitation/invitationId-guestId format
+    if (pathParts.length >= 2 && pathParts[0] === 'invitation') {
+      const segment = pathParts[1];
+      
+      if (segment.includes('-')) {
+        const [invitationId, guestId] = segment.split('-');
+        return { invitationId, guestId };
+      }
+      
+      return { invitationId: segment, guestId: null };
     }
-    return null;
+    
+    return { invitationId: null, guestId: null };
   };
   
-  const currentGuestId = getCurrentGuestId();
+  const { invitationId, guestId: urlGuestId } = parsePathInfo();
+  
+  // Get navigation path for back button
+  const getBackPath = () => {
+    if (urlGuestId) {
+      return `/${invitationId}-${urlGuestId}`;
+    }
+    if (invitationId) {
+      return `/${invitationId}`;
+    }
+    return '/';
+  };
+
+  if (showTransition) {
+    return (
+      <TransitionScreen
+        familyName={`${GROOM_LAST_NAME} Family`}
+        redirectPath=""
+        onComplete={() => setShowTransition(false)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen w-full pattern-background">
@@ -114,7 +152,7 @@ const Invitation = () => {
             
             {!isMobile && (
               <Button 
-                onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
+                onClick={() => navigate(getBackPath())}
                 variant="outline"
                 size="icon"
                 className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
@@ -127,7 +165,7 @@ const Invitation = () => {
           
           {isMobile && (
             <button 
-              onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
+              onClick={() => navigate(getBackPath())}
               className="fixed top-4 left-4 z-30 flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm"
               aria-label="Go back"
             >
