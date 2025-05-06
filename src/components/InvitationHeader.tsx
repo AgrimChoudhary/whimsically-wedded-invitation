@@ -115,34 +115,55 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               <img 
                 src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
                 alt={`${groomName} and ${brideName}`}
-                className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-float"
+                className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-floating"
                 loading="lazy"
               />
               <div className="absolute -inset-2 rounded-full border border-wedding-gold/10"></div>
             </div>
             
-            <h2 className="font-kruti text-3xl sm:text-4xl md:text-5xl text-wedding-maroon leading-tight mt-2">
-              <span className="relative">
-                {groomName} <span className="inline-block mx-2">&</span> {brideName}
+            <div className="mt-4 sm:mb-6">
+              <h2 className="relative font-great-vibes text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-wedding-maroon leading-tight mt-2 mb-2">
+                <span className="relative inline-block">
+                  {groomName}
+                  <div className="absolute -bottom-1 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-wedding-gold/40 to-transparent"></div>
+                </span>
+                
+                <span className="relative inline-block mx-2 sm:mx-3 md:mx-4 px-2 sm:px-3 transform -rotate-6">
+                  <span className="text-wedding-gold shimmer-text">&</span>
+                  <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-wedding-gold/10"></div>
+                </span>
+                
+                <span className="relative inline-block">
+                  {brideName}
+                  <div className="absolute -bottom-1 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-wedding-gold/40 to-transparent"></div>
+                </span>
+                
                 {!isMobile && (
                   <>
-                    <Sparkles size={18} className="absolute -top-4 -left-4 text-wedding-gold" />
-                    <Sparkles size={18} className="absolute -top-4 -right-4 text-wedding-gold" />
+                    <Sparkles size={20} className="absolute -top-6 left-1/4 text-wedding-gold animate-pulse-soft" />
+                    <Sparkles size={20} className="absolute -top-6 right-1/4 text-wedding-gold animate-pulse-soft" style={{ animationDelay: '0.5s' }} />
                   </>
                 )}
-              </span>
-            </h2>
-          </div>
-          
-          <div className="mt-4 flex items-center justify-center gap-4">
-            <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-r from-transparent to-wedding-gold/70"></div>
-            <div className="w-3 h-3 rounded-full bg-wedding-gold/20 relative">
-              <div className="absolute inset-0.5 rounded-full bg-wedding-gold/40 animate-pulse-soft"></div>
+              </h2>
+              
+              <div className="text-center text-sm sm:text-base text-wedding-gold/80 font-dancing-script tracking-wider uppercase my-2">
+                <span className="relative px-4">
+                  <span className="relative z-10">Wedding Invitation</span>
+                  <div className="absolute inset-0 bg-wedding-cream/30 rounded-full blur-sm"></div>
+                </span>
+              </div>
             </div>
-            <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-l from-transparent to-wedding-gold/70"></div>
+            
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-r from-transparent to-wedding-gold/70"></div>
+              <div className="w-3 h-3 rounded-full bg-wedding-gold/20 relative">
+                <div className="absolute inset-0.5 rounded-full bg-wedding-gold/40 animate-pulse-soft"></div>
+              </div>
+              <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-l from-transparent to-wedding-gold/70"></div>
+            </div>
+            
+            <p className="text-xs text-gray-400 mt-4 animate-pulse-soft">Click for a surprise</p>
           </div>
-          
-          <p className="text-xs text-gray-400 mt-4 animate-pulse-soft">Click for a surprise</p>
         </div>
       </div>
       

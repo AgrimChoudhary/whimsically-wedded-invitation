@@ -89,8 +89,27 @@ const Invitation = () => {
             <div className="loading-spinner mb-4 w-16 h-16 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
             <div className="absolute inset-0 border-4 border-wedding-gold/10 rounded-full animate-pulse-soft"></div>
           </div>
-          <p className="text-wedding-maroon font-dancing-script text-xl mb-1">Preparing your invitation...</p>
-          <p className="text-wedding-gold/70 text-sm">The celebration awaits!</p>
+          <div className="text-center">
+            <p className="text-wedding-maroon font-dancing-script text-xl md:text-2xl mb-2">Preparing your invitation...</p>
+            
+            <div className="mb-3 mt-1 relative">
+              <h3 className="font-great-vibes text-xl md:text-2xl text-wedding-gold">
+                Dear <span className="relative inline-block min-w-[80px]">
+                  {isGuestLoading ? (
+                    <span className="absolute inset-0 w-full h-6 bg-wedding-gold/10 rounded animate-pulse"></span>
+                  ) : (
+                    <span className="font-great-vibes gold-highlight animate-shimmer">{guestName || "Guest"}</span>
+                  )}
+                </span>
+              </h3>
+              
+              <div className="mt-1 mx-auto w-32 h-[1px] bg-gradient-to-r from-transparent via-wedding-gold/30 to-transparent"></div>
+            </div>
+            
+            <p className="text-wedding-gold/70 text-sm md:text-base font-dancing-script">
+              The celebration awaits<span className="loading-dots"></span>
+            </p>
+          </div>
         </div>
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">

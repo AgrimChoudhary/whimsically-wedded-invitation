@@ -101,19 +101,20 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
     <section id="countdown-timer" className="w-full py-6 md:py-8">
       <div className="w-full max-w-4xl mx-auto px-4">
         <div className="text-center mb-4 md:mb-6">
-          <span className="inline-block py-1.5 px-4 bg-wedding-gold/10 rounded-full text-xs md:text-sm text-wedding-gold mb-2">
+          <span className="inline-block py-1.5 px-4 bg-wedding-gold/10 rounded-full text-xs md:text-sm text-wedding-gold mb-2 gold-border-gradient">
             <Calendar size={14} className="inline mr-1" /> Save The Date
           </span>
-          <h3 className="font-playfair text-xl sm:text-2xl md:text-3xl text-wedding-maroon">
+          <h3 className="font-great-vibes text-2xl sm:text-3xl md:text-4xl text-wedding-maroon animate-bounce-light">
             Countdown to our Wedding Day
           </h3>
         </div>
         
         <div 
-          className={`glass-card py-6 px-4 border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+          className={`glass-card py-6 px-4 border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} cursor-pointer`}
           onClick={handleTimerClick}
+          title="Click for a surprise!"
         >
-          <div className="grid grid-cols-4 gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
             {timeUnits.map((unit, index) => (
               <div 
                 key={index} 
@@ -121,9 +122,9 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <div className="relative inline-flex flex-col">
-                  <div className={`${isMobile ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-24 h-24'} rounded-lg bg-gradient-to-br from-wedding-blush to-wedding-cream flex items-center justify-center shadow-md relative overflow-hidden group`}>
+                  <div className={`${isMobile ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-24 h-24'} rounded-lg bg-gradient-to-br from-wedding-blush to-wedding-cream flex items-center justify-center shadow-md relative overflow-hidden group hover:scale-105 transition-transform duration-300`}>
                     <div className="absolute inset-0 bg-wedding-gold/5 group-hover:bg-wedding-gold/10 transition-colors duration-300"></div>
-                    <span className={`font-poppins ${isMobile ? 'text-xl sm:text-2xl' : 'text-3xl'} text-wedding-maroon font-semibold relative z-10`}>
+                    <span className={`font-great-vibes ${isMobile ? 'text-2xl sm:text-3xl' : 'text-4xl'} text-wedding-maroon font-semibold relative z-10`}>
                       {unit.value < 10 ? `0${unit.value}` : unit.value}
                     </span>
                     
@@ -136,23 +137,26 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
                     <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-wedding-gold/50"></div>
                     <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-wedding-gold/50"></div>
                   </div>
-                  {index === 0 && !isMobile && (
+                  {index === 0 && (
                     <div className="absolute -top-2 -right-2 w-5 h-5">
                       <Heart size={16} className="text-wedding-blush fill-wedding-blush animate-pulse-soft" />
                     </div>
                   )}
-                  <p className={`mt-2 ${isMobile ? 'text-xs sm:text-sm' : 'text-base'} text-gray-600 font-medium`}>{unit.label}</p>
+                  <p className={`mt-2 ${isMobile ? 'text-xs sm:text-sm' : 'text-base'} text-gray-600 font-medium font-dancing-script`}>{unit.label}</p>
                 </div>
               </div>
             ))}
           </div>
           
           <div className="text-center mt-4 text-sm md:text-base text-wedding-maroon font-medium">
-            <span className="inline-flex items-center gap-2 bg-wedding-cream/50 px-4 py-2 rounded-full shadow-sm">
+            <span className="inline-flex items-center gap-2 bg-wedding-cream/50 px-4 py-2 rounded-full shadow-sm hover:bg-wedding-cream/70 transition-colors duration-300">
               <Clock size={16} className="text-wedding-gold" />
-              <span>{displayDate} at {displayTime}</span>
+              <span className="font-dancing-script text-base md:text-lg">{displayDate} at {displayTime}</span>
+              <Sparkles size={14} className="text-wedding-gold animate-pulse-soft" />
             </span>
           </div>
+          
+          <p className="text-center text-xs text-gray-400 mt-4 animate-pulse-soft">Click for a surprise</p>
         </div>
       </div>
       
