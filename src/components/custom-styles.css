@@ -50,3 +50,19 @@
   inset: 0;
   pointer-events: none;
 }
+
+/* Add additional loading animation */
+@keyframes ellipsis {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+  100% { content: '.'; }
+}
+
+.loading-dot::after {
+  content: '.';
+  animation: ellipsis 1.5s infinite;
+  display: inline-block;
+  width: 1em;
+  text-align: left;
+}

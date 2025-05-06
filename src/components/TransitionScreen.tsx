@@ -30,11 +30,11 @@ const TransitionScreen: React.FC<TransitionScreenProps> = ({
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Step through the animations and then navigate
+    // Step through the animations faster for loading effect
     const timeline = [
-      setTimeout(() => setStep(1), 300),  // Show family name
-      setTimeout(() => setStep(2), 2200), // Show "is inviting you"
-      setTimeout(() => setStep(3), 4000), // Show guest name
+      setTimeout(() => setStep(1), 100),  // Show family name
+      setTimeout(() => setStep(2), 800),  // Show "is inviting you"
+      setTimeout(() => setStep(3), 1500), // Show guest name
       setTimeout(() => {
         setIsExiting(true);
         setTimeout(() => {
@@ -43,46 +43,37 @@ const TransitionScreen: React.FC<TransitionScreenProps> = ({
           } else {
             navigate(redirectPath);
           }
-        }, 1200);
-      }, 6800)  // Navigate after showing all elements and slight pause
+        }, 800);
+      }, 2500)  // Navigate after showing all elements and slight pause
     ];
 
     return () => timeline.forEach(timer => clearTimeout(timer));
   }, [navigate, redirectPath, onComplete]);
 
   return (
-    <div className={`fixed inset-0 bg-wedding-cream z-50 flex items-center justify-center overflow-hidden transition-opacity duration-1000 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
-      <FloatingPetals count={isMobile ? 10 : 20} />
+    <div className={`fixed inset-0 bg-wedding-cream z-50 flex items-center justify-center overflow-hidden transition-opacity duration-700 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+      <FloatingPetals count={isMobile ? 8 : 15} />
       
       <div className="w-full max-w-lg mx-auto px-6 relative">
         <div className="absolute inset-0 z-0 opacity-20">
           <div className="absolute top-10 left-10 w-20 h-20 rounded-full bg-wedding-gold/10 animate-pulse-soft"></div>
           <div className="absolute bottom-10 right-10 w-32 h-32 rounded-full bg-wedding-gold/5 animate-pulse-soft" style={{ animationDelay: "1s" }}></div>
-          <div className="absolute top-1/3 right-5 w-16 h-16 rounded-full bg-wedding-blush/10 animate-pulse-soft" style={{ animationDelay: "1.5s" }}></div>
+          <div className="absolute top-1/3 right-5 w-16 h-16 rounded-full bg-wedding-blush/10 animate-pulse-soft" style={{ animationDelay: "0.5s" }}></div>
         </div>
         
-        <div className="glass-card p-10 sm:p-12 flex flex-col items-center justify-center min-h-[300px] relative z-10">
-          {/* Decorative elements */}
-          <div className="absolute -left-2 top-8 text-wedding-gold/20">
-            <Sparkles size={isMobile ? 18 : 24} />
-          </div>
-          <div className="absolute -right-2 bottom-8 text-wedding-blush/20">
-            <Heart size={isMobile ? 18 : 24} />
+        <div className="glass-card p-8 flex flex-col items-center justify-center min-h-[220px] relative z-10">
+          {/* Loading spinner */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="w-10 h-10 border-2 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
           </div>
           
-          {/* Corner decorations */}
-          <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-wedding-gold/20 rounded-tl-lg"></div>
-          <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-wedding-gold/20 rounded-tr-lg"></div>
-          <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-wedding-gold/20 rounded-bl-lg"></div>
-          <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-wedding-gold/20 rounded-br-lg"></div>
-          
-          <div className="text-center space-y-6 w-full">
+          <div className="text-center space-y-4 w-full">
             {/* Family Name */}
             <div 
-              className={`transition-opacity duration-1000 ${step >= 1 ? 'opacity-100' : 'opacity-0'}`}
-              style={{ transitionDelay: '0.2s' }}
+              className={`transition-opacity duration-500 ${step >= 1 ? 'opacity-100' : 'opacity-0'}`}
+              style={{ transitionDelay: '0.1s' }}
             >
-              <h2 className="font-kruti text-3xl sm:text-4xl text-wedding-maroon relative inline-block">
+              <h2 className="font-kruti text-2xl sm:text-3xl text-wedding-maroon relative inline-block">
                 <span className="relative">
                   <HandwritingAnimation 
                     text={familyName}
@@ -90,11 +81,11 @@ const TransitionScreen: React.FC<TransitionScreenProps> = ({
                   />
                   {step >= 1 && (
                     <span 
-                      className="absolute -bottom-2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-wedding-gold/70 to-transparent"
+                      className="absolute -bottom-1 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-wedding-gold/70 to-transparent"
                       style={{ 
-                        animation: 'fadeIn 1s forwards',
+                        animation: 'fadeIn 0.5s forwards',
                         opacity: 0,
-                        animationDelay: '0.8s'
+                        animationDelay: '0.5s'
                       }}
                     ></span>
                   )}
@@ -104,13 +95,13 @@ const TransitionScreen: React.FC<TransitionScreenProps> = ({
             
             {/* Is inviting you */}
             <div 
-              className={`transition-opacity duration-1000 ${step >= 2 ? 'opacity-100' : 'opacity-0'}`}
-              style={{ transitionDelay: '0.4s' }}
+              className={`transition-opacity duration-500 ${step >= 2 ? 'opacity-100' : 'opacity-0'}`}
+              style={{ transitionDelay: '0.2s' }}
             >
-              <p className="text-lg sm:text-xl text-wedding-gold font-dancing-script">
+              <p className="text-lg text-wedding-gold font-dancing-script">
                 <HandwritingAnimation 
                   text="is inviting you to celebrate"
-                  delay={1900}
+                  delay={700}
                   className="inline-block"
                 />
               </p>
@@ -118,44 +109,47 @@ const TransitionScreen: React.FC<TransitionScreenProps> = ({
             
             {/* Guest Name */}
             <div 
-              className={`transition-opacity duration-1000 mt-6 ${step >= 3 ? 'opacity-100' : 'opacity-0'}`}
-              style={{ transitionDelay: '0.6s' }}
+              className={`transition-opacity duration-500 mt-2 ${step >= 3 ? 'opacity-100' : 'opacity-0'}`}
+              style={{ transitionDelay: '0.3s' }}
             >
               <div className="relative inline-block">
-                <p className="text-xl sm:text-2xl text-wedding-maroon font-playfair mb-2">
+                <p className="text-lg sm:text-xl text-wedding-maroon font-playfair mb-2">
                   Dear{' '}
                   <AnimatedGuestName 
                     name={guestName}
                     fallback="Guest"
                     animationType="sparkle"
                     className="font-playfair text-wedding-maroon inline-block"
-                    delay={400}
+                    delay={200}
                   />
                 </p>
                 <span 
-                  className="absolute -right-4 -bottom-3 text-wedding-gold/30"
+                  className="absolute -right-3 -bottom-2 text-wedding-gold/30"
                   style={{ 
-                    animation: step >= 3 ? 'fadeIn 1s forwards' : 'none',
+                    animation: step >= 3 ? 'fadeIn 0.5s forwards' : 'none',
                     opacity: 0,
-                    animationDelay: '1s'
+                    animationDelay: '0.5s'
                   }}
                 >
-                  <Heart size={16} fill="currentColor" />
+                  <Heart size={14} fill="currentColor" />
                 </span>
               </div>
             </div>
           </div>
         </div>
         
-        {/* Progress indicator */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 transition-opacity duration-500" style={{ opacity: isExiting ? 0 : 0.7 }}>
-          {[0, 1, 2, 3].map((i) => (
-            <div 
-              key={i} 
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${i <= step ? 'bg-wedding-gold' : 'bg-wedding-gold/30'}`}
-              style={{ transform: i === step ? 'scale(1.3)' : 'scale(1)' }}
-            ></div>
-          ))}
+        {/* Loading indicator */}
+        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 transition-opacity duration-300" style={{ opacity: isExiting ? 0 : 0.7 }}>
+          <div className="text-xs text-wedding-maroon font-poppins animate-pulse">Loading invitation</div>
+          <div className="flex">
+            {[0, 1, 2].map((i) => (
+              <span 
+                key={i} 
+                className="text-wedding-gold animate-pulse"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              >.</span>
+            ))}
+          </div>
         </div>
       </div>
     </div>
