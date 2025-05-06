@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
 import { Sparkles, Star, Music } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AnimatedGuestName from './AnimatedGuestName';
-import { useLocation } from 'react-router-dom';
 
 // Couple names as placeholders for easy future changes
 const GROOM_FIRST_NAME = "Sidharth";
@@ -17,48 +15,17 @@ interface InvitationHeaderProps {
   brideName?: string;
   groomName?: string;
   coupleImageUrl?: string;
-  familyName?: string;
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
   brideName = BRIDE_FIRST_NAME, 
   groomName = GROOM_FIRST_NAME,
-  coupleImageUrl,
-  familyName = `${GROOM_LAST_NAME} Family`
+  coupleImageUrl
 }) => {
   const { guestName } = useGuest();
   const [showHearts, setShowHearts] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
-  const [showFamilyBadge, setShowFamilyBadge] = useState(false);
   const isMobile = useIsMobile();
-  const { pathname } = useLocation();
-  
-  // Get invitation ID from URL if available
-  const getInvitationId = () => {
-    const pathParts = pathname.split('/').filter(Boolean);
-    
-    if (pathParts.length >= 2 && pathParts[0] === 'invitation') {
-      const segment = pathParts[1];
-      if (segment.includes('-')) {
-        return segment.split('-')[0];
-      }
-      return segment;
-    }
-    return null;
-  };
-  
-  const invitationId = getInvitationId();
-  
-  useEffect(() => {
-    // Show family badge after a brief delay
-    const familyBadgeTimer = setTimeout(() => {
-      setShowFamilyBadge(true);
-    }, 2500);
-    
-    return () => {
-      clearTimeout(familyBadgeTimer);
-    };
-  }, []);
   
   const triggerHearts = () => {
     setShowHearts(true);
@@ -85,20 +52,6 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
       <div className="w-full max-w-4xl px-4">
-        {/* Family badge - shown conditionally */}
-        {showFamilyBadge && (
-          <div className="w-full flex justify-center mb-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <div className="bg-wedding-cream/60 backdrop-blur-sm border border-wedding-gold/20 rounded-full px-4 py-1 text-xs text-wedding-maroon/80 flex items-center gap-2">
-              <span className="text-wedding-gold/80">
-                <Star size={12} fill="currentColor" />
-              </span>
-              <span>
-                Hosted by <span className="font-medium">{familyName}</span>
-              </span>
-            </div>
-          </div>
-        )}
-      
         <div className="flex flex-col items-center mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="relative mb-3">
             <img 
