@@ -16,6 +16,22 @@ import { ArrowLeftCircle, Heart, MapPin, User, Music, Volume2, VolumeX } from 'l
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 import AnimatedGuestName from '../components/AnimatedGuestName';
+import { 
+  WEDDING_DATE, 
+  WEDDING_TIME, 
+  GROOM_FIRST_NAME, 
+  GROOM_LAST_NAME, 
+  BRIDE_FIRST_NAME, 
+  BRIDE_LAST_NAME,
+  GROOM_FATHER,
+  GROOM_MOTHER,
+  BRIDE_FATHER,
+  BRIDE_MOTHER,
+  VENUE_NAME,
+  VENUE_ADDRESS,
+  VENUE_MAP_LINK,
+  WEDDING_PHOTOS
+} from '@/config/weddingConfig';
 
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,57 +42,6 @@ const Invitation = () => {
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  
-  // Couple names as placeholders for easy future changes
-  const GROOM_FIRST_NAME = "Virat";
-  const GROOM_LAST_NAME = "Kohli";
-  const BRIDE_FIRST_NAME = "Anushka";
-  const BRIDE_LAST_NAME = "Sharma";
-  const GROOM_FATHER = "late. Prem Kohli";
-  const GROOM_MOTHER = "Saroj Kohli";
-  const BRIDE_FATHER = "Ajay Sharma";
-  const BRIDE_MOTHER = "Ashima Sharma";
-  
-  // Wedding details
-  const WEDDING_DATE = "December 11, 2017";
-  const WEDDING_TIME = "7:00 PM";
-  const VENUE_NAME = "Borgo Finocchieto";
-  const VENUE_ADDRESS = "Tuscany, Italy";
-  const VENUE_MAP_LINK = "https://g.co/kgs/WcHVEf1";
-  
-  // Photo gallery images
-  const WEDDING_PHOTOS = [
-    { 
-      url: "https://images.indianexpress.com/2023/05/anushka-virat.jpg",
-      title: "Wedding Day",
-      description: "Our beautiful day in Tuscany, Italy"
-    },
-    { 
-      url: "https://wp.popxo.com/wp-content/uploads/2021/07/FB_virat_anushka_wedding-1.jpg",
-      title: "Wedding Ceremony",
-      description: "The moment we became one"
-    },
-    { 
-      url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1XiN1oirHwJRhEFN4C2nB7D7-c8dgISRdYL8P8fnRFm0tYoJP7dPHpg39tx_GJT0gAy4&usqp=CAU",
-      title: "Mumbai Reception",
-      description: "Celebrations with family and friends"
-    },
-    { 
-      url: "https://i.ndtvimg.com/i/2017-12/virat-kohli-anushka-sharma_806x605_61513870196.jpg",
-      title: "Wedding Rituals",
-      description: "Traditional wedding ceremonies"
-    },
-    { 
-      url: "https://i.ndtvimg.com/i/2017-12/virat-kohli-tweet-with-anushka-twitter_806x605_41513007710.jpg",
-      title: "Our Announcement",
-      description: "Sharing our joy with the world"
-    },
-    { 
-      url: "https://timesofindia.indiatimes.com/photo/msid-62028542/62028542.jpg?resizemode=4",
-      title: "New Delhi Reception",
-      description: "Celebrating with our loved ones"
-    }
-  ];
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -108,7 +73,7 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Wedding date - December 11, 2017
+  // Wedding date from config - December 17, 2017
   const weddingDate = new Date(`${WEDDING_DATE}T${WEDDING_TIME.replace(/\s*(AM|PM)$/i, '')}`);
   
   // Get guestId from path to use for navigation
@@ -139,7 +104,7 @@ const Invitation = () => {
                   {isGuestLoading ? (
                     <span className="absolute inset-0 w-full h-6 bg-wedding-gold/10 rounded animate-pulse"></span>
                   ) : (
-                    <span className="font-great-vibes gold-highlight animate-shimmer">{guestName || "Guest"}</span>
+                    <span className="font-great-vibes gold-highlight animate-shimmer">{guestName || "Guest Name"}</span>
                   )}
                 </span>
               </h3>
@@ -293,7 +258,7 @@ const Invitation = () => {
           <div className="py-10 w-full text-center bg-floral-pattern">
             <div className="relative inline-block">
               {showThankYouMessage ? (
-                <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
+                <div className="luxury-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center luxury-glow-hover">
                   <h3 className="text-xl font-playfair text-wedding-maroon mb-2">
                     {isGuestLoading ? (
                       <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>

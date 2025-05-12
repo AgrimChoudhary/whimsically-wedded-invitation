@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Clock, Heart, Calendar, Sparkles, MapPin } from 'lucide-react';
+import { Clock, Heart, Calendar, Star } from 'lucide-react';
 import { FireworksDisplay } from './AnimatedElements';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { WEDDING_DATE, WEDDING_TIME } from '@/config/weddingConfig';
@@ -17,7 +18,7 @@ interface CountdownTimerProps {
 }
 
 // Default wedding date and time from config
-const DEFAULT_WEDDING_DATE = '2017-12-11T19:00:00'; // December 11, 2017 at 7:00 PM
+const DEFAULT_WEDDING_DATE = '2017-12-17T19:00:00'; // December 17, 2017 at 7:00 PM
 const DEFAULT_WEDDING_TIME = WEDDING_TIME;
 
 const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTime }) => {
@@ -25,6 +26,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
   const [isVisible, setIsVisible] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
   const [isPastEvent, setIsPastEvent] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
   const isMobile = useIsMobile();
   
   // Wedding date or use default
@@ -52,10 +54,10 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
       else {
         const absDifference = Math.abs(difference);
         setTimeLeft({
-          days: -Math.floor(absDifference / (1000 * 60 * 60 * 24)),
-          hours: -Math.floor((absDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: -Math.floor((absDifference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: -Math.floor((absDifference % (1000 * 60)) / 1000)
+          days: Math.floor(absDifference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((absDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((absDifference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((absDifference % (1000 * 60)) / 1000)
         });
       }
     };
@@ -144,13 +146,24 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
             <Calendar size={14} className="inline mr-1" /> Save The Date
           </span>
           <h3 className="font-great-vibes text-2xl sm:text-3xl md:text-4xl text-wedding-maroon animate-bounce-light">
-            {isPastEvent ? "Time Since Our Wedding Day" : "Countdown to our Wedding Day"}
+            {isPastEvent ? 
+              <span>
+                <span className="inline-block relative">
+                  <span className="relative z-10">Time Since Our</span>
+                  <span className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-transparent via-wedding-gold/50 to-transparent"></span>
+                </span>{" "}
+                Wedding Day
+              </span> 
+              : 
+              "Countdown to our Wedding Day"}
           </h3>
         </div>
         
         <div 
-          className={`glass-card py-6 px-4 border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} cursor-pointer`}
+          className={`luxury-card py-6 px-4 border border-wedding-gold/20 shadow-gold-soft transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} cursor-pointer luxury-glow-hover`}
           onClick={handleTimerClick}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
           title="Click for a surprise!"
         >
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
@@ -189,7 +202,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
           
           {/* Add years since wedding display for past events */}
           {isPastEvent && (
-            <div className="text-center mt-6 py-3 px-4 bg-wedding-cream/20 rounded-lg border border-wedding-gold/10">
+            <div className="text-center mt-6 py-3 px-4 bg-wedding-cream/20 rounded-lg border border-wedding-gold/10 luxury-glow-hover">
               <div className="font-dancing-script text-xl md:text-2xl text-wedding-maroon">
                 <span className="font-semibold">{yearsSinceWedding}</span> wonderful {yearsSinceWedding === 1 ? 'year' : 'years'} of marriage
               </div>
@@ -204,7 +217,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
             <span className="inline-flex items-center gap-2 bg-wedding-cream/50 px-4 py-2 rounded-full shadow-sm hover:bg-wedding-cream/70 transition-colors duration-300">
               <Clock size={16} className="text-wedding-gold" />
               <span className="font-dancing-script text-base md:text-lg">{displayDate} at {displayTime}</span>
-              <Sparkles size={14} className="text-wedding-gold animate-pulse-soft" />
+              <Star size={14} className="text-wedding-gold animate-pulse-soft" />
             </span>
           </div>
           

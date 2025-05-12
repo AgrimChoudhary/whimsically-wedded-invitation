@@ -90,6 +90,58 @@
     @apply bg-white bg-opacity-60 backdrop-filter backdrop-blur-md border border-white border-opacity-30 rounded-xl shadow-md;
   }
 
+  /* New luxury card effect */
+  .luxury-card {
+    @apply bg-white bg-opacity-90 backdrop-filter backdrop-blur-lg rounded-xl;
+    box-shadow: 0 10px 30px -15px rgba(212, 175, 55, 0.3), 
+                0 0 0 1px rgba(212, 175, 55, 0.1),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  }
+  
+  /* New luxury glow hover effect */
+  .luxury-glow-hover {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s ease-out;
+  }
+  
+  .luxury-glow-hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+      rgba(212, 175, 55, 0) 0%, 
+      rgba(212, 175, 55, 0) 40%, 
+      rgba(212, 175, 55, 0.2) 50%, 
+      rgba(212, 175, 55, 0) 60%, 
+      rgba(212, 175, 55, 0) 100%);
+    z-index: -1;
+    transition: all 1s ease;
+    background-size: 200% 200%;
+    background-position: -100% -100%;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  
+  .luxury-glow-hover:hover::before {
+    animation: luxury-glow 2s infinite linear;
+  }
+  
+  @keyframes luxury-glow {
+    0% { background-position: -100% -100%; }
+    100% { background-position: 200% 200%; }
+  }
+  
+  /* Enhanced shadow for luxury cards */
+  .luxury-glow-hover:hover {
+    box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.5), 
+                0 0 0 1px rgba(212, 175, 55, 0.2),
+                0 0 15px rgba(212, 175, 55, 0.3);
+  }
+
   .shimmer-text {
     background: linear-gradient(90deg, 
       rgba(212, 175, 55, 0.8) 0%, 
@@ -438,14 +490,37 @@
     box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.4), 0 0 0 1px rgba(212, 175, 55, 0.1);
   }
 
-  /* Mobile-friendly styles */
+  /* Mobile-friendly styles - enhanced */
   @media (max-width: 768px) {
-    .glass-card {
-      @apply rounded-lg;
+    .glass-card, .luxury-card {
+      @apply rounded-lg px-3 py-4;
     }
     
     .photo-3d-effect:hover {
       transform: none; /* Disable 3D effect on mobile */
+    }
+    
+    h1, h2, h3 {
+      @apply tracking-tight;
+    }
+    
+    .luxury-glow-hover::before {
+      animation: luxury-glow 3s infinite linear !important;
+    }
+  }
+  
+  /* Small screen optimizations */
+  @media (max-width: 480px) {
+    .luxury-card {
+      padding: 0.75rem !important;
+    }
+    
+    h2 {
+      font-size: 1.5rem !important;
+    }
+    
+    .font-great-vibes {
+      letter-spacing: 0.5px;
     }
   }
 

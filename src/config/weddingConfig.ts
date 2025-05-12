@@ -1,3 +1,4 @@
+
 // Wedding details configuration file
 // All placeholders are defined here for easy customization
 
@@ -15,7 +16,7 @@ export const BRIDE_FATHER = "Ajay Sharma";
 export const BRIDE_MOTHER = "Ashima Sharma";
 
 // Wedding details
-export const WEDDING_DATE = "December 11, 2017";
+export const WEDDING_DATE = "December 17, 2017";
 export const WEDDING_TIME = "7:00 PM";
 export const VENUE_NAME = "Borgo Finocchieto";
 export const VENUE_ADDRESS = "Tuscany, Italy";
