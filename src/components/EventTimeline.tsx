@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { Calendar, Music, Heart, MapPin, ExternalLink } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -129,9 +130,9 @@ const EventTimeline: React.FC = () => {
   };
 
   return (
-    <section className="w-full py-16 bg-wedding-cream bg-opacity-40">
+    <section className="w-full py-10 md:py-16 bg-wedding-cream bg-opacity-40">
       <div className="w-full max-w-5xl mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 md:mb-12">
           <span className="inline-block py-1.5 px-4 bg-wedding-gold/10 rounded-full text-sm font-medium text-wedding-gold mb-3 tracking-wide">
             Join Us For
           </span>
@@ -144,7 +145,7 @@ const EventTimeline: React.FC = () => {
         <div className="relative">
           <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-wedding-gold/10 via-wedding-gold/30 to-wedding-gold/10 transform -translate-x-1/2"></div>
           
-          <div className="space-y-8 sm:space-y-10">
+          <div className="space-y-6 sm:space-y-8 md:space-y-10">
             {events.map((event, index) => (
               <div 
                 key={index}
@@ -167,38 +168,38 @@ const EventTimeline: React.FC = () => {
                 </div>
                 
                 <div 
-                  className={`glass-card border md:w-5/12 w-full p-8 transition-all duration-300 ${
+                  className={`timeline-card glass-card border md:w-5/12 w-full p-5 sm:p-8 transition-all duration-300 ${
                     activeEvent === index ? 'shadow-gold-glow border-wedding-gold/40 transform scale-105' : 'shadow-gold-soft hover:shadow-gold-glow hover:scale-[1.01]'
                   } ${event.color}`}
                 >
-                  <div className="flex items-start gap-6">
+                  <div className="flex items-start gap-4 sm:gap-6">
                     <div className={`flex-shrink-0 transition-all duration-300 ${activeEvent === index ? 'transform scale-110' : ''}`}>
                       {event.icon}
                     </div>
                     <div className="w-full">
-                      <h3 className="font-playfair text-xl sm:text-2xl text-wedding-maroon mb-3">{event.name}</h3>
-                      <div className="mt-4 space-y-3">
+                      <h3 className="font-playfair text-xl sm:text-2xl text-wedding-maroon mb-2">{event.name}</h3>
+                      <div className="mt-3 space-y-2">
                         <div className="flex items-center text-gray-700">
-                          <Calendar size={18} className="mr-3 text-wedding-gold" />
+                          <Calendar size={16} className="mr-3 text-wedding-gold" />
                           <span className="font-medium">{event.date}</span>
                         </div>
-                        <p className="text-gray-600 pl-9">{event.time}</p>
-                        {event.venue && <p className="text-gray-700 font-medium pl-9">{event.venue}</p>}
+                        <p className="text-gray-600 pl-7 sm:pl-9">{event.time}</p>
+                        {event.venue && <p className="text-gray-700 font-medium pl-7 sm:pl-9">{event.venue}</p>}
                         
                         {event.mapLink ? (
                           <a 
                             href={event.mapLink} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 pl-9 mt-3"
+                            className="flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 pl-7 sm:pl-9 mt-2"
                           >
-                            <MapPin size={18} className="mr-2 flex-shrink-0" />
+                            <MapPin size={16} className="mr-2 flex-shrink-0" />
                             <span className="font-medium underline-grow">{event.address}</span>
-                            <ExternalLink size={16} className="ml-2 flex-shrink-0" />
+                            <ExternalLink size={14} className="ml-2 flex-shrink-0" />
                           </a>
                         ) : (
-                          <p className="flex items-center text-gray-600 pl-9 mt-3">
-                            <MapPin size={18} className="mr-2 flex-shrink-0" />
+                          <p className="flex items-center text-gray-600 pl-7 sm:pl-9 mt-2">
+                            <MapPin size={16} className="mr-2 flex-shrink-0" />
                             <span className="font-medium">{event.address}</span>
                           </p>
                         )}

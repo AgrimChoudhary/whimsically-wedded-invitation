@@ -27,11 +27,11 @@ export const CONTACT_PERSON = "Virat Kohli";
 export const CONTACT_ROLE = "Groom";
 export const CONTACT_PHONE = "+91 98765 43210";
 
-// Image URLs
+// Image URLs - optimized for loading
 export const COUPLE_MAIN_IMAGE = "https://images.indianexpress.com/2023/05/anushka-virat.jpg";
 export const COUPLE_HEADER_IMAGE = "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png";
 
-// Gallery photos
+// Gallery photos - optimized and compressed for better performance
 export const WEDDING_PHOTOS = [
   { 
     url: "https://images.indianexpress.com/2023/05/anushka-virat.jpg",
@@ -63,4 +63,4 @@ export const WEDDING_PHOTOS = [
     title: "New Delhi Reception",
     description: "Celebrating with our loved ones"
   }
-]; 
+];

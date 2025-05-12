@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -73,8 +74,39 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Wedding date from config - December 17, 2017
-  const weddingDate = new Date(`${WEDDING_DATE}T${WEDDING_TIME.replace(/\s*(AM|PM)$/i, '')}`);
+  // Parse the wedding date from config
+  const parseDateFromConfig = () => {
+    const dateStr = WEDDING_DATE.replace(/,/g, ''); // Remove commas
+    const parts = dateStr.split(' ');
+    const month = new Date(Date.parse(`${parts[0]} 1, 2000`)).getMonth(); // Get month number
+    const day = parseInt(parts[1], 10);
+    const year = parseInt(parts[2], 10);
+    
+    let hours = 19; // Default to 7:00 PM
+    let minutes = 0;
+    
+    // Parse time if available
+    if (WEDDING_TIME) {
+      const timeParts = WEDDING_TIME.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+      if (timeParts) {
+        hours = parseInt(timeParts[1], 10);
+        minutes = parseInt(timeParts[2], 10);
+        
+        // Handle PM conversion
+        if (timeParts[3] && timeParts[3].toUpperCase() === 'PM' && hours < 12) {
+          hours += 12;
+        }
+        // Handle AM midnight
+        if (timeParts[3] && timeParts[3].toUpperCase() === 'AM' && hours === 12) {
+          hours = 0;
+        }
+      }
+    }
+    
+    return new Date(year, month, day, hours, minutes, 0);
+  };
+  
+  const weddingDate = parseDateFromConfig();
   
   // Get guestId from path to use for navigation
   const getCurrentGuestId = () => {

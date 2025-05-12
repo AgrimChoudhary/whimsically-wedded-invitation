@@ -10,14 +10,47 @@ import { GROOM_FIRST_NAME, BRIDE_FIRST_NAME } from '@/config/weddingConfig';
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showSparkle, setShowSparkle] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const isMobile = useIsMobile();
   const { guestName } = useGuest();
   
   useEffect(() => {
-    // Simulating assets loading
+    // Preload important images
+    const imageUrls = [
+      '/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png', // Header image
+      'https://images.indianexpress.com/2023/05/anushka-virat.jpg' // Couple main image
+    ];
+    
+    let loadedCount = 0;
+    const totalImages = imageUrls.length;
+    
+    imageUrls.forEach(src => {
+      const img = new Image();
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          setImagesLoaded(true);
+          
+          // Delay slightly to ensure smooth transition
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 500);
+        }
+      };
+      img.onerror = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          setImagesLoaded(true);
+          setIsLoading(false);
+        }
+      };
+      img.src = src;
+    });
+    
+    // Fallback timer in case images don't load
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1500);
+    }, 2500);
     
     // Sparkle effect timing
     const sparkleTimer = setInterval(() => {

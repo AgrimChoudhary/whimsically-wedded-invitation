@@ -17,8 +17,38 @@ interface CountdownTimerProps {
   weddingTime?: string;
 }
 
-// Default wedding date and time from config
-const DEFAULT_WEDDING_DATE = '2017-12-17T19:00:00'; // December 17, 2017 at 7:00 PM
+// Parse the wedding date from config
+const parseDateFromConfig = () => {
+  const dateStr = WEDDING_DATE.replace(/,/g, ''); // Remove commas
+  const parts = dateStr.split(' ');
+  const month = new Date(Date.parse(`${parts[0]} 1, 2000`)).getMonth(); // Get month number
+  const day = parseInt(parts[1], 10);
+  const year = parseInt(parts[2], 10);
+  
+  // Parse time
+  let hours = 0;
+  let minutes = 0;
+  if (WEDDING_TIME) {
+    const timeParts = WEDDING_TIME.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+    if (timeParts) {
+      hours = parseInt(timeParts[1], 10);
+      minutes = parseInt(timeParts[2], 10);
+      
+      // Handle PM conversion
+      if (timeParts[3] && timeParts[3].toUpperCase() === 'PM' && hours < 12) {
+        hours += 12;
+      }
+      // Handle AM midnight
+      if (timeParts[3] && timeParts[3].toUpperCase() === 'AM' && hours === 12) {
+        hours = 0;
+      }
+    }
+  }
+  
+  return new Date(year, month, day, hours, minutes, 0);
+};
+
+const DEFAULT_WEDDING_DATE = parseDateFromConfig();
 const DEFAULT_WEDDING_TIME = WEDDING_TIME;
 
 const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTime }) => {
@@ -30,7 +60,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
   const isMobile = useIsMobile();
   
   // Wedding date or use default
-  const targetDate = weddingDate ? weddingDate.getTime() : new Date(DEFAULT_WEDDING_DATE).getTime();
+  const targetDate = weddingDate ? weddingDate.getTime() : DEFAULT_WEDDING_DATE.getTime();
   
   useEffect(() => {
     // Check if the wedding date is in the past
@@ -41,23 +71,23 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
     const calculateTimeLeft = () => {
       const difference = targetDate - now;
       
-      // For future events, show countdown
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000)
-        });
-      } 
-      // For past events, show negative countdown
-      else {
+      // For past events, show days since wedding
+      if (difference <= 0) {
         const absDifference = Math.abs(difference);
         setTimeLeft({
           days: Math.floor(absDifference / (1000 * 60 * 60 * 24)),
           hours: Math.floor((absDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
           minutes: Math.floor((absDifference % (1000 * 60 * 60)) / (1000 * 60)),
           seconds: Math.floor((absDifference % (1000 * 60)) / 1000)
+        });
+      } 
+      // For future events, show countdown
+      else {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000)
         });
       }
     };
@@ -130,20 +160,38 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
-    }) : new Date(DEFAULT_WEDDING_DATE).toLocaleDateString('en-US', {
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric'
-    });
+    }) : WEDDING_DATE;
     
   const displayTime = weddingTime || DEFAULT_WEDDING_TIME;
+
+  // Calculate days, months and years since wedding
+  const getDaysMonthsYearsText = () => {
+    // Simple display for years
+    if (yearsSinceWedding >= 5) {
+      return `${yearsSinceWedding} wonderful ${yearsSinceWedding === 1 ? 'year' : 'years'} of marriage`;
+    }
+    
+    // More detailed display for shorter periods
+    const now = new Date();
+    const wedding = new Date(targetDate);
+    
+    const years = yearsSinceWedding;
+    let months = now.getMonth() - wedding.getMonth();
+    if (months < 0) months += 12;
+    
+    if (years > 0) {
+      return `${years} ${years === 1 ? 'year' : 'years'} and ${months} ${months === 1 ? 'month' : 'months'} of marriage`;
+    } else {
+      return `${timeLeft.days} days since our special day`;
+    }
+  };
 
   return (
     <section id="countdown-timer" className="w-full py-6 md:py-8">
       <div className="w-full max-w-4xl mx-auto px-4">
         <div className="text-center mb-4 md:mb-6">
           <span className="inline-block py-1.5 px-4 bg-wedding-gold/10 rounded-full text-xs md:text-sm text-wedding-gold mb-2 gold-border-gradient">
-            <Calendar size={14} className="inline mr-1" /> Save The Date
+            <Calendar size={14} className="inline mr-1" /> {isPastEvent ? "Our Wedding Anniversary" : "Save The Date"}
           </span>
           <h3 className="font-great-vibes text-2xl sm:text-3xl md:text-4xl text-wedding-maroon animate-bounce-light">
             {isPastEvent ? 
@@ -204,7 +252,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
           {isPastEvent && (
             <div className="text-center mt-6 py-3 px-4 bg-wedding-cream/20 rounded-lg border border-wedding-gold/10 luxury-glow-hover">
               <div className="font-dancing-script text-xl md:text-2xl text-wedding-maroon">
-                <span className="font-semibold">{yearsSinceWedding}</span> wonderful {yearsSinceWedding === 1 ? 'year' : 'years'} of marriage
+                <span className="font-semibold">{getDaysMonthsYearsText()}</span>
               </div>
               <div className="text-sm text-gray-600 mt-1">
                 <Heart size={14} className="inline-block text-wedding-blush fill-wedding-blush mr-1" />
