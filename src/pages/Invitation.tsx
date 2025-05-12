@@ -67,8 +67,8 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Wedding date - May 15, 2025
-  const weddingDate = new Date('2025-05-15T20:00:00'); // PLACEHOLDER_WEDDING_DATE
+  // Wedding date - June 4, 2025 at 7:02 PM
+  const weddingDate = new Date('2025-06-04T19:02:00'); // PLACEHOLDER_WEDDING_DATE
   
   // Get guestId from path to use for navigation
   const getCurrentGuestId = () => {
@@ -163,7 +163,7 @@ const Invitation = () => {
           {/* Section ordering as requested: countdown, wedding journey, family details, events, photos */}
           <CountdownTimer 
             weddingDate={weddingDate} 
-            weddingTime="8:00 PM"
+            weddingTime="7:02 PM"
           />
           
           <FamilyDetails 

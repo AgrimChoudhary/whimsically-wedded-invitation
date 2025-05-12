@@ -21,8 +21,8 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
   const [showFireworks, setShowFireworks] = useState(false);
   const isMobile = useIsMobile();
   
-  // Wedding date - April 29, 2025 at 8:00 PM or use the prop if provided
-  const targetDate = weddingDate ? weddingDate.getTime() : new Date('2025-04-29T20:00:00').getTime();
+  // Wedding date - June 4, 2025 at 7:02 PM or use the prop if provided
+  const targetDate = weddingDate ? weddingDate.getTime() : new Date('2025-06-04T19:02:00').getTime();
   
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -93,9 +93,9 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
-    }) : 'May 15, 2025';
+    }) : 'June 4, 2025';
     
-  const displayTime = weddingTime || '8:00 PM';
+  const displayTime = weddingTime || '7:02 PM';
 
   return (
     <section id="countdown-timer" className="w-full py-6 md:py-8">

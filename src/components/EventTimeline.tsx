@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { Calendar, Music, Heart, MapPin, ExternalLink } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -22,7 +23,7 @@ const EventTimeline: React.FC = () => {
   const events: Event[] = [
     {
       name: "Mehendi Ceremony",
-      date: "14th May 2025",
+      date: "3rd June 2025",
       time: "11:00 AM",
       venue: "Suryagarh Palace",
       address: "near Kahala Phata, Sam Road, Jaisalmer, Rajasthan",
@@ -32,7 +33,7 @@ const EventTimeline: React.FC = () => {
     },
     {
       name: "Sangeet Ceremony",
-      date: "14th May 2025",
+      date: "3rd June 2025",
       time: "7:00 PM",
       venue: "Suryagarh Palace",
       address: "near Kahala Phata, Sam Road, Jaisalmer, Rajasthan",
@@ -48,8 +49,8 @@ const EventTimeline: React.FC = () => {
     },
     {
       name: "Wedding Ceremony",
-      date: "15th May 2025",
-      time: "8:00 PM",
+      date: "4th June 2025",
+      time: "7:02 PM",
       venue: "Suryagarh Palace",
       address: "near Kahala Phata, Sam Road, Jaisalmer, Rajasthan",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
@@ -64,7 +65,7 @@ const EventTimeline: React.FC = () => {
     },
     {
       name: "Reception",
-      date: "16th May 2025",
+      date: "5th June 2025",
       time: "7:00 PM",
       venue: "Suryagarh Palace",
       address: "near Kahala Phata, Sam Road, Jaisalmer, Rajasthan",
