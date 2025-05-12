@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Heart, Sparkles, Calendar, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AnimatedGuestName from './AnimatedGuestName';
-
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const GROOM_LAST_NAME = "Malhotra";
-const BRIDE_FIRST_NAME = "Kiara";
-const BRIDE_LAST_NAME = "Advani";
-const WEDDING_DATE = "May 15, 2025";
+import { 
+  GROOM_FIRST_NAME, 
+  GROOM_LAST_NAME, 
+  BRIDE_FIRST_NAME, 
+  BRIDE_LAST_NAME, 
+  FAMILY_NAME,
+  WEDDING_DATE 
+} from '@/config/weddingConfig';
 
 const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,7 @@ const WelcomeForm: React.FC = () => {
   const [brideName, setBrideName] = useState(BRIDE_FIRST_NAME);
   const [groomName, setGroomName] = useState(GROOM_FIRST_NAME);
   const [weddingDate, setWeddingDate] = useState(WEDDING_DATE);
+  const [familyName, setFamilyName] = useState(FAMILY_NAME);
   const { isPlaying, toggleMusic } = useAudio();
   const { guestName, isLoading: isGuestLoading } = useGuest();
   const navigate = useNavigate();
@@ -116,9 +118,21 @@ const WelcomeForm: React.FC = () => {
         <div className="text-center opacity-0 animate-fade-in-up relative" style={{ animationDelay: '0.6s' }}>
           <div className="absolute -left-6 -top-6 text-6xl text-wedding-gold/10 font-great-vibes">"</div>
           <p className="text-wedding-gold font-kruti text-xl md:text-2xl mb-4 px-4 relative z-10">
-            {groomName} & {brideName} cordially invite you to celebrate their wedding
+            {familyName} cordially invite you to celebrate their wedding
           </p>
           <div className="absolute -right-6 -bottom-6 text-6xl text-wedding-gold/10 font-great-vibes">"</div>
+        </div>
+        
+        {/* Add couple names display */}
+        <div className="text-center opacity-0 animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+          <h3 className="font-great-vibes text-2xl sm:text-3xl text-wedding-maroon">
+            {groomName} & {brideName}
+          </h3>
+          <div className="mt-1 text-xs text-gray-500 font-dancing-script">
+            <span className="inline-block px-3 py-1 rounded-full bg-wedding-cream/50 border border-wedding-gold/10">
+              {weddingDate}
+            </span>
+          </div>
         </div>
         
         {/* Decorative ribbon effect */}

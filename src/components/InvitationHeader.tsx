@@ -4,12 +4,19 @@ import { FallingHearts, FireworksDisplay } from './AnimatedElements';
 import { Sparkles, Star, Music } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AnimatedGuestName from './AnimatedGuestName';
+import {
+  GROOM_FIRST_NAME,
+  GROOM_LAST_NAME,
+  BRIDE_FIRST_NAME,
+  BRIDE_LAST_NAME,
+  COUPLE_HEADER_IMAGE,
+  WEDDING_DATE
+} from '@/config/weddingConfig';
 
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const GROOM_LAST_NAME = "Malhotra";
-const BRIDE_FIRST_NAME = "Kiara";
-const BRIDE_LAST_NAME = "Advani";
+// Remove hardcoded values and use the imported ones
+// const GROOM_LAST_NAME = "Kohli";
+// const BRIDE_LAST_NAME = "Sharma";
+// const WEDDING_DATE = "December 11, 2017";
 
 interface InvitationHeaderProps {
   brideName?: string;
@@ -20,7 +27,7 @@ interface InvitationHeaderProps {
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
   brideName = BRIDE_FIRST_NAME, 
   groomName = GROOM_FIRST_NAME,
-  coupleImageUrl
+  coupleImageUrl = COUPLE_HEADER_IMAGE
 }) => {
   const { guestName } = useGuest();
   const [showHearts, setShowHearts] = useState(false);
@@ -113,7 +120,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           <div className="flex flex-col items-center">
             <div className="relative mb-4 sm:mb-6">
               <img 
-                src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
+                src={coupleImageUrl}
                 alt={`${groomName} and ${brideName}`}
                 className="w-40 h-auto sm:w-48 md:w-56 lg:w-64 object-contain animate-floating"
                 loading="lazy"

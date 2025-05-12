@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Clock, Heart, Calendar, Sparkles, MapPin } from 'lucide-react';
 import { FireworksDisplay } from './AnimatedElements';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { WEDDING_DATE, WEDDING_TIME } from '@/config/weddingConfig';
 
 interface TimeLeft {
   days: number;
@@ -15,20 +16,30 @@ interface CountdownTimerProps {
   weddingTime?: string;
 }
 
+// Default wedding date and time from config
+const DEFAULT_WEDDING_DATE = '2017-12-11T19:00:00'; // December 11, 2017 at 7:00 PM
+const DEFAULT_WEDDING_TIME = WEDDING_TIME;
+
 const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTime }) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isVisible, setIsVisible] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
+  const [isPastEvent, setIsPastEvent] = useState(false);
   const isMobile = useIsMobile();
   
-  // Wedding date - June 4, 2025 at 7:02 PM or use the prop if provided
-  const targetDate = weddingDate ? weddingDate.getTime() : new Date('2025-06-04T19:02:00').getTime();
+  // Wedding date or use default
+  const targetDate = weddingDate ? weddingDate.getTime() : new Date(DEFAULT_WEDDING_DATE).getTime();
   
   useEffect(() => {
+    // Check if the wedding date is in the past
+    const now = new Date().getTime();
+    const isDateInPast = now > targetDate;
+    setIsPastEvent(isDateInPast);
+    
     const calculateTimeLeft = () => {
-      const now = new Date().getTime();
       const difference = targetDate - now;
       
+      // For future events, show countdown
       if (difference > 0) {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
@@ -36,8 +47,16 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
           minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
           seconds: Math.floor((difference % (1000 * 60)) / 1000)
         });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      } 
+      // For past events, show negative countdown
+      else {
+        const absDifference = Math.abs(difference);
+        setTimeLeft({
+          days: -Math.floor(absDifference / (1000 * 60 * 60 * 24)),
+          hours: -Math.floor((absDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: -Math.floor((absDifference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: -Math.floor((absDifference % (1000 * 60)) / 1000)
+        });
       }
     };
     
@@ -63,6 +82,22 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
       observer.disconnect();
     };
   }, [targetDate]);
+  
+  // Calculate years since wedding for past events
+  const calculateYearsSince = () => {
+    const now = new Date();
+    const wedding = new Date(targetDate);
+    const yearDiff = now.getFullYear() - wedding.getFullYear();
+    const monthDiff = now.getMonth() - wedding.getMonth();
+    const dayDiff = now.getDate() - wedding.getDate();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      return yearDiff - 1;
+    }
+    return yearDiff;
+  };
+  
+  const yearsSinceWedding = calculateYearsSince();
   
   // Effect to hide fireworks after a few seconds
   useEffect(() => {
@@ -93,9 +128,13 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
-    }) : 'June 4, 2025';
+    }) : new Date(DEFAULT_WEDDING_DATE).toLocaleDateString('en-US', {
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric'
+    });
     
-  const displayTime = weddingTime || '7:02 PM';
+  const displayTime = weddingTime || DEFAULT_WEDDING_TIME;
 
   return (
     <section id="countdown-timer" className="w-full py-6 md:py-8">
@@ -105,7 +144,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
             <Calendar size={14} className="inline mr-1" /> Save The Date
           </span>
           <h3 className="font-great-vibes text-2xl sm:text-3xl md:text-4xl text-wedding-maroon animate-bounce-light">
-            Countdown to our Wedding Day
+            {isPastEvent ? "Time Since Our Wedding Day" : "Countdown to our Wedding Day"}
           </h3>
         </div>
         
@@ -125,7 +164,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
                   <div className={`${isMobile ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-24 h-24'} rounded-lg bg-gradient-to-br from-wedding-blush to-wedding-cream flex items-center justify-center shadow-md relative overflow-hidden group hover:scale-105 transition-transform duration-300`}>
                     <div className="absolute inset-0 bg-wedding-gold/5 group-hover:bg-wedding-gold/10 transition-colors duration-300"></div>
                     <span className={`font-great-vibes ${isMobile ? 'text-2xl sm:text-3xl' : 'text-4xl'} text-wedding-maroon font-semibold relative z-10`}>
-                      {unit.value < 10 ? `0${unit.value}` : unit.value}
+                      {Math.abs(unit.value) < 10 ? `0${Math.abs(unit.value)}` : Math.abs(unit.value)}
                     </span>
                     
                     {/* Shimmer effect */}
@@ -147,6 +186,19 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
               </div>
             ))}
           </div>
+          
+          {/* Add years since wedding display for past events */}
+          {isPastEvent && (
+            <div className="text-center mt-6 py-3 px-4 bg-wedding-cream/20 rounded-lg border border-wedding-gold/10">
+              <div className="font-dancing-script text-xl md:text-2xl text-wedding-maroon">
+                <span className="font-semibold">{yearsSinceWedding}</span> wonderful {yearsSinceWedding === 1 ? 'year' : 'years'} of marriage
+              </div>
+              <div className="text-sm text-gray-600 mt-1">
+                <Heart size={14} className="inline-block text-wedding-blush fill-wedding-blush mr-1" />
+                <span>We continue our journey with love and joy</span>
+              </div>
+            </div>
+          )}
           
           <div className="text-center mt-4 text-sm md:text-base text-wedding-maroon font-medium">
             <span className="inline-flex items-center gap-2 bg-wedding-cream/50 px-4 py-2 rounded-full shadow-sm hover:bg-wedding-cream/70 transition-colors duration-300">

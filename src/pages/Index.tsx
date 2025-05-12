@@ -6,8 +6,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useGuest } from '@/context/GuestContext';
 
 // Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const BRIDE_FIRST_NAME = "Kiara";
+const GROOM_FIRST_NAME = "Virat";
+const BRIDE_FIRST_NAME = "Anushka";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);

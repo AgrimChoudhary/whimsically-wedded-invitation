@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -18,7 +17,11 @@ const AudioContext = createContext<AudioContextType>({
 });
 
 export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabledOnRoutes = [] }) => {
-  const [audio] = useState(new Audio());
+  const [audio] = useState(() => {
+    const audioElement = new Audio();
+    audioElement.autoplay = true;
+    return audioElement;
+  });
   const [isPlaying, setIsPlaying] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const location = useLocation();
@@ -35,22 +38,41 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
     audio.loop = true;
     audio.volume = 0.5;
     audio.preload = "auto";
+    audio.autoplay = true;
+    audio.muted = false;
     
     const initializeAudio = () => {
       if (!isInitialized && !isMusicDisabled) {
         // Start playing automatically
-        const playPromise = audio.play();
-        
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsPlaying(true);
-              setIsInitialized(true);
-            })
-            .catch((error) => {
-              console.log("Audio playback failed:", error);
-              setIsPlaying(false);
-            });
+        try {
+          const playPromise = audio.play();
+          
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                setIsPlaying(true);
+                setIsInitialized(true);
+                audio.muted = false;
+              })
+              .catch((error) => {
+                console.log("Audio playback failed:", error);
+                // Try again with muted (browsers allow muted autoplay)
+                audio.muted = true;
+                audio.play().then(() => {
+                  setIsPlaying(true);
+                  setIsInitialized(true);
+                  // After a second, try to unmute
+                  setTimeout(() => {
+                    audio.muted = false;
+                  }, 1000);
+                }).catch(err => {
+                  console.error("Even muted autoplay failed:", err);
+                  setIsPlaying(false);
+                });
+              });
+          }
+        } catch (error) {
+          console.error("Play attempt failed:", error);
         }
       }
     };
@@ -136,13 +158,29 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
       audio.pause();
       setIsPlaying(false);
     } else {
+      if (!isInitialized) {
+        // If not initialized yet, this is the first play
+        setIsInitialized(true);
+      }
+      audio.muted = false;
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise
           .then(() => setIsPlaying(true))
           .catch(error => {
             console.error("Playback failed:", error);
-            setIsPlaying(false);
+            // Try with muted as a fallback
+            audio.muted = true;
+            audio.play().then(() => {
+              setIsPlaying(true);
+              // Try to unmute after a second
+              setTimeout(() => {
+                audio.muted = false;
+              }, 1000);
+            }).catch(err => {
+              console.error("Even muted playback failed:", err);
+              setIsPlaying(false);
+            });
           });
       }
     }

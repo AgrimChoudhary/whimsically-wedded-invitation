@@ -19,8 +19,8 @@ import { GuestForm } from '@/components/GuestForm';
 import { TemplateSelector } from '@/components/TemplateSelector';
 
 // Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const BRIDE_FIRST_NAME = "Kiara";
+const GROOM_FIRST_NAME = "Virat";
+const BRIDE_FIRST_NAME = "Anushka";
 const WEDDING_DATE = "May 15, 2025";
 
 interface Guest {

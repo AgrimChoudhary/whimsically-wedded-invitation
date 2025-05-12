@@ -3,6 +3,15 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar, Heart } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+// Wedding details as placeholders for easy customization
+const COUPLE_MAIN_IMAGE = "https://images.indianexpress.com/2023/05/anushka-virat.jpg";
+const GROOM_FIRST_NAME = "Virat";
+const BRIDE_FIRST_NAME = "Anushka";
+const WEDDING_DATE = "December 11, 2017";
+const WEDDING_TIME = "7:00 PM";
+const VENUE_NAME = "Borgo Finocchieto";
+const VENUE_LOCATION = "Tuscany, Italy";
+
 const CoupleSection: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const isMobile = useIsMobile();
@@ -32,8 +41,8 @@ const CoupleSection: React.FC = () => {
             <AspectRatio ratio={isMobile ? 4/3 : 21/9} className="bg-wedding-cream">
               <div className="absolute inset-0 overflow-hidden">
                 <img 
-                  src="https://www.koimoi.com/wp-content/new-galleries/2022/12/sidharth-malhotra-kiara-advani-to-have-a-grand-wedding-in-february-01.jpg" 
-                  alt="Sidharth Malhotra and Kiara Advani Wedding" 
+                  src={COUPLE_MAIN_IMAGE} 
+                  alt={`${GROOM_FIRST_NAME} and ${BRIDE_FIRST_NAME} Wedding`} 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"
                 />
@@ -69,7 +78,7 @@ const CoupleSection: React.FC = () => {
             <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 flex justify-center">
               <div className="inline-block py-2 px-6 bg-wedding-gold/60 backdrop-blur-sm rounded-full text-white text-sm sm:text-base shadow-gold-soft">
                 <Calendar size={isMobile ? 16 : 18} className="inline-block mr-2" />
-                <span>May 15, 2025 at 8:00 PM</span>
+                <span>{WEDDING_DATE} at {WEDDING_TIME}</span>
               </div>
             </div>
           </div>

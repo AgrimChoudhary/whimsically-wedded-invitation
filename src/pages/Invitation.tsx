@@ -28,14 +28,55 @@ const Invitation = () => {
   const isMobile = useIsMobile();
   
   // Couple names as placeholders for easy future changes
-  const GROOM_FIRST_NAME = "Sidharth";
-  const GROOM_LAST_NAME = "Malhotra";
-  const BRIDE_FIRST_NAME = "Kiara";
-  const BRIDE_LAST_NAME = "Advani";
-  const GROOM_FATHER = "Sunil Malhotra";
-  const GROOM_MOTHER = "Rimma Malhotra";
-  const BRIDE_FATHER = "Jagdeep Advani";
-  const BRIDE_MOTHER = "Genevieve Advani";
+  const GROOM_FIRST_NAME = "Virat";
+  const GROOM_LAST_NAME = "Kohli";
+  const BRIDE_FIRST_NAME = "Anushka";
+  const BRIDE_LAST_NAME = "Sharma";
+  const GROOM_FATHER = "late. Prem Kohli";
+  const GROOM_MOTHER = "Saroj Kohli";
+  const BRIDE_FATHER = "Ajay Sharma";
+  const BRIDE_MOTHER = "Ashima Sharma";
+  
+  // Wedding details
+  const WEDDING_DATE = "December 11, 2017";
+  const WEDDING_TIME = "7:00 PM";
+  const VENUE_NAME = "Borgo Finocchieto";
+  const VENUE_ADDRESS = "Tuscany, Italy";
+  const VENUE_MAP_LINK = "https://g.co/kgs/WcHVEf1";
+  
+  // Photo gallery images
+  const WEDDING_PHOTOS = [
+    { 
+      url: "https://images.indianexpress.com/2023/05/anushka-virat.jpg",
+      title: "Wedding Day",
+      description: "Our beautiful day in Tuscany, Italy"
+    },
+    { 
+      url: "https://wp.popxo.com/wp-content/uploads/2021/07/FB_virat_anushka_wedding-1.jpg",
+      title: "Wedding Ceremony",
+      description: "The moment we became one"
+    },
+    { 
+      url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1XiN1oirHwJRhEFN4C2nB7D7-c8dgISRdYL8P8fnRFm0tYoJP7dPHpg39tx_GJT0gAy4&usqp=CAU",
+      title: "Mumbai Reception",
+      description: "Celebrations with family and friends"
+    },
+    { 
+      url: "https://i.ndtvimg.com/i/2017-12/virat-kohli-anushka-sharma_806x605_61513870196.jpg",
+      title: "Wedding Rituals",
+      description: "Traditional wedding ceremonies"
+    },
+    { 
+      url: "https://i.ndtvimg.com/i/2017-12/virat-kohli-tweet-with-anushka-twitter_806x605_41513007710.jpg",
+      title: "Our Announcement",
+      description: "Sharing our joy with the world"
+    },
+    { 
+      url: "https://timesofindia.indiatimes.com/photo/msid-62028542/62028542.jpg?resizemode=4",
+      title: "New Delhi Reception",
+      description: "Celebrating with our loved ones"
+    }
+  ];
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -67,8 +108,8 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Wedding date - June 4, 2025 at 7:02 PM
-  const weddingDate = new Date('2025-06-04T19:02:00'); // PLACEHOLDER_WEDDING_DATE
+  // Wedding date - December 11, 2017
+  const weddingDate = new Date(`${WEDDING_DATE}T${WEDDING_TIME.replace(/\s*(AM|PM)$/i, '')}`);
   
   // Get guestId from path to use for navigation
   const getCurrentGuestId = () => {
@@ -163,7 +204,7 @@ const Invitation = () => {
           {/* Section ordering as requested: countdown, wedding journey, family details, events, photos */}
           <CountdownTimer 
             weddingDate={weddingDate} 
-            weddingTime="7:02 PM"
+            weddingTime={WEDDING_TIME}
           />
           
           <FamilyDetails 
@@ -173,28 +214,35 @@ const Invitation = () => {
                 { 
                   name: `Mr. ${GROOM_FATHER} & Mrs. ${GROOM_MOTHER}`, 
                   relation: "Parents of the Groom",
-                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2021/11/sunil-malhotra-with-wife-rimma-malhotra.webp",
+                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ILlate0ymbJOAj2L--rea5OqaoYCckJFB1_M7D_sA4EfkDh9-iLSw7jKFb9INTnIJWg&usqp=CAU",
                   description: "Loving parents who have guided him through life's journey."
                 },
                 { 
                   name: `Mr. ${GROOM_FATHER}`, 
                   relation: "Father of the Groom",
-                  image: "https://i.redd.it/cpy26r2olopc1.jpeg",
-                  description: "A captain in the merchant navy who has been his son's strength and inspiration.",
+                  image: "https://yt3.ggpht.com/2Ume85bWmFMd-2-NYAZ-tJhTOBMfn84Pujcfh-lBfW7e-9aQwnS7CIz_nEIwL1BDpjGNVkUMSU7w=s890-nd-v1",
+                  description: "A loving father who has been his son's strength and inspiration.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mrs. Rimma Malhotra", 
+                  name: "Mrs. Saroj Kohli", 
                   relation: "Mother of the Groom",
-                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlLzeDQRuyataQCZvhLYG9Zmnt5Ukhga_Y4s-7kapr87PeSxxd",
+                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ILlate0ymbJOAj2L--rea5OqaoYCckJFB1_M7D_sA4EfkDh9-iLSw7jKFb9INTnIJWg&usqp=CAU",
                   description: "A homemaker whose love and support have been the foundation of their family.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mr. Harshad Malhotra", 
+                  name: "Mr. Vikas Kohli", 
                   relation: "Brother of the Groom",
-                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSky-6UnO7vxLPnf6QWlgLPKcgqNNQpkVVwHvtzeEDgnZcMkPPA8y5nsMJzf63z58v6WPBhb37K3tVNKO72k8iuCg",
-                  description: "An elder brother who works in the banking sector and has always been Sidharth's role model.",
+                  image: "https://static.abplive.com/wp-content/uploads/2020/03/16185151/5.jpg",
+                  description: "An elder brother who has always been Virat's role model.",
+                  showInDialogOnly: true
+                },
+                { 
+                  name: "Mrs. Bhawna Dhingra", 
+                  relation: "Sister of the Groom",
+                  image: "https://telugu.cdn.zeenews.com/telugu/sites/default/files/bhawnakohlidhingra.jpg",
+                  description: "An elder sister who has always been supportive of Virat.",
                   showInDialogOnly: true
                 },
               ],
@@ -205,28 +253,28 @@ const Invitation = () => {
                 { 
                   name: `Mr. ${BRIDE_FATHER} & Mrs. ${BRIDE_MOTHER}`, 
                   relation: "Parents of the Bride",
-                  image: "https://static.toiimg.com/thumb/imgsize-23456,msid-70473421,width-600,resizemode-4/70473421.jpg",
+                  image: "https://pbs.twimg.com/media/EXojUvqWoAMir7F.jpg",
                   description: "Loving parents who have always encouraged her to follow her dreams."
                 },
                 { 
                   name: `Mr. ${BRIDE_FATHER}`, 
                   relation: "Father of the Bride",
-                  image: "https://starsunfolded.com/wp-content/uploads/2023/02/Jagdeep-Advani.jpg",
-                  description: "A successful businessman from a Sindhi family who has been her pillar of strength.",
+                  image: "https://static.toiimg.com/thumb/msid-73275478,width-400,resizemode-4/73275478.jpg",
+                  description: "A loving father who has been her pillar of strength.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mrs. Genevieve Advani", 
+                  name: "Mrs. Ashima Sharma", 
                   relation: "Mother of the Bride",
-                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2023/02/Genevieve-Jaffrey.jpg",
-                  description: "A former teacher with Scottish, Irish, and Portuguese ancestry who has been her guiding light.",
+                  image: "https://pbs.twimg.com/media/EXojUvqWoAMir7F.jpg",
+                  description: "A loving mother who has been her guiding light.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mr. Mishaal Advani", 
+                  name: "Mr. Karnesh Sharma", 
                   relation: "Brother of the Bride",
-                  image: "https://static.sociofyme.com/thumb/97725020/97725020.jpg?imgsize=702924&width=420&height=746&resizemode=76",
-                  description: "A musician who followed his passion after working as a software engineer.",
+                  image: "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTI_d1kgU8WyT9_M93C9EBA-rfdg00hK23XwEMB3fux1VId-HG5",
+                  description: "An elder brother who has always been supportive of Anushka.",
                   showInDialogOnly: true
                 },
               ],
@@ -239,38 +287,7 @@ const Invitation = () => {
           
           <PhotoGrid
             title="Our Photo Gallery" 
-            photos={[
-              { 
-                url: "https://shaadiwish.com/blog/wp-content/uploads/2023/02/Kiara-Advani-Pink-Lehenga-1.jpg",
-                title: "Our Wedding Day",
-                description: "The most magical day of our lives"
-              },
-              { 
-                url: "https://i.ytimg.com/vi/ie5LRcmvSss/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBa2_kuZKn5ezhF-rnkbiN_HPK4bA",
-                title: "Mehendi Celebration",
-                description: "Celebrating our mehendi ceremony with loved ones"
-              },
-              { 
-                url: "https://i.ytimg.com/vi/PuDFCIGk0Ow/sddefault.jpg",
-                title: "Mumbai Reception",
-                description: "Our reception with friends and family"
-              },
-              { 
-                url: "https://cdn.shopify.com/s/files/1/0665/6222/8454/files/Kiara_Advani_wedding_jewellery_480x480.jpg?v=1681196092",
-                title: "Wedding Jewelry",
-                description: "Beautiful jewelry for our special day"
-              },
-              { 
-                url: "https://peepingmoon-cdn.sgp1.digitaloceanspaces.com/engpeepingmoon/060223115000-63e0e9683fa72sidharth-malhotra-kiara-advani-sangeet-resized.jpg",
-                title: "Sangeet Ceremony",
-                description: "Joyful moments from our sangeet celebration"
-              },
-              { 
-                url: "https://data1.ibtimes.co.in/en/full/781807/sidharth-malhotra-kiara-advani-wedding.jpg?h=450&l=50&t=40",
-                title: "Wedding Portrait",
-                description: "A special portrait after our wedding"
-              },
-            ]}
+            photos={WEDDING_PHOTOS}
           />
           
           <div className="py-10 w-full text-center bg-floral-pattern">
