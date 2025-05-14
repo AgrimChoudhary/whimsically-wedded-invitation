@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -39,7 +40,6 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
     audio.volume = 0.5;
     audio.preload = "auto";
     audio.autoplay = true;
-    audio.muted = false;
     
     const initializeAudio = () => {
       if (!isInitialized && !isMusicDisabled) {
@@ -52,7 +52,6 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
               .then(() => {
                 setIsPlaying(true);
                 setIsInitialized(true);
-                audio.muted = false;
               })
               .catch((error) => {
                 console.log("Audio playback failed:", error);
