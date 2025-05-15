@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -14,8 +15,7 @@ import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti } from '@/components/AnimatedElements';
 import { ArrowLeftCircle, Heart, User, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import AnimatedGuestName from '@/components/AnimatedGuestName';
 
 // Default values from weddingConfig, used as fallbacks or if DB data is incomplete
 import { 
@@ -30,43 +30,9 @@ import {
   GROOM_MOTHER,
   BRIDE_FATHER,
   BRIDE_MOTHER,
-  VENUE_NAME as DEFAULT_VENUE_NAME, // Will be from DB
-  // VENUE_ADDRESS, // Will be from DB
-  // VENUE_MAP_LINK, // Will be from DB
+  VENUE_NAME as DEFAULT_VENUE_NAME, 
   WEDDING_PHOTOS
 } from '@/config/weddingConfig';
-
-// Define a type for the master invitation details fetched from Supabase
-interface MasterInvitationDetails {
-  id: string;
-  bride_first_name: string;
-  bride_last_name: string;
-  groom_first_name: string;
-  groom_last_name: string;
-  wedding_date: string; // YYYY-MM-DD
-  wedding_time: string; // HH:MM
-  couple_photo_url?: string | null;
-  venue_name: string;
-  venue_address: string;
-  venue_map_link?: string | null;
-  phone_number?: string | null;
-  email?: string | null;
-  // Add other fields from 'invitations' table as needed
-}
-
-const fetchMasterInvitationDetails = async (): Promise<MasterInvitationDetails | null> => {
-  const { data, error } = await supabase
-    .from('invitations')
-    .select('*')
-    .limit(1)
-    .single();
-
-  if (error && error.code !== 'PGRST116') { // PGRST116: no rows found
-    console.error('Error fetching master invitation details:', error);
-    throw error; // Or handle more gracefully, e.g., return null and use all defaults
-  }
-  return data as MasterInvitationDetails | null;
-};
 
 const Invitation = () => {
   const [initialPageLoading, setInitialPageLoading] = useState(true); // Renamed from isLoading to avoid conflict
@@ -78,11 +44,6 @@ const Invitation = () => {
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-
-  const { data: invitationDetails, isLoading: isLoadingInvitationDetails } = useQuery<MasterInvitationDetails | null>({
-    queryKey: ['masterInvitationDetails'],
-    queryFn: fetchMasterInvitationDetails,
-  });
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -96,32 +57,16 @@ const Invitation = () => {
     return () => clearTimeout(timer);
   }, [guestId, hasAccepted]);
   
-  // Removed handleOpenRSVP as RSVPModal not primary focus here
-
-  const handleAcceptInvitation = () => {
-    setConfettiActive(true);
-    updateGuestStatus('accepted');
-    setTimeout(() => {
-      setShowThankYouMessage(true);
-      setConfettiActive(false);
-    }, 800);
-  };
-
+  // Parse wedding date from config
   const parseWeddingDateTime = () => {
-    const dateStr = invitationDetails?.wedding_date || DEFAULT_WEDDING_DATE.replace(/,/g, '');
-    const timeStr = invitationDetails?.wedding_time || DEFAULT_WEDDING_TIME;
+    const dateStr = DEFAULT_WEDDING_DATE.replace(/,/g, '');
+    const timeStr = DEFAULT_WEDDING_TIME;
 
-    // Parse date (YYYY-MM-DD or Month Day Year)
-    let year, month, day;
-    if (dateStr.includes('-')) { // YYYY-MM-DD
-        [year, month, day] = dateStr.split('-').map(Number);
-        month -= 1; // JS months are 0-indexed
-    } else { // Month Day Year
-        const parts = dateStr.split(' ');
-        month = new Date(Date.parse(`${parts[0]} 1, 2000`)).getMonth();
-        day = parseInt(parts[1], 10);
-        year = parseInt(parts[2], 10);
-    }
+    // Parse date (Month Day Year)
+    const parts = dateStr.split(' ');
+    const month = new Date(Date.parse(`${parts[0]} 1, 2000`)).getMonth();
+    const day = parseInt(parts[1], 10);
+    const year = parseInt(parts[2], 10);
     
     // Parse time (HH:MM)
     let hours = 19, minutes = 0; // Default to 7:00 PM
@@ -152,16 +97,18 @@ const Invitation = () => {
   
   const currentGuestIdPath = getCurrentGuestIdPath();
 
-  // Determine effective values, preferring DB over defaults
-  const effectiveGroomFirstName = invitationDetails?.groom_first_name || DEFAULT_GROOM_FIRST_NAME;
-  const effectiveBrideFirstName = invitationDetails?.bride_first_name || DEFAULT_BRIDE_FIRST_NAME;
-  const effectiveWeddingTime = invitationDetails?.wedding_time || DEFAULT_WEDDING_TIME;
-
-  const isLoadingCombined = initialPageLoading || isLoadingInvitationDetails;
+  const handleAcceptInvitation = () => {
+    setConfettiActive(true);
+    updateGuestStatus('accepted');
+    setTimeout(() => {
+      setShowThankYouMessage(true);
+      setConfettiActive(false);
+    }, 800);
+  };
 
   return (
     <div className="min-h-screen w-full pattern-background">
-      {isLoadingCombined ? (
+      {initialPageLoading ? (
         <div className="loading-overlay flex flex-col items-center justify-center min-h-screen">
           <div className="relative">
             <div className="loading-spinner mb-4 w-16 h-16 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
@@ -234,13 +181,13 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            groomName={effectiveGroomFirstName}
-            brideName={effectiveBrideFirstName}
+            groomName={DEFAULT_GROOM_FIRST_NAME}
+            brideName={DEFAULT_BRIDE_FIRST_NAME}
           />
           
           <CountdownTimer 
             weddingDate={weddingDateObject} 
-            weddingTime={effectiveWeddingTime} // Pass the time string
+            weddingTime={DEFAULT_WEDDING_TIME}
           />
           
           <FamilyDetails 
@@ -307,13 +254,13 @@ const Invitation = () => {
             }}
           />
 
-          <CoupleSection /> {/* Uses GROOM_FIRST_NAME, BRIDE_FIRST_NAME from config for now */}
+          <CoupleSection />
   
-          <EventTimeline /> {/* Uses hardcoded events for now */}
+          <EventTimeline />
           
           <PhotoGrid
             title="Our Photo Gallery" 
-            photos={WEDDING_PHOTOS} // Uses weddingConfig.ts for now
+            photos={WEDDING_PHOTOS}
           />
           
           <div className="py-10 w-full text-center bg-floral-pattern">

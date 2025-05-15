@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { CalendarDays, Clock } from 'lucide-react';
 
@@ -6,13 +7,20 @@ interface CountdownTimerProps {
   weddingTime: string; // Keep as string for display HH:MM
 }
 
-const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTime }) => {
-  const calculateTimeLeft = () => {
-    const difference = +weddingDate - +new Date();
-    let timeLeft = {};
+interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  isPast: boolean;
+}
 
+const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTime }) => {
+  const calculateTimeLeft = (): TimeLeft => {
+    const difference = +weddingDate - +new Date();
+    
     if (difference > 0) {
-      timeLeft = {
+      return {
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / 1000 / 60) % 60),
@@ -22,7 +30,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
     } else {
       // If the date is in the past
       const pastDifference = +new Date() - +weddingDate;
-      timeLeft = {
+      return {
         days: Math.floor(pastDifference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((pastDifference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((pastDifference / 1000 / 60) % 60),
@@ -30,10 +38,9 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
         isPast: true,
       };
     }
-    return timeLeft;
   };
 
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -64,9 +71,8 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
       }
   }
 
-
+  // Filter out isPast from timeParts for rendering
   const timeParts = Object.entries(timeLeft).filter(([key]) => key !== 'isPast');
-
 
   return (
     <section className="py-12 md:py-16 bg-wedding-cream/30">
