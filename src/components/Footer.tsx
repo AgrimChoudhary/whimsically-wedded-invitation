@@ -5,18 +5,10 @@ import { useAudio } from "@/context/AudioContext";
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX } from 'lucide-react';
 
-// Main wedding details as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Virat";
-const GROOM_LAST_NAME = "Kohli"; 
-const BRIDE_FIRST_NAME = "Anushka";
-const BRIDE_LAST_NAME = "Sharma";
-const WEDDING_DATE = "December 11, 2017";
-const VENUE_NAME = "Borgo Finocchieto";
-const VENUE_ADDRESS = "Tuscany, Italy";
-const VENUE_MAP_LINK = "https://g.co/kgs/WcHVEf1";
-const CONTACT_PERSON = "Virat Kohli";
-const CONTACT_ROLE = "Groom";
-const CONTACT_PHONE = "+91 98765 43210";
+// Couple names as placeholders for easy future changes
+const GROOM_FIRST_NAME = "Sidharth";
+const BRIDE_FIRST_NAME = "Kiara";
+const WEDDING_DATE = "May 15, 2025";
 
 export const Footer: React.FC = () => {
   const isMobile = useIsMobile();
@@ -50,11 +42,11 @@ export const Footer: React.FC = () => {
                   <MapPin size={24} className="text-wedding-maroon" />
                 </div>
                 <h3 className="text-xl font-playfair text-wedding-maroon mb-2">Venue</h3>
-                <p className="text-base font-medium text-gray-700 mb-1">{VENUE_NAME}</p>
-                <p className="text-sm text-gray-600 mb-3">{VENUE_ADDRESS}</p>
+                <p className="text-base font-medium text-gray-700 mb-1">Suryagarh Palace</p>
+                <p className="text-sm text-gray-600 mb-3">near Kahala Phata, Sam Road, Jaisalmer, Rajasthan</p>
                 
                 <a 
-                  href={VENUE_MAP_LINK} 
+                  href="https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-4 py-2 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-sm font-medium"
@@ -79,15 +71,15 @@ export const Footer: React.FC = () => {
                   <Phone size={24} className="text-wedding-maroon" />
                 </div>
                 <h3 className="text-xl font-playfair text-wedding-maroon mb-2">Contact</h3>
-                <p className="text-base font-medium text-gray-700 mb-1">{CONTACT_PERSON}</p>
-                <p className="text-sm text-gray-600 mb-3">{CONTACT_ROLE}</p>
+                <p className="text-base font-medium text-gray-700 mb-1">Sidharth Malhotra</p>
+                <p className="text-sm text-gray-600 mb-3">Groom</p>
                 
                 <a 
-                  href={`tel:${CONTACT_PHONE}`} 
+                  href="tel:+919876543210" 
                   className="inline-flex items-center px-4 py-2 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-sm font-medium"
                 >
                   <Phone size={14} className="mr-1" />
-                  {CONTACT_PHONE}
+                  +91 98765 43210
                 </a>
               </div>
             </div>

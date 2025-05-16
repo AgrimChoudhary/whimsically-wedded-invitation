@@ -1,44 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar, Heart } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { 
-  COUPLE_MAIN_IMAGE, 
-  GROOM_FIRST_NAME, 
-  BRIDE_FIRST_NAME, 
-  WEDDING_DATE, 
-  WEDDING_TIME, 
-  VENUE_NAME, 
-  VENUE_ADDRESS 
-} from '@/config/weddingConfig';
 
 const CoupleSection: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-    
-    const element = document.getElementById('couple-section');
-    if (element) observer.observe(element);
-    
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section id="couple-section" className="w-full py-8 md:py-12 overflow-hidden bg-wedding-cream/20">
+    <section className="w-full py-8 md:py-12 overflow-hidden bg-wedding-cream/20">
       <div className="w-full max-w-5xl mx-auto px-4">
-        <div className={`text-center mb-8 transition-all duration-700 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className="text-center mb-8">
           <h2 className="font-dancing-script text-3xl sm:text-4xl text-wedding-maroon mb-2">Our Wedding Journey</h2>
           <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
             Join us as we celebrate our love and begin our journey together with blessings from family and friends
@@ -51,17 +23,17 @@ const CoupleSection: React.FC = () => {
         </div>
 
         {/* Main couple image */}
-        <div className={`luxury-card overflow-hidden shadow-gold-soft luxury-glow-hover transition-all duration-700 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} relative mb-12`}>
+        <div className="glass-card overflow-hidden shadow-gold-soft hover:shadow-gold-glow transition-all duration-700 relative mb-12">
           <div 
             className="relative w-full"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <AspectRatio ratio={isMobile ? 4/3 : 16/9} className="bg-wedding-cream">
+            <AspectRatio ratio={isMobile ? 4/3 : 21/9} className="bg-wedding-cream">
               <div className="absolute inset-0 overflow-hidden">
                 <img 
-                  src={COUPLE_MAIN_IMAGE} 
-                  alt={`${GROOM_FIRST_NAME} and ${BRIDE_FIRST_NAME} Wedding`} 
+                  src="https://www.koimoi.com/wp-content/new-galleries/2022/12/sidharth-malhotra-kiara-advani-to-have-a-grand-wedding-in-february-01.jpg" 
+                  alt="Sidharth Malhotra and Kiara Advani Wedding" 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"
                 />
@@ -97,18 +69,9 @@ const CoupleSection: React.FC = () => {
             <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 flex justify-center">
               <div className="inline-block py-2 px-6 bg-wedding-gold/60 backdrop-blur-sm rounded-full text-white text-sm sm:text-base shadow-gold-soft">
                 <Calendar size={isMobile ? 16 : 18} className="inline-block mr-2" />
-                <span>{WEDDING_DATE} at {WEDDING_TIME}</span>
+                <span>May 15, 2025 at 8:00 PM</span>
               </div>
             </div>
-          </div>
-        </div>
-        
-        {/* Venue information with luxury styling */}
-        <div className={`text-center mt-8 transition-all duration-700 transform ${isVisible ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-10'}`}>
-          <div className="inline-block px-8 py-4 rounded-lg bg-wedding-cream/40 luxury-glow-hover shadow-gold-soft">
-            <h3 className="font-dancing-script text-2xl text-wedding-maroon mb-2">Venue</h3>
-            <p className="text-wedding-gold font-playfair text-xl">{VENUE_NAME}</p>
-            <p className="text-gray-600">{VENUE_ADDRESS}</p>
           </div>
         </div>
       </div>

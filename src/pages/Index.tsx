@@ -1,56 +1,25 @@
-
 import React, { useState, useEffect } from 'react';
 import WelcomeForm from '@/components/WelcomeForm';
 import { FloatingPetals } from '@/components/AnimatedElements';
-import { Star } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGuest } from '@/context/GuestContext';
-import { GROOM_FIRST_NAME, BRIDE_FIRST_NAME } from '@/config/weddingConfig';
+
+// Couple names as placeholders for easy future changes
+const GROOM_FIRST_NAME = "Sidharth";
+const BRIDE_FIRST_NAME = "Kiara";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showSparkle, setShowSparkle] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
   const isMobile = useIsMobile();
   const { guestName } = useGuest();
   
   useEffect(() => {
-    // Preload important images
-    const imageUrls = [
-      '/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png', // Header image
-      'https://images.indianexpress.com/2023/05/anushka-virat.jpg' // Couple main image
-    ];
-    
-    let loadedCount = 0;
-    const totalImages = imageUrls.length;
-    
-    imageUrls.forEach(src => {
-      const img = new Image();
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          setImagesLoaded(true);
-          
-          // Delay slightly to ensure smooth transition
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 500);
-        }
-      };
-      img.onerror = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          setImagesLoaded(true);
-          setIsLoading(false);
-        }
-      };
-      img.src = src;
-    });
-    
-    // Fallback timer in case images don't load
+    // Simulating assets loading
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2500);
+    }, 1500);
     
     // Sparkle effect timing
     const sparkleTimer = setInterval(() => {
@@ -81,7 +50,7 @@ const Index = () => {
             <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
               {GROOM_FIRST_NAME} & {BRIDE_FIRST_NAME}
               {showSparkle && (
-                <Star 
+                <Sparkles 
                   size={isMobile ? 16 : 24} 
                   className="absolute text-wedding-gold animate-pulse-soft" 
                   style={{ 

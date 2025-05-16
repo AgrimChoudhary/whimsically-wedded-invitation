@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Heart, User, Copy, Edit, Trash, Share2, FilePenLine } from 'lucide-react';
+import { Settings, Heart, User, Copy, Edit, Trash, Share2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,17 +17,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { GuestCard } from '@/components/GuestCard';
 import { GuestForm } from '@/components/GuestForm';
 import { TemplateSelector } from '@/components/TemplateSelector';
-import { EditInvitationDetailsDialog } from '@/components/EditInvitationDetailsDialog';
 
-// Couple names as placeholders for easy future changes - These will be less relevant as data moves to DB
-// const GROOM_FIRST_NAME = "Virat"; // Will be replaced by DB data
-// const BRIDE_FIRST_NAME = "Anushka"; // Will be replaced by DB data
-// const WEDDING_DATE = "May 15, 2025"; // Will be replaced by DB data
-
-// ... keep existing code (Guest interface, defaultMessageTemplate, messageTemplates)
-const GROOM_FIRST_NAME = "Virat"; // Keep for message template until fully dynamic
-const BRIDE_FIRST_NAME = "Anushka"; // Keep for message template
-const WEDDING_DATE = "May 15, 2025"; // Keep for message template
+// Couple names as placeholders for easy future changes
+const GROOM_FIRST_NAME = "Sidharth";
+const BRIDE_FIRST_NAME = "Kiara";
+const WEDDING_DATE = "May 15, 2025";
 
 interface Guest {
   id: string;
@@ -74,7 +68,6 @@ const GuestManagement = () => {
   const [editName, setEditName] = useState('');
   const [editMobile, setEditMobile] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [isEditInvitationDetailsOpen, setIsEditInvitationDetailsOpen] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
@@ -173,10 +166,10 @@ const GuestManagement = () => {
       }
       
       // Update the local state
-      setGuests(guests.map(g => 
-        g.id === guestToEdit.id 
-          ? { ...g, name: editName, mobile: editMobile } 
-          : g
+      setGuests(guests.map(guest => 
+        guest.id === guestToEdit.id 
+          ? { ...guest, name: editName, mobile: editMobile } 
+          : guest
       ));
       
       toast({
@@ -196,12 +189,17 @@ const GuestManagement = () => {
   };
   
   const getGuestLink = (guestId: string) => {
+    // Get the base URL of the site
     const baseUrl = window.location.origin;
-    return `${baseUrl}/invitation/${guestId}`;
+    // Create the guest-specific link
+    return `${baseUrl}/${guestId}`;
   };
 
   const copyGuestLink = (guestId: string) => {
+    // Get the welcome link
     const welcomeLink = getGuestLink(guestId);
+    
+    // Copy to clipboard
     navigator.clipboard.writeText(welcomeLink)
       .then(() => {
         toast({
@@ -221,14 +219,22 @@ const GuestManagement = () => {
 
   const shareOnWhatsApp = (guest: Guest) => {
     const welcomeLink = getGuestLink(guest.id);
+    
+    // Replace template variables with actual values
     let personalizedMessage = messageTemplate
       .replace(/{guest-name}/g, guest.name)
       .replace(/{unique-link}/g, welcomeLink);
+    
+    // Encode for URL
     const message = encodeURIComponent(personalizedMessage);
+    
+    // Format the phone number (remove any non-digits)
     let phoneNumber = guest.mobile.replace(/\D/g, "");
+    // If it doesn't start with a country code, add India's country code
     if (!phoneNumber.startsWith("+") && !phoneNumber.startsWith("00")) {
       phoneNumber = "91" + phoneNumber;
     }
+    
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -239,9 +245,11 @@ const GuestManagement = () => {
       if (textArea) {
         const start = textArea.selectionStart;
         const end = textArea.selectionEnd;
+        
         const text = prev;
         const before = text.substring(0, start);
         const after = text.substring(end, text.length);
+        
         textArea.focus();
         return before + placeholder + after;
       }
@@ -277,18 +285,10 @@ const GuestManagement = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
           <div>
             <h1 className="font-great-vibes text-3xl sm:text-4xl text-wedding-maroon mb-2">Guest Management</h1>
-            <p className="text-gray-600">Create personalized invitation links for your guests and manage invitation details.</p>
+            <p className="text-gray-600">Create personalized invitation links for your guests</p>
           </div>
           
-          <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-2">
-            <Button 
-              variant="outline" 
-              className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream w-full sm:w-auto"
-              onClick={() => setIsEditInvitationDetailsOpen(true)}
-            >
-              <FilePenLine size={16} className="mr-2 text-wedding-gold" />
-              Edit Invitation Details
-            </Button>
+          <div className="mt-4 md:mt-0">
             <Button 
               variant="outline" 
               className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream w-full sm:w-auto"
@@ -329,6 +329,7 @@ const GuestManagement = () => {
             ) : (
               <div className="overflow-x-auto">
                 {isMobile ? (
+                  // Mobile card view for guests - Improved layout
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {guests.map((guest) => (
                       <GuestCard
@@ -342,6 +343,7 @@ const GuestManagement = () => {
                     ))}
                   </div>
                 ) : (
+                  // Desktop table view
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -613,17 +615,6 @@ const GuestManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* New Dialog for Editing Invitation Details */}
-      <EditInvitationDetailsDialog
-        open={isEditInvitationDetailsOpen}
-        onOpenChange={setIsEditInvitationDetailsOpen}
-        onSuccess={() => {
-          // Potentially refresh any data on GuestManagement page if needed,
-          // though changes primarily affect the Invitation page.
-          // For now, just close. Future: could re-fetch invitation dependent data.
-        }}
-      />
     </div>
   );
 };

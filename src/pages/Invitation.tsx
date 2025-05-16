@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from '@/components/ui/button';
@@ -12,44 +11,38 @@ import EventTimeline from '@/components/EventTimeline';
 import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
-import { FloatingPetals, Confetti } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Heart, User, Music, Volume2, VolumeX } from 'lucide-react';
+import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
+import { ArrowLeftCircle, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import AnimatedGuestName from '@/components/AnimatedGuestName';
-
-// Default values from weddingConfig, used as fallbacks or if DB data is incomplete
-import { 
-  WEDDING_DATE as DEFAULT_WEDDING_DATE, 
-  WEDDING_TIME as DEFAULT_WEDDING_TIME, 
-  GROOM_FIRST_NAME as DEFAULT_GROOM_FIRST_NAME, 
-  BRIDE_FIRST_NAME as DEFAULT_BRIDE_FIRST_NAME,
-  // Constants for sections not yet dynamic
-  GROOM_LAST_NAME, 
-  BRIDE_LAST_NAME,
-  GROOM_FATHER,
-  GROOM_MOTHER,
-  BRIDE_FATHER,
-  BRIDE_MOTHER,
-  VENUE_NAME as DEFAULT_VENUE_NAME, 
-  WEDDING_PHOTOS
-} from '@/config/weddingConfig';
+import { Badge } from '@/components/ui/badge';
+import AnimatedGuestName from '../components/AnimatedGuestName';
 
 const Invitation = () => {
-  const [initialPageLoading, setInitialPageLoading] = useState(true); // Renamed from isLoading to avoid conflict
+  const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
-  const [confettiActive, setConfettiActive] = useState(false); // Renamed from confetti
+  const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
+  // Couple names as placeholders for easy future changes
+  const GROOM_FIRST_NAME = "Sidharth";
+  const GROOM_LAST_NAME = "Malhotra";
+  const BRIDE_FIRST_NAME = "Kiara";
+  const BRIDE_LAST_NAME = "Advani";
+  const GROOM_FATHER = "Sunil Malhotra";
+  const GROOM_MOTHER = "Rimma Malhotra";
+  const BRIDE_FATHER = "Jagdeep Advani";
+  const BRIDE_MOTHER = "Genevieve Advani";
+  
   useEffect(() => {
     const timer = setTimeout(() => {
-      setInitialPageLoading(false);
+      setIsLoading(false);
     }, 1500);
     
+    // If there's a guestId and they've already accepted, show thank you message
     if (guestId && hasAccepted) {
       setShowThankYouMessage(true);
     }
@@ -57,58 +50,40 @@ const Invitation = () => {
     return () => clearTimeout(timer);
   }, [guestId, hasAccepted]);
   
-  // Parse wedding date from config
-  const parseWeddingDateTime = () => {
-    const dateStr = DEFAULT_WEDDING_DATE.replace(/,/g, '');
-    const timeStr = DEFAULT_WEDDING_TIME;
-
-    // Parse date (Month Day Year)
-    const parts = dateStr.split(' ');
-    const month = new Date(Date.parse(`${parts[0]} 1, 2000`)).getMonth();
-    const day = parseInt(parts[1], 10);
-    const year = parseInt(parts[2], 10);
-    
-    // Parse time (HH:MM)
-    let hours = 19, minutes = 0; // Default to 7:00 PM
-    if (timeStr) {
-        const timeParts = timeStr.match(/(\d+):(\d+)/);
-        if (timeParts) {
-            hours = parseInt(timeParts[1], 10);
-            minutes = parseInt(timeParts[2], 10);
-        }
-    }
-    
-    return new Date(year, month, day, hours, minutes, 0);
+  const handleOpenRSVP = () => {
+    setConfetti(true);
+    setTimeout(() => {
+      setShowRSVP(true);
+      setConfetti(false);
+    }, 800);
   };
+
+  const handleAcceptInvitation = () => {
+    setConfetti(true);
+    updateGuestStatus('accepted');
+    setTimeout(() => {
+      setShowThankYouMessage(true);
+      setConfetti(false);
+    }, 800);
+  };
+
+  // Wedding date - May 15, 2025
+  const weddingDate = new Date('2025-05-15T20:00:00'); // PLACEHOLDER_WEDDING_DATE
   
-  const weddingDateObject = parseWeddingDateTime();
-  
-  const getCurrentGuestIdPath = () => {
+  // Get guestId from path to use for navigation
+  const getCurrentGuestId = () => {
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     if (pathParts.length === 2 && pathParts[0] === 'invitation') {
-      return pathParts[1]; // This is the guest ID from URL like /invitation/:guestId
-    }
-    // If the path is just /:guestId (older format perhaps)
-    if (pathParts.length === 1 && pathParts[0] !== 'invitation' && pathParts[0] !== 'guest-management') {
-        return pathParts[0];
+      return pathParts[1];
     }
     return null;
   };
   
-  const currentGuestIdPath = getCurrentGuestIdPath();
-
-  const handleAcceptInvitation = () => {
-    setConfettiActive(true);
-    updateGuestStatus('accepted');
-    setTimeout(() => {
-      setShowThankYouMessage(true);
-      setConfettiActive(false);
-    }, 800);
-  };
+  const currentGuestId = getCurrentGuestId();
 
   return (
     <div className="min-h-screen w-full pattern-background">
-      {initialPageLoading ? (
+      {isLoading ? (
         <div className="loading-overlay flex flex-col items-center justify-center min-h-screen">
           <div className="relative">
             <div className="loading-spinner mb-4 w-16 h-16 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
@@ -123,7 +98,7 @@ const Invitation = () => {
                   {isGuestLoading ? (
                     <span className="absolute inset-0 w-full h-6 bg-wedding-gold/10 rounded animate-pulse"></span>
                   ) : (
-                    <span className="font-great-vibes gold-highlight animate-shimmer">{guestName || "Guest Name"}</span>
+                    <span className="font-great-vibes gold-highlight animate-shimmer">{guestName || "Guest"}</span>
                   )}
                 </span>
               </h3>
@@ -139,7 +114,7 @@ const Invitation = () => {
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
           <FloatingPetals />
-          <Confetti isActive={confettiActive} />
+          <Confetti isActive={confetti} />
           
           <div className="fixed bottom-20 right-4 z-30 flex flex-col gap-3">
             <Button 
@@ -158,7 +133,7 @@ const Invitation = () => {
             
             {!isMobile && (
               <Button 
-                onClick={() => currentGuestIdPath ? navigate(`/${currentGuestIdPath}`) : navigate('/')}
+                onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
                 variant="outline"
                 size="icon"
                 className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
@@ -170,8 +145,8 @@ const Invitation = () => {
           </div>
           
           {isMobile && (
-             <button 
-              onClick={() => currentGuestIdPath ? navigate(`/${currentGuestIdPath}`) : navigate('/')}
+            <button 
+              onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
               className="fixed top-4 left-4 z-30 flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm"
               aria-label="Go back"
             >
@@ -181,46 +156,45 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            groomName={DEFAULT_GROOM_FIRST_NAME}
-            brideName={DEFAULT_BRIDE_FIRST_NAME}
+            groomName={GROOM_FIRST_NAME}
+            brideName={BRIDE_FIRST_NAME}
           />
           
+          {/* Section ordering as requested: countdown, wedding journey, family details, events, photos */}
           <CountdownTimer 
-            weddingDate={weddingDateObject} 
-            weddingTime={DEFAULT_WEDDING_TIME}
+            weddingDate={weddingDate} 
+            weddingTime="8:00 PM"
           />
           
           <FamilyDetails 
             groomFamily={{
               title: "Groom's Family",
               members: [
-                { name: `Mr. ${GROOM_FATHER} & Mrs. ${GROOM_MOTHER}`, relation: "Parents of the Groom", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ILlate0ymbJOAj2L--rea5OqaoYCckJFB1_M7D_sA4EfkDh9-iLSw7jKFb9INTnIJWg&usqp=CAU", description: "Loving parents..." },
+                { 
+                  name: `Mr. ${GROOM_FATHER} & Mrs. ${GROOM_MOTHER}`, 
+                  relation: "Parents of the Groom",
+                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2021/11/sunil-malhotra-with-wife-rimma-malhotra.webp",
+                  description: "Loving parents who have guided him through life's journey."
+                },
                 { 
                   name: `Mr. ${GROOM_FATHER}`, 
                   relation: "Father of the Groom",
-                  image: "https://yt3.ggpht.com/2Ume85bWmFMd-2-NYAZ-tJhTOBMfn84Pujcfh-lBfW7e-9aQwnS7CIz_nEIwL1BDpjGNVkUMSU7w=s890-nd-v1",
-                  description: "A loving father who has been his son's strength and inspiration.",
+                  image: "https://i.redd.it/cpy26r2olopc1.jpeg",
+                  description: "A captain in the merchant navy who has been his son's strength and inspiration.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mrs. Saroj Kohli", 
+                  name: "Mrs. Rimma Malhotra", 
                   relation: "Mother of the Groom",
-                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4ILlate0ymbJOAj2L--rea5OqaoYCckJFB1_M7D_sA4EfkDh9-iLSw7jKFb9INTnIJWg&usqp=CAU",
+                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlLzeDQRuyataQCZvhLYG9Zmnt5Ukhga_Y4s-7kapr87PeSxxd",
                   description: "A homemaker whose love and support have been the foundation of their family.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mr. Vikas Kohli", 
+                  name: "Mr. Harshad Malhotra", 
                   relation: "Brother of the Groom",
-                  image: "https://static.abplive.com/wp-content/uploads/2020/03/16185151/5.jpg",
-                  description: "An elder brother who has always been Virat's role model.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mrs. Bhawna Dhingra", 
-                  relation: "Sister of the Groom",
-                  image: "https://telugu.cdn.zeenews.com/telugu/sites/default/files/bhawnakohlidhingra.jpg",
-                  description: "An elder sister who has always been supportive of Virat.",
+                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSky-6UnO7vxLPnf6QWlgLPKcgqNNQpkVVwHvtzeEDgnZcMkPPA8y5nsMJzf63z58v6WPBhb37K3tVNKO72k8iuCg",
+                  description: "An elder brother who works in the banking sector and has always been Sidharth's role model.",
                   showInDialogOnly: true
                 },
               ],
@@ -228,26 +202,31 @@ const Invitation = () => {
             brideFamily={{
               title: "Bride's Family",
               members: [
-                { name: `Mr. ${BRIDE_FATHER} & Mrs. ${BRIDE_MOTHER}`, relation: "Parents of the Bride", image: "https://pbs.twimg.com/media/EXojUvqWoAMir7F.jpg", description: "Loving parents..." },
+                { 
+                  name: `Mr. ${BRIDE_FATHER} & Mrs. ${BRIDE_MOTHER}`, 
+                  relation: "Parents of the Bride",
+                  image: "https://static.toiimg.com/thumb/imgsize-23456,msid-70473421,width-600,resizemode-4/70473421.jpg",
+                  description: "Loving parents who have always encouraged her to follow her dreams."
+                },
                 { 
                   name: `Mr. ${BRIDE_FATHER}`, 
                   relation: "Father of the Bride",
-                  image: "https://static.toiimg.com/thumb/msid-73275478,width-400,resizemode-4/73275478.jpg",
-                  description: "A loving father who has been her pillar of strength.",
+                  image: "https://starsunfolded.com/wp-content/uploads/2023/02/Jagdeep-Advani.jpg",
+                  description: "A successful businessman from a Sindhi family who has been her pillar of strength.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mrs. Ashima Sharma", 
+                  name: "Mrs. Genevieve Advani", 
                   relation: "Mother of the Bride",
-                  image: "https://pbs.twimg.com/media/EXojUvqWoAMir7F.jpg",
-                  description: "A loving mother who has been her guiding light.",
+                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2023/02/Genevieve-Jaffrey.jpg",
+                  description: "A former teacher with Scottish, Irish, and Portuguese ancestry who has been her guiding light.",
                   showInDialogOnly: true
                 },
                 { 
-                  name: "Mr. Karnesh Sharma", 
+                  name: "Mr. Mishaal Advani", 
                   relation: "Brother of the Bride",
-                  image: "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTI_d1kgU8WyT9_M93C9EBA-rfdg00hK23XwEMB3fux1VId-HG5",
-                  description: "An elder brother who has always been supportive of Anushka.",
+                  image: "https://static.sociofyme.com/thumb/97725020/97725020.jpg?imgsize=702924&width=420&height=746&resizemode=76",
+                  description: "A musician who followed his passion after working as a software engineer.",
                   showInDialogOnly: true
                 },
               ],
@@ -260,13 +239,44 @@ const Invitation = () => {
           
           <PhotoGrid
             title="Our Photo Gallery" 
-            photos={WEDDING_PHOTOS}
+            photos={[
+              { 
+                url: "https://shaadiwish.com/blog/wp-content/uploads/2023/02/Kiara-Advani-Pink-Lehenga-1.jpg",
+                title: "Our Wedding Day",
+                description: "The most magical day of our lives"
+              },
+              { 
+                url: "https://i.ytimg.com/vi/ie5LRcmvSss/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBa2_kuZKn5ezhF-rnkbiN_HPK4bA",
+                title: "Mehendi Celebration",
+                description: "Celebrating our mehendi ceremony with loved ones"
+              },
+              { 
+                url: "https://i.ytimg.com/vi/PuDFCIGk0Ow/sddefault.jpg",
+                title: "Mumbai Reception",
+                description: "Our reception with friends and family"
+              },
+              { 
+                url: "https://cdn.shopify.com/s/files/1/0665/6222/8454/files/Kiara_Advani_wedding_jewellery_480x480.jpg?v=1681196092",
+                title: "Wedding Jewelry",
+                description: "Beautiful jewelry for our special day"
+              },
+              { 
+                url: "https://peepingmoon-cdn.sgp1.digitaloceanspaces.com/engpeepingmoon/060223115000-63e0e9683fa72sidharth-malhotra-kiara-advani-sangeet-resized.jpg",
+                title: "Sangeet Ceremony",
+                description: "Joyful moments from our sangeet celebration"
+              },
+              { 
+                url: "https://data1.ibtimes.co.in/en/full/781807/sidharth-malhotra-kiara-advani-wedding.jpg?h=450&l=50&t=40",
+                title: "Wedding Portrait",
+                description: "A special portrait after our wedding"
+              },
+            ]}
           />
           
           <div className="py-10 w-full text-center bg-floral-pattern">
             <div className="relative inline-block">
               {showThankYouMessage ? (
-                <div className="luxury-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center luxury-glow-hover">
+                <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
                   <h3 className="text-xl font-playfair text-wedding-maroon mb-2">
                     {isGuestLoading ? (
                       <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
