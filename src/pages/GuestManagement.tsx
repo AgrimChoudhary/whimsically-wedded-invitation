@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Heart, User, Copy, Edit, Trash, Share2 } from 'lucide-react';
+import { Settings, Heart, User, Copy, Edit, Trash, Share2, CalendarDays } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -288,7 +288,16 @@ const GuestManagement = () => {
             <p className="text-gray-600">Create personalized invitation links for your guests</p>
           </div>
           
-          <div className="mt-4 md:mt-0">
+          <div className="mt-4 md:mt-0 flex gap-3">
+            <Button 
+              variant="outline" 
+              className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream w-full sm:w-auto"
+              onClick={() => navigate('/manage-events')}
+            >
+              <CalendarDays size={16} className="mr-2 text-wedding-gold" />
+              Manage Events
+            </Button>
+            
             <Button 
               variant="outline" 
               className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream w-full sm:w-auto"
