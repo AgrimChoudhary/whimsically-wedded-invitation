@@ -38,6 +38,9 @@ const ManageEvents: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const isMobile = useIsMobile();
 
+  // Define the 4 main events that should be shown
+  const mainEventNames = ['Mehendi Ceremony', 'Sangeet Night', 'Wedding Ceremony', 'Reception'];
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -45,10 +48,11 @@ const ManageEvents: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch events
+      // Fetch only the main events that match our timeline
       const { data: eventsData, error: eventsError } = await supabase
         .from('wedding_events')
         .select('*')
+        .in('event_name', mainEventNames)
         .order('event_date', { ascending: true });
 
       if (eventsError) throw eventsError;

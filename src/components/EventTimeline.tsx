@@ -3,8 +3,11 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Calendar, Music, Heart, MapPin, ExternalLink } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { useGuest } from '@/context/GuestContext';
 
 interface Event {
+  id: string;
   name: string;
   date: string;
   time: string;
@@ -17,24 +20,29 @@ interface Event {
 const EventTimeline: React.FC = () => {
   const [visibleEvents, setVisibleEvents] = useState<number[]>([]);
   const [activeEvent, setActiveEvent] = useState<number | null>(null);
+  const [userEvents, setUserEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const eventRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isMobile = useIsMobile();
+  const { guestId } = useGuest();
   
-  const events: Event[] = [
+  const defaultEvents: Event[] = [
     {
+      id: "mehendi",
       name: "Mehendi Ceremony",
-      date: "14th May 2025",
-      time: "11:00 AM",
-      venue: "Suryagarh Palace",
+      date: "28th June 2025",
+      time: "4:00 PM",
+      venue: "Royal Gardens",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
       icon: <div className="p-1.5 rounded-full bg-red-100 text-red-600"><Heart size={14} /></div>,
       color: "bg-red-50 border-red-200"
     },
     {
-      name: "Sangeet Ceremony",
-      date: "14th May 2025",
+      id: "sangeet",
+      name: "Sangeet Night",
+      date: "29th June 2025",
       time: "7:00 PM",
-      venue: "Suryagarh Palace",
+      venue: "Grand Ballroom",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
       icon: <div className="p-1.5 rounded-full bg-yellow-100 text-yellow-600">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,10 +54,11 @@ const EventTimeline: React.FC = () => {
       color: "bg-yellow-50 border-yellow-200"
     },
     {
+      id: "wedding",
       name: "Wedding Ceremony",
-      date: "15th May 2025",
+      date: "30th June 2025",
       time: "8:00 PM",
-      venue: "Suryagarh Palace",
+      venue: "Heritage Palace",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
       icon: <div className="p-1.5 rounded-full bg-purple-100 text-purple-600">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -61,10 +70,11 @@ const EventTimeline: React.FC = () => {
       color: "bg-purple-50 border-purple-200"
     },
     {
+      id: "reception",
       name: "Reception",
-      date: "16th May 2025",
-      time: "7:00 PM",
-      venue: "Suryagarh Palace",
+      date: "1st July 2025",
+      time: "6:00 PM",
+      venue: "Crystal Hall",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
       icon: <div className="p-1.5 rounded-full bg-green-100 text-green-600">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -78,6 +88,71 @@ const EventTimeline: React.FC = () => {
       color: "bg-green-50 border-green-200"
     },
   ];
+
+  useEffect(() => {
+    const fetchUserEvents = async () => {
+      if (!guestId) {
+        setUserEvents(defaultEvents);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch events that this guest has access to
+        const { data: accessData, error: accessError } = await supabase
+          .from('guest_event_access')
+          .select(`
+            event_id,
+            wedding_events (
+              id,
+              event_name,
+              event_date,
+              event_time,
+              event_venue,
+              event_address
+            )
+          `)
+          .eq('guest_id', guestId);
+
+        if (accessError) throw accessError;
+
+        if (accessData && accessData.length > 0) {
+          // Map the database events to our display format
+          const mappedEvents = accessData.map((access: any, index: number) => {
+            const event = access.wedding_events;
+            const colors = ["bg-red-50 border-red-200", "bg-yellow-50 border-yellow-200", "bg-purple-50 border-purple-200", "bg-green-50 border-green-200"];
+            const iconColors = ["bg-red-100 text-red-600", "bg-yellow-100 text-yellow-600", "bg-purple-100 text-purple-600", "bg-green-100 text-green-600"];
+            
+            return {
+              id: event.id,
+              name: event.event_name,
+              date: new Date(event.event_date).toLocaleDateString('en-GB', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+              }),
+              time: event.event_time,
+              venue: event.event_venue,
+              mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
+              icon: <div className={`p-1.5 rounded-full ${iconColors[index % iconColors.length]}`}><Heart size={14} /></div>,
+              color: colors[index % colors.length]
+            };
+          });
+          setUserEvents(mappedEvents);
+        } else {
+          // If no specific access, show all default events
+          setUserEvents(defaultEvents);
+        }
+      } catch (error) {
+        console.error('Error fetching user events:', error);
+        setUserEvents(defaultEvents);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserEvents();
+  }, [guestId]);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -97,7 +172,7 @@ const EventTimeline: React.FC = () => {
     });
     
     return () => observer.disconnect();
-  }, [visibleEvents]);
+  }, [visibleEvents, userEvents]);
 
   const handleEventHover = (index: number) => {
     setActiveEvent(index);
@@ -106,6 +181,17 @@ const EventTimeline: React.FC = () => {
   const handleEventLeave = () => {
     setActiveEvent(null);
   };
+
+  if (isLoading) {
+    return (
+      <section className="w-full py-12 bg-wedding-cream bg-opacity-40">
+        <div className="w-full max-w-4xl mx-auto px-4 text-center">
+          <div className="loading-spinner w-8 h-8 border-2 border-wedding-gold border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-wedding-maroon font-dancing-script text-xl mt-3">Loading events...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full py-12 bg-wedding-cream bg-opacity-40">
@@ -124,7 +210,7 @@ const EventTimeline: React.FC = () => {
           <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-wedding-gold/10 via-wedding-gold/30 to-wedding-gold/10 transform -translate-x-1/2"></div>
           
           <div className="space-y-6">
-            {events.map((event, index) => (
+            {userEvents.map((event, index) => (
               <div 
                 key={index}
                 ref={el => eventRefs.current[index] = el}
