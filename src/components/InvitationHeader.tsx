@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Sparkles } from 'lucide-react';
 import { useGuest } from '@/context/GuestContext';
-import { AnimatedGuestName } from './AnimatedGuestName';
+import AnimatedGuestName from './AnimatedGuestName';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface InvitationHeaderProps {
