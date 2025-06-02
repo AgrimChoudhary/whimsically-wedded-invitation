@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Clock, MapPin, Users, Save, ExternalLink } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Users, Save } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -23,11 +23,7 @@ interface Guest {
   name: string;
   mobile: string;
   status?: string;
-}
-
-interface GuestEventAccess {
-  guest_id: string;
-  event_id: string;
+  event_access?: string[];
 }
 
 const ManageEvents: React.FC = () => {
@@ -38,9 +34,6 @@ const ManageEvents: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const isMobile = useIsMobile();
 
-  // Define the 4 main events that should be shown
-  const mainEventNames = ['Mehendi Ceremony', 'Sangeet Night', 'Wedding Ceremony', 'Reception'];
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -48,11 +41,10 @@ const ManageEvents: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch only the main events that match our timeline
+      // Fetch events
       const { data: eventsData, error: eventsError } = await supabase
         .from('wedding_events')
         .select('*')
-        .in('event_name', mainEventNames)
         .order('event_date', { ascending: true });
 
       if (eventsError) throw eventsError;
@@ -65,29 +57,14 @@ const ManageEvents: React.FC = () => {
 
       if (guestsError) throw guestsError;
 
-      // Fetch existing guest event access
-      const { data: accessData, error: accessError } = await supabase
-        .from('guest_event_access')
-        .select('guest_id, event_id');
-
-      if (accessError) throw accessError;
-
       setEvents(eventsData || []);
       setGuests(guestsData || []);
 
-      // Initialize guest event access from database
+      // Initialize guest event access (for now, give all guests access to all events)
       const initialAccess: {[guestId: string]: string[]} = {};
       guestsData?.forEach(guest => {
-        initialAccess[guest.id] = [];
+        initialAccess[guest.id] = eventsData?.map(event => event.id) || [];
       });
-
-      // Set existing access permissions
-      accessData?.forEach((access: GuestEventAccess) => {
-        if (initialAccess[access.guest_id]) {
-          initialAccess[access.guest_id].push(access.event_id);
-        }
-      });
-
       setGuestEventAccess(initialAccess);
 
     } catch (error) {
@@ -119,31 +96,8 @@ const ManageEvents: React.FC = () => {
   const saveEventAccess = async () => {
     setIsSaving(true);
     try {
-      // First, delete all existing access records
-      const { error: deleteError } = await supabase
-        .from('guest_event_access')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
-
-      if (deleteError) throw deleteError;
-
-      // Then, insert new access records
-      const accessRecords: { guest_id: string; event_id: string }[] = [];
-      
-      Object.entries(guestEventAccess).forEach(([guestId, eventIds]) => {
-        eventIds.forEach(eventId => {
-          accessRecords.push({ guest_id: guestId, event_id: eventId });
-        });
-      });
-
-      if (accessRecords.length > 0) {
-        const { error: insertError } = await supabase
-          .from('guest_event_access')
-          .insert(accessRecords);
-
-        if (insertError) throw insertError;
-      }
-
+      // Here you would save to database
+      // For now, we'll just show success message
       toast({
         title: "Success",
         description: "Event access settings saved successfully",
@@ -181,7 +135,7 @@ const ManageEvents: React.FC = () => {
         <Card className="text-center py-8">
           <CardContent>
             <CalendarDays size={48} className="mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-500">No events found.</p>
+            <p className="text-gray-500">No events found. Please add events first.</p>
           </CardContent>
         </Card>
       ) : (

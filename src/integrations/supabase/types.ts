@@ -126,42 +126,6 @@ export type Database = {
           },
         ]
       }
-      guest_event_access: {
-        Row: {
-          created_at: string
-          event_id: string
-          guest_id: string
-          id: string
-        }
-        Insert: {
-          created_at?: string
-          event_id: string
-          guest_id: string
-          id?: string
-        }
-        Update: {
-          created_at?: string
-          event_id?: string
-          guest_id?: string
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "guest_event_access_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "wedding_events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "guest_event_access_guest_id_fkey"
-            columns: ["guest_id"]
-            isOneToOne: false
-            referencedRelation: "guests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       guests: {
         Row: {
           created_at: string | null

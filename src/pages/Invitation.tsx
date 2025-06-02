@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -68,8 +67,8 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Wedding date - June 30, 2025
-  const weddingDate = new Date('2025-06-30T20:00:00');
+  // Wedding date - May 15, 2025
+  const weddingDate = new Date('2025-05-15T20:00:00'); // PLACEHOLDER_WEDDING_DATE
   
   // Get guestId from path to use for navigation
   const getCurrentGuestId = () => {
