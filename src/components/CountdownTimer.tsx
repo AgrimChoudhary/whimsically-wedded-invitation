@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Clock, Heart, Calendar, Sparkles, Crown, Diamond } from 'lucide-react';
+import { Clock, Heart, Calendar, Sparkles, MapPin } from 'lucide-react';
 import { FireworksDisplay } from './AnimatedElements';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -22,8 +21,8 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
   const [showFireworks, setShowFireworks] = useState(false);
   const isMobile = useIsMobile();
   
-  // Wedding date - June 30, 2025 at 8:00 PM
-  const targetDate = weddingDate ? weddingDate.getTime() : new Date('2025-06-30T20:00:00').getTime();
+  // Wedding date - April 29, 2025 at 8:00 PM or use the prop if provided
+  const targetDate = weddingDate ? weddingDate.getTime() : new Date('2025-04-29T20:00:00').getTime();
   
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -65,6 +64,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
     };
   }, [targetDate]);
   
+  // Effect to hide fireworks after a few seconds
   useEffect(() => {
     if (showFireworks) {
       const timer = setTimeout(() => {
@@ -81,127 +81,86 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ weddingDate, weddingTim
   };
   
   const timeUnits = [
-    { label: 'Days', value: timeLeft.days, icon: Crown },
-    { label: 'Hours', value: timeLeft.hours, icon: Diamond },
-    { label: 'Minutes', value: timeLeft.minutes, icon: Sparkles },
-    { label: 'Seconds', value: timeLeft.seconds, icon: Heart }
+    { label: 'Days', value: timeLeft.days },
+    { label: 'Hours', value: timeLeft.hours },
+    { label: 'Minutes', value: timeLeft.minutes },
+    { label: 'Seconds', value: timeLeft.seconds }
   ];
 
+  // Format date and time for display
   const displayDate = weddingDate ? 
     weddingDate.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
-    }) : 'June 30, 2025';
+    }) : 'May 15, 2025';
     
   const displayTime = weddingTime || '8:00 PM';
 
   return (
-    <section id="countdown-timer" className="w-full py-8 md:py-12 relative overflow-hidden">
-      {/* Luxury background pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-wedding-gold/20 via-transparent to-wedding-maroon/20"></div>
-        <div className="absolute top-10 left-10 w-32 h-32 border border-wedding-gold/20 rounded-full animate-pulse-soft"></div>
-        <div className="absolute bottom-10 right-10 w-24 h-24 border border-wedding-gold/20 rounded-full animate-pulse-soft" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      <div className="w-full max-w-5xl mx-auto px-4 relative z-10">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <Crown size={24} className="text-wedding-gold mr-2" />
-            <span className="inline-block py-2 px-6 bg-gradient-to-r from-wedding-gold/20 to-wedding-maroon/20 rounded-full text-sm md:text-base text-wedding-maroon font-medium border border-wedding-gold/30">
-              <Calendar size={16} className="inline mr-2" /> Royal Countdown
-            </span>
-            <Crown size={24} className="text-wedding-gold ml-2" />
-          </div>
-          
-          <h3 className="font-great-vibes text-3xl sm:text-4xl md:text-5xl text-wedding-maroon mb-4 leading-tight">
-            Until Our Sacred Union
+    <section id="countdown-timer" className="w-full py-6 md:py-8">
+      <div className="w-full max-w-4xl mx-auto px-4">
+        <div className="text-center mb-4 md:mb-6">
+          <span className="inline-block py-1.5 px-4 bg-wedding-gold/10 rounded-full text-xs md:text-sm text-wedding-gold mb-2 gold-border-gradient">
+            <Calendar size={14} className="inline mr-1" /> Save The Date
+          </span>
+          <h3 className="font-great-vibes text-2xl sm:text-3xl md:text-4xl text-wedding-maroon animate-bounce-light">
+            Countdown to our Wedding Day
           </h3>
-          
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="h-[2px] w-16 bg-gradient-to-r from-transparent to-wedding-gold"></div>
-            <Diamond size={16} className="text-wedding-gold animate-pulse-soft" />
-            <div className="h-[2px] w-16 bg-gradient-to-l from-transparent to-wedding-gold"></div>
-          </div>
         </div>
         
         <div 
-          className={`relative overflow-hidden transition-all duration-700 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} cursor-pointer`}
+          className={`glass-card py-6 px-4 border border-wedding-gold/20 shadow-gold-soft hover:shadow-gold-glow transition-all duration-500 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} cursor-pointer`}
           onClick={handleTimerClick}
-          title="Click for a royal surprise!"
+          title="Click for a surprise!"
         >
-          {/* Luxury card with royal design */}
-          <div className="bg-gradient-to-br from-wedding-cream via-white to-wedding-cream rounded-2xl p-6 md:p-8 shadow-2xl border-2 border-wedding-gold/30 relative overflow-hidden">
-            {/* Royal pattern overlay */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute top-0 left-0 w-full h-full" style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm15 0c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                backgroundSize: '60px 60px'
-              }}></div>
-            </div>
-
-            {/* Corner decorations */}
-            <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-wedding-gold/50 rounded-tl-lg"></div>
-            <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-wedding-gold/50 rounded-tr-lg"></div>
-            <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-wedding-gold/50 rounded-bl-lg"></div>
-            <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-wedding-gold/50 rounded-br-lg"></div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 relative z-10">
-              {timeUnits.map((unit, index) => {
-                const IconComponent = unit.icon;
-                return (
-                  <div 
-                    key={index} 
-                    className={`text-center transform transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
-                    style={{ transitionDelay: `${index * 150}ms` }}
-                  >
-                    <div className="relative inline-flex flex-col">
-                      <div className={`${isMobile ? 'w-20 h-20 sm:w-24 sm:h-24' : 'w-28 h-28'} rounded-xl bg-gradient-to-br from-wedding-gold/20 via-wedding-cream to-wedding-gold/10 flex flex-col items-center justify-center shadow-lg relative overflow-hidden group hover:scale-105 transition-all duration-500 border border-wedding-gold/30`}>
-                        {/* Shimmer effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-wedding-gold/20 to-transparent shimmer-effect"></div>
-                        
-                        {/* Icon */}
-                        <IconComponent size={isMobile ? 14 : 16} className="text-wedding-gold mb-1 relative z-10" />
-                        
-                        {/* Number */}
-                        <span className={`font-great-vibes ${isMobile ? 'text-xl sm:text-2xl' : 'text-3xl'} text-wedding-maroon font-bold relative z-10 leading-none`}>
-                          {unit.value < 10 ? `0${unit.value}` : unit.value}
-                        </span>
-                        
-                        {/* Luxury corners */}
-                        <div className="absolute top-1 left-1 w-2 h-2 border-t border-l border-wedding-gold/40"></div>
-                        <div className="absolute top-1 right-1 w-2 h-2 border-t border-r border-wedding-gold/40"></div>
-                        <div className="absolute bottom-1 left-1 w-2 h-2 border-b border-l border-wedding-gold/40"></div>
-                        <div className="absolute bottom-1 right-1 w-2 h-2 border-b border-r border-wedding-gold/40"></div>
-                      </div>
-                      
-                      <p className={`mt-3 ${isMobile ? 'text-sm' : 'text-base'} text-wedding-maroon font-medium font-playfair tracking-wide`}>
-                        {unit.label}
-                      </p>
-                    </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+            {timeUnits.map((unit, index) => (
+              <div 
+                key={index} 
+                className={`text-center transform transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="relative inline-flex flex-col">
+                  <div className={`${isMobile ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-24 h-24'} rounded-lg bg-gradient-to-br from-wedding-blush to-wedding-cream flex items-center justify-center shadow-md relative overflow-hidden group hover:scale-105 transition-transform duration-300`}>
+                    <div className="absolute inset-0 bg-wedding-gold/5 group-hover:bg-wedding-gold/10 transition-colors duration-300"></div>
+                    <span className={`font-great-vibes ${isMobile ? 'text-2xl sm:text-3xl' : 'text-4xl'} text-wedding-maroon font-semibold relative z-10`}>
+                      {unit.value < 10 ? `0${unit.value}` : unit.value}
+                    </span>
+                    
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer-effect"></div>
+                    
+                    {/* Corner decorations */}
+                    <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-wedding-gold/50"></div>
+                    <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-wedding-gold/50"></div>
+                    <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-wedding-gold/50"></div>
+                    <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-wedding-gold/50"></div>
                   </div>
-                );
-              })}
-            </div>
-            
-            <div className="text-center mt-8 relative z-10">
-              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-wedding-gold/10 to-wedding-maroon/10 px-6 py-3 rounded-full shadow-inner border border-wedding-gold/20 hover:from-wedding-gold/20 hover:to-wedding-maroon/20 transition-all duration-300">
-                <Clock size={18} className="text-wedding-gold" />
-                <span className="font-playfair text-base md:text-lg text-wedding-maroon font-medium">
-                  {displayDate} at {displayTime}
-                </span>
-                <Sparkles size={16} className="text-wedding-gold animate-pulse-soft" />
+                  {index === 0 && (
+                    <div className="absolute -top-2 -right-2 w-5 h-5">
+                      <Heart size={16} className="text-wedding-blush fill-wedding-blush animate-pulse-soft" />
+                    </div>
+                  )}
+                  <p className={`mt-2 ${isMobile ? 'text-xs sm:text-sm' : 'text-base'} text-gray-600 font-medium font-dancing-script`}>{unit.label}</p>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
           
-          <p className="text-center text-xs text-wedding-gold/70 mt-4 animate-pulse-soft font-dancing-script">
-            ✨ Click for a royal surprise ✨
-          </p>
+          <div className="text-center mt-4 text-sm md:text-base text-wedding-maroon font-medium">
+            <span className="inline-flex items-center gap-2 bg-wedding-cream/50 px-4 py-2 rounded-full shadow-sm hover:bg-wedding-cream/70 transition-colors duration-300">
+              <Clock size={16} className="text-wedding-gold" />
+              <span className="font-dancing-script text-base md:text-lg">{displayDate} at {displayTime}</span>
+              <Sparkles size={14} className="text-wedding-gold animate-pulse-soft" />
+            </span>
+          </div>
+          
+          <p className="text-center text-xs text-gray-400 mt-4 animate-pulse-soft">Click for a surprise</p>
         </div>
       </div>
       
+      {/* Fireworks animation */}
       <FireworksDisplay isActive={showFireworks} />
     </section>
   );
