@@ -7,6 +7,7 @@ import InvitationHeader from '@/components/InvitationHeader';
 import CoupleSection from '@/components/CoupleSection';
 import CountdownTimer from '@/components/CountdownTimer';
 import FamilyDetails from '@/components/FamilyDetails';
+import RomanticJourneySection from '@/components/RomanticJourneySection';
 import EventTimeline from '@/components/EventTimeline';
 import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
@@ -169,7 +170,7 @@ const Invitation = () => {
             brideName={BRIDE_FIRST_NAME}
           />
           
-          {/* Section ordering as requested: countdown, wedding journey, family details, events, photos */}
+          {/* Section ordering: countdown, family details, romantic journey, wedding journey, events, photos */}
           <CountdownTimer 
             weddingDate={weddingDate} 
             weddingTime="8:00 PM"
@@ -241,6 +242,9 @@ const Invitation = () => {
               ],
             }}
           />
+
+          {/* New Romantic Journey Section */}
+          <RomanticJourneySection />
 
           <CoupleSection />
   
