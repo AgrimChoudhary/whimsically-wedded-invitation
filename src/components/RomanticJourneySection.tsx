@@ -17,17 +17,14 @@ const RomanticJourneySection: React.FC = () => {
           setAnimationStarted(true);
           setHeartsVisible(true);
           
-          // Show text when hearts meet (longer duration for cinematic effect)
           setTimeout(() => {
             setTextVisible(true);
           }, 4000);
           
-          // Show sparkles after text
           setTimeout(() => {
             setSparklesVisible(true);
           }, 4500);
           
-          // Reset animation for loop
           setTimeout(() => {
             setHeartsVisible(false);
             setTextVisible(false);
@@ -47,7 +44,6 @@ const RomanticJourneySection: React.FC = () => {
     return () => observer.disconnect();
   }, [animationStarted]);
 
-  // Restart animation every 10 seconds for longer cycle
   useEffect(() => {
     const interval = setInterval(() => {
       if (!animationStarted) {
@@ -82,7 +78,7 @@ const RomanticJourneySection: React.FC = () => {
 
       <div className="w-full max-w-7xl mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-16 md:mb-20">
+        <div className="text-center mb-12 md:mb-16">
           <h2 className="font-great-vibes text-4xl md:text-6xl lg:text-7xl text-wedding-maroon mb-4">
             From Heart to Heart...
           </h2>
@@ -92,21 +88,21 @@ const RomanticJourneySection: React.FC = () => {
           <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-wedding-gold to-transparent mx-auto"></div>
         </div>
 
-        {/* Animation Container - Larger for cinematic effect */}
-        <div className="relative h-80 md:h-96 lg:h-[28rem] flex items-center justify-center">
-          {/* Long Winding Path SVG */}
+        {/* Animation Container */}
+        <div className="relative h-96 md:h-[32rem] flex items-center justify-center mb-8">
+          {/* Enhanced Zig-Zag Path SVG */}
           <svg 
             className="absolute inset-0 w-full h-full" 
-            viewBox="0 0 1000 400" 
+            viewBox={isMobile ? "0 0 400 350" : "0 0 1000 400"} 
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
               <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.8" />
-                <stop offset="25%" stopColor="#EC4899" stopOpacity="0.9" />
-                <stop offset="50%" stopColor="#D4AF37" stopOpacity="1" />
-                <stop offset="75%" stopColor="#EC4899" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#DC2626" stopOpacity="0.8" />
+                <stop offset="25%" stopColor="#EF4444" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="#F87171" stopOpacity="1" />
+                <stop offset="75%" stopColor="#EF4444" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#DC2626" stopOpacity="0.8" />
               </linearGradient>
               <filter id="glow">
                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -116,67 +112,80 @@ const RomanticJourneySection: React.FC = () => {
                 </feMerge>
               </filter>
             </defs>
-            {/* Long winding path */}
+            
+            {/* Enhanced zig-zag path */}
             <path
-              d="M 80 200 Q 200 100 350 180 Q 500 260 650 140 Q 800 80 920 200"
+              d={isMobile 
+                ? "M 30 80 Q 100 50 150 120 Q 200 190 250 100 Q 300 50 370 150"
+                : "M 80 120 Q 200 80 350 180 Q 500 280 650 140 Q 800 60 920 200"
+              }
               stroke="url(#pathGradient)"
-              strokeWidth="4"
+              strokeWidth={isMobile ? "3" : "4"}
               fill="none"
-              strokeDasharray="15,8"
+              strokeDasharray="12,6"
               className="animate-pulse"
               filter="url(#glow)"
             />
+            
             {/* Path dots for enhancement */}
-            <circle cx="200" cy="130" r="2" fill="#EC4899" opacity="0.6" className="animate-pulse" />
-            <circle cx="500" cy="200" r="2" fill="#D4AF37" opacity="0.8" className="animate-pulse" style={{ animationDelay: '0.5s' }} />
-            <circle cx="800" cy="110" r="2" fill="#EC4899" opacity="0.6" className="animate-pulse" style={{ animationDelay: '1s' }} />
+            {!isMobile && (
+              <>
+                <circle cx="200" cy="100" r="2" fill="#EF4444" opacity="0.6" className="animate-pulse" />
+                <circle cx="500" cy="230" r="2" fill="#F87171" opacity="0.8" className="animate-pulse" style={{ animationDelay: '0.5s' }} />
+                <circle cx="800" cy="80" r="2" fill="#EF4444" opacity="0.6" className="animate-pulse" style={{ animationDelay: '1s' }} />
+              </>
+            )}
           </svg>
 
-          {/* City Labels */}
-          <div className="absolute left-2 md:left-6 top-1/2 transform -translate-y-1/2">
-            <div className="flex items-center gap-2 bg-gradient-to-r from-wedding-cream/95 to-white/90 backdrop-blur-sm px-3 py-2 rounded-full border border-wedding-gold/40 shadow-lg">
-              <MapPin size={16} className="text-wedding-maroon" />
-              <span className="text-sm md:text-base font-dancing-script text-wedding-maroon font-semibold">
+          {/* City Labels - Positioned for zig-zag */}
+          <div className={`absolute ${isMobile ? 'left-1 top-16' : 'left-6 top-20'}`}>
+            <div className="flex items-center gap-2 bg-gradient-to-r from-wedding-cream/95 to-white/90 backdrop-blur-sm px-3 py-2 rounded-full border border-red-300/40 shadow-lg">
+              <MapPin size={isMobile ? 14 : 16} className="text-red-600" />
+              <span className={`${isMobile ? 'text-xs' : 'text-sm md:text-base'} font-dancing-script text-red-700 font-semibold`}>
                 Kiara - Jaipur
               </span>
             </div>
           </div>
 
-          <div className="absolute right-2 md:right-6 top-1/2 transform -translate-y-1/2">
-            <div className="flex items-center gap-2 bg-gradient-to-r from-wedding-cream/95 to-white/90 backdrop-blur-sm px-3 py-2 rounded-full border border-wedding-gold/40 shadow-lg">
-              <MapPin size={16} className="text-wedding-maroon" />
-              <span className="text-sm md:text-base font-dancing-script text-wedding-maroon font-semibold">
+          <div className={`absolute ${isMobile ? 'right-1 bottom-12' : 'right-6 bottom-16'}`}>
+            <div className="flex items-center gap-2 bg-gradient-to-r from-wedding-cream/95 to-white/90 backdrop-blur-sm px-3 py-2 rounded-full border border-red-300/40 shadow-lg">
+              <MapPin size={isMobile ? 14 : 16} className="text-red-600" />
+              <span className={`${isMobile ? 'text-xs' : 'text-sm md:text-base'} font-dancing-script text-red-700 font-semibold`}>
                 Sidharth - Delhi
               </span>
             </div>
           </div>
 
-          {/* Animated Hearts */}
+          {/* Animated Hearts - Following the path more precisely */}
           {heartsVisible && (
             <>
-              {/* Kiara's Heart from Jaipur */}
+              {/* Kiara's Heart following the zig-zag path */}
               <div 
-                className="absolute left-8 md:left-12 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-14 md:h-14"
+                className={`absolute ${isMobile ? 'w-8 h-8' : 'w-10 h-10 md:w-12 md:h-12'}`}
                 style={{
-                  animation: 'heart-journey-left 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards'
+                  animation: isMobile 
+                    ? 'heart-journey-mobile-left 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards'
+                    : 'heart-journey-left 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards'
                 }}
               >
-                <div className="w-full h-full bg-gradient-to-br from-pink-400 via-pink-500 to-pink-600 rounded-full flex items-center justify-center shadow-xl animate-pulse">
-                  <Heart size={isMobile ? 20 : 28} className="text-white fill-white" />
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-300/50 to-transparent animate-ping"></div>
+                <div className="w-full h-full bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-full flex items-center justify-center shadow-xl animate-pulse">
+                  <Heart size={isMobile ? 16 : 20} className="text-white fill-white" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-300/50 to-transparent animate-ping"></div>
                 </div>
               </div>
 
-              {/* Sidharth's Heart from Delhi */}
+              {/* Sidharth's Heart following the zig-zag path */}
               <div 
-                className="absolute right-8 md:right-12 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-14 md:h-14"
+                className={`absolute ${isMobile ? 'w-8 h-8' : 'w-10 h-10 md:w-12 md:h-12'}`}
                 style={{
-                  animation: 'heart-journey-right 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards'
+                  animation: isMobile 
+                    ? 'heart-journey-mobile-right 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards'
+                    : 'heart-journey-right 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards'
                 }}
               >
-                <div className="w-full h-full bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl animate-pulse">
-                  <Heart size={isMobile ? 20 : 28} className="text-white fill-white" />
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-300/50 to-transparent animate-ping"></div>
+                <div className="w-full h-full bg-gradient-to-br from-rose-400 via-rose-500 to-rose-600 rounded-full flex items-center justify-center shadow-xl animate-pulse">
+                  <Heart size={isMobile ? 16 : 20} className="text-white fill-white" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-rose-300/50 to-transparent animate-ping"></div>
                 </div>
               </div>
             </>
@@ -185,37 +194,21 @@ const RomanticJourneySection: React.FC = () => {
           {/* Center Glow Effect */}
           {textVisible && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-24 h-24 md:w-40 md:h-40 bg-gradient-to-br from-pink-300/60 via-purple-300/60 to-gold-300/60 rounded-full animate-pulse blur-2xl"></div>
-            </div>
-          )}
-
-          {/* Center Text */}
-          {textVisible && (
-            <div className="absolute inset-0 flex items-center justify-center z-20">
-              <div className="text-center transform animate-scale-in">
-                <div className="bg-gradient-to-br from-wedding-cream/98 to-white/95 backdrop-blur-lg px-8 py-6 rounded-3xl border border-wedding-gold/40 shadow-2xl">
-                  <h3 className="font-great-vibes text-3xl md:text-5xl text-wedding-maroon mb-2 animate-fade-in">
-                    From Heart to Heart... 💖
-                  </h3>
-                  <p className="font-dancing-script text-base md:text-xl text-wedding-maroon/80 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                    Two souls, one beautiful journey
-                  </p>
-                </div>
-              </div>
+              <div className={`${isMobile ? 'w-16 h-16' : 'w-24 h-24 md:w-32 md:h-32'} bg-gradient-to-br from-red-300/60 via-rose-300/60 to-pink-300/60 rounded-full animate-pulse blur-2xl`}></div>
             </div>
           )}
 
           {/* Enhanced Sparkles */}
           {sparklesVisible && (
             <div className="absolute inset-0 pointer-events-none">
-              {[...Array(12)].map((_, i) => (
+              {[...Array(isMobile ? 8 : 12)].map((_, i) => (
                 <Sparkles
                   key={i}
-                  size={isMobile ? 14 : 18}
-                  className={`absolute text-wedding-gold animate-sparkle`}
+                  size={isMobile ? 12 : 16}
+                  className="absolute text-red-500 animate-sparkle"
                   style={{
-                    left: `${15 + Math.random() * 70}%`,
-                    top: `${15 + Math.random() * 70}%`,
+                    left: `${20 + Math.random() * 60}%`,
+                    top: `${20 + Math.random() * 60}%`,
                     animationDelay: `${i * 0.15}s`,
                     animationDuration: '2.5s'
                   }}
@@ -225,8 +218,24 @@ const RomanticJourneySection: React.FC = () => {
           )}
         </div>
 
+        {/* Text Card - Positioned below animation, smaller and non-overlapping */}
+        {textVisible && (
+          <div className="flex justify-center mb-8">
+            <div className="transform animate-scale-in">
+              <div className={`bg-gradient-to-br from-wedding-cream/98 to-white/95 backdrop-blur-lg ${isMobile ? 'px-4 py-3' : 'px-6 py-4'} rounded-2xl border border-red-300/40 shadow-xl`}>
+                <h3 className={`font-great-vibes ${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} text-red-700 text-center animate-fade-in`}>
+                  Dil Se Dil Tak... 💖
+                </h3>
+                <p className={`font-dancing-script ${isMobile ? 'text-sm' : 'text-base'} text-red-600/80 text-center animate-fade-in mt-1`} style={{ animationDelay: '0.3s' }}>
+                  Two souls, one beautiful journey
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Bottom decorative text */}
-        <div className="text-center mt-12 md:mt-16">
+        <div className="text-center mt-8">
           <p className="font-dancing-script text-lg md:text-xl text-wedding-maroon/70 italic">
             "Distance means nothing when someone means everything"
           </p>
@@ -234,61 +243,117 @@ const RomanticJourneySection: React.FC = () => {
         </div>
       </div>
 
-      {/* Custom keyframes styles */}
+      {/* Enhanced keyframes styles */}
       <style>{`
         @keyframes heart-journey-left {
           0% {
-            left: 2rem;
-            top: 50%;
+            left: 1.5rem;
+            top: 30%;
             transform: translateY(-50%) scale(1);
           }
           25% {
             left: 20%;
-            top: 35%;
+            top: 20%;
             transform: translateY(-50%) scale(1.1);
           }
           50% {
             left: 35%;
-            top: 65%;
+            top: 70%;
             transform: translateY(-50%) scale(1.2);
           }
           75% {
             left: 48%;
-            top: 40%;
+            top: 35%;
             transform: translateY(-50%) scale(1.3);
           }
           100% {
             left: 50%;
             top: 50%;
-            transform: translateY(-50%) scale(1.5);
+            transform: translateY(-50%) scale(1.4);
           }
         }
 
         @keyframes heart-journey-right {
           0% {
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%) scale(1);
+            right: 1.5rem;
+            bottom: 16%;
+            transform: translateY(50%) scale(1);
           }
           25% {
             right: 20%;
-            top: 35%;
-            transform: translateY(-50%) scale(1.1);
+            bottom: 6%;
+            transform: translateY(50%) scale(1.1);
           }
           50% {
             right: 35%;
-            top: 20%;
-            transform: translateY(-50%) scale(1.2);
+            bottom: 35%;
+            transform: translateY(50%) scale(1.2);
           }
           75% {
             right: 48%;
-            top: 25%;
-            transform: translateY(-50%) scale(1.3);
+            bottom: 15%;
+            transform: translateY(50%) scale(1.3);
           }
           100% {
             right: 50%;
-            top: 50%;
-            transform: translateY(-50%) scale(1.5);
+            bottom: 50%;
+            transform: translateY(50%) scale(1.4);
+          }
+        }
+
+        @keyframes heart-journey-mobile-left {
+          0% {
+            left: 0.5rem;
+            top: 20%;
+            transform: translateY(-50%) scale(1);
+          }
+          25% {
+            left: 25%;
+            top: 15%;
+            transform: translateY(-50%) scale(1.05);
+          }
+          50% {
+            left: 40%;
+            top: 35%;
+            transform: translateY(-50%) scale(1.1);
+          }
+          75% {
+            left: 48%;
+            top: 30%;
+            transform: translateY(-50%) scale(1.15);
+          }
+          100% {
+            left: 50%;
+            top: 40%;
+            transform: translateY(-50%) scale(1.2);
+          }
+        }
+
+        @keyframes heart-journey-mobile-right {
+          0% {
+            right: 0.5rem;
+            bottom: 3rem;
+            transform: translateY(50%) scale(1);
+          }
+          25% {
+            right: 25%;
+            bottom: 1.5rem;
+            transform: translateY(50%) scale(1.05);
+          }
+          50% {
+            right: 40%;
+            bottom: 4rem;
+            transform: translateY(50%) scale(1.1);
+          }
+          75% {
+            right: 48%;
+            bottom: 2.5rem;
+            transform: translateY(50%) scale(1.15);
+          }
+          100% {
+            right: 50%;
+            bottom: 60%;
+            transform: translateY(50%) scale(1.2);
           }
         }
 
@@ -320,64 +385,6 @@ const RomanticJourneySection: React.FC = () => {
 
         .animate-sparkle {
           animation: sparkle 2.5s ease-in-out infinite;
-        }
-
-        @media (max-width: 768px) {
-          @keyframes heart-journey-left {
-            0% {
-              left: 1.5rem;
-              top: 50%;
-              transform: translateY(-50%) scale(1);
-            }
-            25% {
-              left: 18%;
-              top: 40%;
-              transform: translateY(-50%) scale(1.05);
-            }
-            50% {
-              left: 32%;
-              top: 65%;
-              transform: translateY(-50%) scale(1.1);
-            }
-            75% {
-              left: 46%;
-              top: 45%;
-              transform: translateY(-50%) scale(1.2);
-            }
-            100% {
-              left: 50%;
-              top: 50%;
-              transform: translateY(-50%) scale(1.3);
-            }
-          }
-
-          @keyframes heart-journey-right {
-            0% {
-              right: 1.5rem;
-              top: 50%;
-              transform: translateY(-50%) scale(1);
-            }
-            25% {
-              right: 18%;
-              top: 40%;
-              transform: translateY(-50%) scale(1.05);
-            }
-            50% {
-              right: 32%;
-              top: 25%;
-              transform: translateY(-50%) scale(1.1);
-            }
-            75% {
-              right: 46%;
-              top: 30%;
-              transform: translateY(-50%) scale(1.2);
-            }
-            100% {
-              right: 50%;
-              top: 50%;
-              transform: translateY(-50%) scale(1.3);
-            }
-          }
         }
       `}</style>
     </section>
