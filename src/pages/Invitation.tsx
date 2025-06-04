@@ -67,8 +67,17 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Wedding date - May 15, 2025
-  const weddingDate = new Date('2025-05-15T20:00:00'); // PLACEHOLDER_WEDDING_DATE
+  // Calculate wedding date - 1.5 months from now
+  const getWeddingDate = () => {
+    const now = new Date();
+    const futureDate = new Date(now);
+    futureDate.setMonth(now.getMonth() + 1);
+    futureDate.setDate(now.getDate() + 15); // Add 15 days to make it 1.5 months
+    futureDate.setHours(20, 0, 0, 0); // 8:00 PM
+    return futureDate;
+  };
+  
+  const weddingDate = getWeddingDate();
   
   // Get guestId from path to use for navigation
   const getCurrentGuestId = () => {
