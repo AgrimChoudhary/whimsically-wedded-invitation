@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Calendar, Music, Heart, MapPin, ExternalLink } from 'lucide-react';
+import { Calendar, Music, Heart, MapPin, ExternalLink, Crown, Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 
@@ -27,8 +27,8 @@ const EventTimeline: React.FC = () => {
       time: "11:00 AM",
       venue: "Suryagarh Palace",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
-      icon: <div className="p-1.5 rounded-full bg-red-100 text-red-600"><Heart size={14} /></div>,
-      color: "bg-red-50 border-red-200"
+      icon: <div className="p-1.5 rounded-full bg-gradient-to-br from-red-100 to-red-200 text-red-600 shadow-sm"><Heart size={14} /></div>,
+      color: "bg-gradient-to-br from-red-50/80 to-red-100/60 border-red-200/60"
     },
     {
       name: "Sangeet Ceremony",
@@ -36,14 +36,14 @@ const EventTimeline: React.FC = () => {
       time: "7:00 PM",
       venue: "Suryagarh Palace",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
-      icon: <div className="p-1.5 rounded-full bg-yellow-100 text-yellow-600">
+      icon: <div className="p-1.5 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-600 shadow-sm">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M8.21 13.89L7 23L12 20L17 23L15.79 13.88"/>
                 <path d="M19.5 9c0 3.5-3.5 6.5-7.5 11-4-4.5-7.5-7.5-7.5-11a7.5 7.5 0 1 1 15 0z"/>
                 <circle cx="12" cy="9" r="2.5"/>
               </svg>
             </div>,
-      color: "bg-yellow-50 border-yellow-200"
+      color: "bg-gradient-to-br from-yellow-50/80 to-yellow-100/60 border-yellow-200/60"
     },
     {
       name: "Wedding Ceremony",
@@ -51,14 +51,10 @@ const EventTimeline: React.FC = () => {
       time: "8:00 PM",
       venue: "Suryagarh Palace",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
-      icon: <div className="p-1.5 rounded-full bg-purple-100 text-purple-600">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A8 8 0 1 0 4 16.2"/>
-                <path d="M12 10v10"/>
-                <path d="m8 14 4-4 4 4"/>
-              </svg>
+      icon: <div className="p-1.5 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 shadow-sm">
+              <Crown size={14} />
             </div>,
-      color: "bg-purple-50 border-purple-200"
+      color: "bg-gradient-to-br from-purple-50/80 to-purple-100/60 border-purple-200/60"
     },
     {
       name: "Reception",
@@ -66,16 +62,10 @@ const EventTimeline: React.FC = () => {
       time: "7:00 PM",
       venue: "Suryagarh Palace",
       mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
-      icon: <div className="p-1.5 rounded-full bg-green-100 text-green-600">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-                <path d="M7 2v20"/>
-                <path d="M21 15V2"/>
-                <path d="M18 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
-                <path d="M18 21a6 6 0 0 0-6-6h-3"/>
-              </svg>
+      icon: <div className="p-1.5 rounded-full bg-gradient-to-br from-green-100 to-green-200 text-green-600 shadow-sm">
+              <Sparkles size={14} />
             </div>,
-      color: "bg-green-50 border-green-200"
+      color: "bg-gradient-to-br from-green-50/80 to-green-100/60 border-green-200/60"
     },
   ];
   
@@ -108,20 +98,34 @@ const EventTimeline: React.FC = () => {
   };
 
   return (
-    <section className="w-full py-12 bg-wedding-cream bg-opacity-40">
-      <div className="w-full max-w-4xl mx-auto px-4">
+    <section className="w-full py-12 bg-gradient-to-br from-wedding-cream/60 via-wedding-blush/5 to-wedding-cream/60 relative overflow-hidden">
+      {/* Royal background elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-wedding-gold/3 via-transparent to-wedding-maroon/3"></div>
+      <div className="absolute top-16 left-16 w-2 h-2 bg-wedding-gold/40 rounded-full animate-pulse"></div>
+      <div className="absolute bottom-20 right-20 w-3 h-3 bg-wedding-maroon/30 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+
+      <div className="w-full max-w-4xl mx-auto px-4 relative z-10">
         <div className="text-center mb-10">
-          <span className="inline-block py-1.5 px-4 bg-wedding-gold/10 rounded-full text-sm font-medium text-wedding-gold mb-3 tracking-wide">
-            Join Us For
-          </span>
-          <h2 className="font-playfair text-2xl sm:text-3xl text-wedding-maroon mb-3">Wedding Ceremonies</h2>
-          <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
-            Celebrate these special moments with us as we begin our journey together
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Crown size={20} className="text-wedding-gold animate-pulse" />
+            <span className="inline-block py-1.5 px-4 bg-gradient-to-r from-wedding-gold/10 to-wedding-maroon/10 rounded-full text-sm font-medium text-wedding-gold border border-wedding-gold/20 tracking-wide">
+              Join Us For
+            </span>
+            <Crown size={20} className="text-wedding-gold animate-pulse" />
+          </div>
+          <h2 className="font-playfair text-2xl sm:text-3xl text-wedding-maroon mb-3">Royal Wedding Ceremonies</h2>
+          <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed mb-4">
+            Celebrate these royal moments with us as we begin our eternal journey together
           </p>
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-[1px] w-16 bg-gradient-to-r from-transparent via-wedding-gold/50 to-wedding-gold"></div>
+            <Sparkles size={12} className="text-wedding-gold animate-pulse" />
+            <div className="h-[1px] w-16 bg-gradient-to-l from-transparent via-wedding-gold/50 to-wedding-gold"></div>
+          </div>
         </div>
         
         <div className="relative">
-          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-wedding-gold/10 via-wedding-gold/30 to-wedding-gold/10 transform -translate-x-1/2"></div>
+          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-wedding-gold/20 via-wedding-gold/40 to-wedding-gold/20 transform -translate-x-1/2 shadow-sm"></div>
           
           <div className="space-y-6">
             {events.map((event, index) => (
@@ -141,13 +145,16 @@ const EventTimeline: React.FC = () => {
                 onTouchStart={() => handleEventHover(index)}
                 onTouchEnd={handleEventLeave}
               >
-                <div className="hidden md:flex absolute left-1/2 w-8 h-8 bg-wedding-gold/80 rounded-full transform -translate-x-1/2 items-center justify-center z-10 transition-all duration-300 shadow-gold-soft">
-                  <div className={`w-3 h-3 bg-wedding-cream rounded-full transition-all duration-300 ${activeEvent === index ? 'scale-75' : 'scale-100'}`}></div>
+                <div className="hidden md:flex absolute left-1/2 w-10 h-10 bg-gradient-to-br from-wedding-gold to-wedding-gold/80 rounded-full transform -translate-x-1/2 items-center justify-center z-10 transition-all duration-300 shadow-lg border-2 border-white">
+                  <div className={`w-4 h-4 bg-wedding-cream rounded-full transition-all duration-300 ${activeEvent === index ? 'scale-75' : 'scale-100'} shadow-inner`}></div>
+                  {activeEvent === index && (
+                    <div className="absolute inset-0 bg-wedding-gold/30 rounded-full animate-ping"></div>
+                  )}
                 </div>
                 
                 <div 
-                  className={`glass-card border md:w-5/12 w-full p-4 sm:p-5 transition-all duration-300 ${
-                    activeEvent === index ? 'shadow-gold-glow border-wedding-gold/40 transform scale-105' : 'shadow-gold-soft hover:shadow-gold-glow hover:scale-[1.02]'
+                  className={`luxury-event-card border md:w-5/12 w-full p-4 sm:p-5 transition-all duration-400 ${
+                    activeEvent === index ? 'luxury-event-active' : ''
                   } ${event.color}`}
                 >
                   <div className="flex items-start gap-4">
@@ -155,7 +162,10 @@ const EventTimeline: React.FC = () => {
                       {event.icon}
                     </div>
                     <div className="w-full">
-                      <h3 className="font-playfair text-lg sm:text-xl text-wedding-maroon mb-2">{event.name}</h3>
+                      <h3 className="font-playfair text-lg sm:text-xl text-wedding-maroon mb-2 flex items-center gap-2">
+                        {event.name}
+                        {activeEvent === index && <Sparkles size={14} className="text-wedding-gold animate-pulse" />}
+                      </h3>
                       <div className="space-y-2">
                         <div className="flex items-center text-gray-700 text-sm">
                           <Calendar size={14} className="mr-2 text-wedding-gold" />
@@ -170,7 +180,7 @@ const EventTimeline: React.FC = () => {
                               variant="outline"
                               size="sm"
                               asChild
-                              className="h-7 px-3 text-xs bg-wedding-gold/5 hover:bg-wedding-gold/10 border-wedding-gold/30 text-wedding-maroon"
+                              className="h-7 px-3 text-xs bg-wedding-gold/5 hover:bg-wedding-gold/15 border-wedding-gold/30 hover:border-wedding-gold/50 text-wedding-maroon transition-all duration-300"
                             >
                               <a 
                                 href={event.mapLink} 
@@ -196,6 +206,66 @@ const EventTimeline: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Custom styles for luxury effects */}
+      <style>{`
+        .luxury-event-card {
+          background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(254,249,239,0.8) 100%);
+          border: 1px solid rgba(212,175,55,0.25);
+          border-radius: 12px;
+          box-shadow: 0 4px 20px rgba(139,69,19,0.08), 0 1px 3px rgba(212,175,55,0.1);
+          backdrop-filter: blur(8px);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .luxury-event-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.1), transparent);
+          transition: left 0.6s ease;
+        }
+
+        .luxury-event-card:hover::before {
+          left: 100%;
+        }
+
+        .luxury-event-active {
+          border-color: rgba(212,175,55,0.5);
+          box-shadow: 0 8px 40px rgba(139,69,19,0.12), 0 4px 20px rgba(212,175,55,0.2), 0 0 20px rgba(212,175,55,0.1);
+          transform: scale(1.02);
+        }
+
+        .luxury-event-active::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 12px;
+          padding: 1px;
+          background: linear-gradient(45deg, 
+            rgba(212,175,55,0.3) 0%, 
+            rgba(139,69,19,0.2) 25%,
+            rgba(212,175,55,0.4) 50%,
+            rgba(139,69,19,0.2) 75%,
+            rgba(212,175,55,0.3) 100%
+          );
+          background-size: 200% 200%;
+          animation: luxury-border-glow 2s ease infinite;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: xor;
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+        }
+
+        @keyframes luxury-border-glow {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+      `}</style>
     </section>
   );
 };

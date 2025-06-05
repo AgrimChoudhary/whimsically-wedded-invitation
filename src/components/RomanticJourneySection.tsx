@@ -70,9 +70,9 @@ const RomanticJourneySection: React.FC = () => {
   }, [animationStarted]);
 
   return (
-    <section id="romantic-journey" className="w-full py-12 md:py-16 relative overflow-hidden bg-gradient-to-br from-wedding-cream via-wedding-blush/10 to-wedding-cream">
+    <section id="romantic-journey" className="w-full py-12 md:py-16 relative overflow-hidden bg-gradient-to-br from-wedding-cream via-wedding-blush/8 to-wedding-cream">
       {/* Background pattern */}
-      <div className="absolute inset-0 bg-floral-pattern opacity-20"></div>
+      <div className="absolute inset-0 bg-floral-pattern opacity-15"></div>
       
       {/* Floating decorative elements */}
       <div className="absolute top-10 left-10 w-3 h-3 bg-wedding-blush/40 rounded-full animate-pulse"></div>
@@ -82,7 +82,7 @@ const RomanticJourneySection: React.FC = () => {
 
       <div className="w-full max-w-6xl mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-8 md:mb-16">
+        <div className="text-center mb-8 md:mb-12">
           <h2 className="font-great-vibes text-4xl md:text-6xl lg:text-7xl text-wedding-maroon mb-4">
             Dil se Dil tak...
           </h2>
@@ -93,7 +93,7 @@ const RomanticJourneySection: React.FC = () => {
         </div>
 
         {/* Animation Container */}
-        <div className="relative h-80 md:h-96 lg:h-[28rem] flex items-center justify-center">
+        <div className="relative h-72 md:h-96 lg:h-[26rem] flex items-center justify-center">
           {/* Desktop Layout */}
           {!isMobile && (
             <>
@@ -141,47 +141,47 @@ const RomanticJourneySection: React.FC = () => {
             </>
           )}
 
-          {/* Mobile Layout */}
+          {/* Mobile Layout - Improved */}
           {isMobile && (
             <>
-              {/* Diagonal Path SVG for Mobile */}
+              {/* Diagonal Path SVG for Mobile - Larger and Better Positioned */}
               <svg 
                 className="absolute inset-0 w-full h-full" 
-                viewBox="0 0 400 500" 
+                viewBox="0 0 320 400" 
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <defs>
                   <linearGradient id="pathGradientMobile" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#DC2626" stopOpacity="0.7" />
-                    <stop offset="25%" stopColor="#EF4444" stopOpacity="0.9" />
-                    <stop offset="50%" stopColor="#F87171" stopOpacity="0.8" />
-                    <stop offset="75%" stopColor="#EF4444" stopOpacity="0.9" />
-                    <stop offset="100%" stopColor="#DC2626" stopOpacity="0.7" />
+                    <stop offset="0%" stopColor="#DC2626" stopOpacity="0.8" />
+                    <stop offset="25%" stopColor="#EF4444" stopOpacity="1" />
+                    <stop offset="50%" stopColor="#F87171" stopOpacity="0.9" />
+                    <stop offset="75%" stopColor="#EF4444" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#DC2626" stopOpacity="0.8" />
                   </linearGradient>
                 </defs>
                 <path
-                  d="M 80 80 Q 150 150 200 200 Q 250 250 300 320 Q 320 380 340 420"
+                  d="M 40 60 Q 80 100 120 140 Q 160 180 200 220 Q 240 260 280 300 Q 300 340 310 380"
                   stroke="url(#pathGradientMobile)"
-                  strokeWidth="5"
+                  strokeWidth="6"
                   fill="none"
-                  strokeDasharray="12,6"
+                  strokeDasharray="15,8"
                   className="animate-pulse"
                 />
               </svg>
 
-              {/* City Labels for Mobile */}
-              <div className="absolute top-4 left-4">
-                <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full border-2 border-red-200 shadow-lg">
-                  <MapPin size={14} className="text-red-600" />
+              {/* City Labels for Mobile - Better Positioned */}
+              <div className="absolute top-6 left-4">
+                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-2.5 rounded-full border-2 border-red-200 shadow-lg">
+                  <MapPin size={16} className="text-red-600" />
                   <span className="text-sm font-dancing-script text-red-700 font-semibold">
                     Kiara - Jaipur
                   </span>
                 </div>
               </div>
 
-              <div className="absolute bottom-4 right-4">
-                <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full border-2 border-red-200 shadow-lg">
-                  <MapPin size={14} className="text-red-600" />
+              <div className="absolute bottom-6 right-4">
+                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-2.5 rounded-full border-2 border-red-200 shadow-lg">
+                  <MapPin size={16} className="text-red-600" />
                   <span className="text-sm font-dancing-script text-red-700 font-semibold">
                     Sidharth - Delhi
                   </span>
@@ -197,7 +197,7 @@ const RomanticJourneySection: React.FC = () => {
               <div 
                 className={`absolute w-8 h-8 md:w-12 md:h-12 ${
                   isMobile 
-                    ? 'top-8 left-8' 
+                    ? 'top-10 left-10' 
                     : 'left-16 top-1/2 transform -translate-y-1/2'
                 }`}
                 style={{
@@ -215,7 +215,7 @@ const RomanticJourneySection: React.FC = () => {
               <div 
                 className={`absolute w-8 h-8 md:w-12 md:h-12 ${
                   isMobile 
-                    ? 'bottom-8 right-8' 
+                    ? 'bottom-10 right-10' 
                     : 'right-16 top-1/2 transform -translate-y-1/2'
                 }`}
                 style={{
@@ -238,16 +238,16 @@ const RomanticJourneySection: React.FC = () => {
             </div>
           )}
 
-          {/* Center Text */}
+          {/* Center Text - Improved Mobile Positioning */}
           {textVisible && (
             <div className={`absolute z-20 ${
               isMobile 
-                ? 'bottom-16 left-1/2 transform -translate-x-1/2'
+                ? 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
                 : 'inset-0 flex items-center justify-center'
             }`}>
               <div className="text-center transform animate-scale-in">
-                <div className="bg-gradient-to-br from-white/95 to-red-50/95 backdrop-blur-md px-4 py-2 md:px-6 md:py-3 rounded-xl border-2 border-red-200 shadow-xl">
-                  <h3 className="font-great-vibes text-lg md:text-2xl text-red-700 mb-1">
+                <div className="bg-gradient-to-br from-white/98 to-red-50/95 backdrop-blur-md px-3 py-2 md:px-5 md:py-3 rounded-xl border-2 border-red-200 shadow-xl">
+                  <h3 className="font-great-vibes text-base md:text-xl text-red-700 mb-1">
                     Dil se Dil tak... 💖
                   </h3>
                   <p className="font-dancing-script text-xs md:text-sm text-red-600/80">
@@ -264,11 +264,11 @@ const RomanticJourneySection: React.FC = () => {
               {[...Array(6)].map((_, i) => (
                 <Sparkles
                   key={i}
-                  size={14}
+                  size={isMobile ? 12 : 14}
                   className="absolute text-red-500 animate-sparkle"
                   style={{
-                    left: `${30 + Math.random() * 40}%`,
-                    top: `${30 + Math.random() * 40}%`,
+                    left: `${25 + Math.random() * 50}%`,
+                    top: `${25 + Math.random() * 50}%`,
                     animationDelay: `${i * 0.3}s`,
                     animationDuration: '2s'
                   }}
@@ -319,13 +319,13 @@ const RomanticJourneySection: React.FC = () => {
 
         @keyframes heart-journey-mobile-left {
           0% {
-            top: 2rem;
-            left: 2rem;
+            top: 2.5rem;
+            left: 2.5rem;
             transform: scale(1);
           }
           30% {
-            top: 25%;
-            left: 25%;
+            top: 30%;
+            left: 30%;
             transform: scale(1.1);
           }
           60% {
@@ -342,13 +342,13 @@ const RomanticJourneySection: React.FC = () => {
 
         @keyframes heart-journey-mobile-right {
           0% {
-            bottom: 2rem;
-            right: 2rem;
+            bottom: 2.5rem;
+            right: 2.5rem;
             transform: scale(1);
           }
           30% {
-            bottom: 25%;
-            right: 25%;
+            bottom: 30%;
+            right: 30%;
             transform: scale(1.1);
           }
           60% {
