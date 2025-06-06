@@ -251,26 +251,7 @@
   animation: scale-up-fade 1s forwards;
 }
 
-/* Enhanced Ganesha Section Animations */
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-8px) rotate(1deg);
-  }
-  50% {
-    transform: translateY(-12px) rotate(0deg);
-  }
-  75% {
-    transform: translateY(-8px) rotate(-1deg);
-  }
-}
-
+/* Enhanced couple section animations */
 .animate-floating {
   animation: floating 6s ease-in-out infinite;
 }
@@ -281,22 +262,6 @@
   }
   50% {
     transform: translateY(-15px) scale(1.02);
-  }
-}
-
-/* Enhanced glowing effects */
-.animate-glow-soft {
-  animation: glow-soft 4s ease-in-out infinite;
-}
-
-@keyframes glow-soft {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(251, 146, 60, 0.3), 0 0 30px rgba(251, 191, 36, 0.2);
-    filter: brightness(1);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(251, 146, 60, 0.6), 0 0 50px rgba(251, 191, 36, 0.4);
-    filter: brightness(1.1);
   }
 }
 
@@ -319,7 +284,65 @@
   }
 }
 
-/* Religious card gradient border */
-.border-gradient-to-r {
-  background: linear-gradient(45deg, rgba(251, 146, 60, 0.4), rgba(251, 191, 36, 0.5), rgba(248, 113, 113, 0.4));
+/* Enhanced guest name animations */
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+  }
+}
+
+/* Luxury card effects */
+.luxury-frame {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(255, 215, 0, 0.1));
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.luxury-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: linear-gradient(135deg, #D4AF37, #FFD700, #D4AF37);
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+/* Ganesha section enhancements */
+.divine-glow {
+  box-shadow: 
+    0 0 20px rgba(251, 146, 60, 0.3),
+    0 0 40px rgba(251, 191, 36, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.sacred-border {
+  background: linear-gradient(45deg, rgba(251, 146, 60, 0.3), rgba(251, 191, 36, 0.4), rgba(248, 113, 113, 0.3));
+}
+
+/* Typography improvements */
+.font-hindi {
+  font-family: 'Noto Sans Devanagari', 'Arial Unicode MS', sans-serif;
+}
+
+/* Blink animation for cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
 }
