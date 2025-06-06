@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
@@ -103,9 +102,9 @@ const WelcomeForm: React.FC = () => {
           <Star size={20} className="text-wedding-gold drop-shadow-lg" />
         </div>
         
-        {/* Enhanced header section */}
+        {/* Enhanced header section with better personalization */}
         <div className="text-center mb-4 opacity-0 animate-fade-in-up relative z-10" style={{ animationDelay: '0.2s' }}>
-          <div className="flex items-center justify-center gap-4 mb-3">
+          <div className="flex items-center justify-center gap-4 mb-4">
             <div className="w-12 h-[2px] bg-gradient-to-r from-transparent to-wedding-gold/70 rounded-full"></div>
             <div className="relative">
               <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-wedding-gold/40 bg-gradient-to-br from-wedding-cream to-wedding-blush/30 animate-pulse-soft">
@@ -116,31 +115,49 @@ const WelcomeForm: React.FC = () => {
             <div className="w-12 h-[2px] bg-gradient-to-l from-transparent to-wedding-gold/70 rounded-full"></div>
           </div>
           
-          <h2 className="text-2xl font-playfair text-wedding-maroon mb-2 relative">
+          <h2 className="text-2xl font-playfair text-wedding-maroon mb-3 relative">
             {isGuestLoading ? (
-              <span className="inline-block w-48 h-6 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></span>
+              <div className="flex flex-col items-center gap-2">
+                <span className="inline-block w-48 h-6 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></span>
+                <span className="inline-block w-32 h-4 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-lg"></span>
+              </div>
             ) : (
-              <>
-                Welcome{' '}
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-2 mb-2">
+                  <span>🙏</span>
+                  <span className="text-lg">Namaste</span>
+                </div>
                 <AnimatedGuestName 
-                  name={guestName}
+                  name={guestName || 'प्रिय मेहमान'}
                   animationType="brush"
-                  className="font-playfair bg-gradient-to-r from-wedding-gold to-wedding-maroon bg-clip-text text-transparent"
+                  className="font-playfair bg-gradient-to-r from-wedding-gold to-wedding-maroon bg-clip-text text-transparent text-2xl"
                   delay={600}
-                  fallback="Guest Name"
+                  fallback="प्रिय मेहमान"
                 />
-              </>
+                <span className="text-base text-wedding-gold/80 font-dancing-script mt-1">जी का स्वागत है! 🌺</span>
+              </div>
             )}
           </h2>
-          <p className="text-sm text-gray-600 font-medium">Your special invitation awaits</p>
+          <p className="text-sm text-gray-600 font-medium">आपका विशेष निमंत्रण तैयार है</p>
         </div>
         
-        {/* Enhanced invitation text with modern styling */}
+        {/* Enhanced invitation text with better personalization */}
         <div className="text-center opacity-0 animate-fade-in-up relative z-10" style={{ animationDelay: '0.6s' }}>
           <div className="absolute -left-8 -top-8 text-7xl text-wedding-gold/8 font-great-vibes">"</div>
           <div className="relative px-6 py-4 rounded-xl bg-gradient-to-r from-wedding-cream/60 to-wedding-blush/40 backdrop-blur-sm border border-wedding-gold/20">
             <p className="text-wedding-maroon font-kruti text-xl md:text-2xl relative z-10 leading-relaxed">
-              {groomName} & {brideName} cordially invite you to celebrate their wedding
+              {guestName ? (
+                <>
+                  <span className="text-wedding-gold font-dancing-script text-lg block mb-1">
+                    {guestName} जी,
+                  </span>
+                  <span>
+                    {groomName} & {brideName} के विवाह समारोह में आपकी उपस्थिति का सादर निमंत्रण
+                  </span>
+                </>
+              ) : (
+                `${groomName} & ${brideName} cordially invite you to celebrate their wedding`
+              )}
             </p>
           </div>
           <div className="absolute -right-8 -bottom-8 text-7xl text-wedding-gold/8 font-great-vibes">"</div>
@@ -153,7 +170,7 @@ const WelcomeForm: React.FC = () => {
           <div className="h-[2px] w-16 bg-gradient-to-l from-transparent via-wedding-gold/40 to-wedding-gold/60 rounded-full"></div>
         </div>
         
-        {/* Enhanced CTA button */}
+        {/* Enhanced CTA button with personalized text */}
         <div 
           className="opacity-0 animate-fade-in-up z-10 relative" 
           style={{ animationDelay: '1s' }}
@@ -175,11 +192,15 @@ const WelcomeForm: React.FC = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Opening
+                निमंत्रण खोला जा रहा है...
               </span>
             ) : (
               <span className="flex items-center font-semibold text-lg">
-                {isMobile ? 'Open' : 'Open Invitation'}
+                {guestName ? (
+                  isMobile ? 'निमंत्रण देखें 💌' : 'आपका निमंत्रण देखें 💌'
+                ) : (
+                  isMobile ? 'Open' : 'Open Invitation'
+                )}
                 <Heart
                   size={isMobile ? 20 : 24}
                   className={`ml-3 transition-all duration-300 ${isHovered ? 'scale-125 text-red-500' : 'scale-100'}`}
@@ -212,12 +233,16 @@ const WelcomeForm: React.FC = () => {
         </div>
       </div>
       
-      {/* Enhanced date teaser with modern card design */}
+      {/* Enhanced date teaser with personalized touch */}
       <div className="mt-8 text-center opacity-0 animate-fade-in" style={{ animationDelay: '1.4s' }}>
         <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-wedding-cream/80 via-wedding-blush/60 to-wedding-cream/80 text-wedding-maroon border-2 border-wedding-gold/30 shadow-lg backdrop-blur-sm">
           <p className="text-sm font-dancing-script font-semibold flex items-center gap-2">
             <Calendar size={16} className="text-wedding-gold animate-pulse" />
-            Save the Date: {weddingDate}
+            {guestName ? (
+              `${guestName} जी, Save the Date: ${weddingDate}`
+            ) : (
+              `Save the Date: ${weddingDate}`
+            )}
             <Sparkles size={14} className="text-wedding-gold animate-pulse" />
           </p>
         </div>
