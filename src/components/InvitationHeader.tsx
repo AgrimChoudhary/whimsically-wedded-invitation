@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
@@ -52,26 +53,83 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
       <div className="w-full max-w-4xl px-4">
-        <div className="flex flex-col items-center mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <div className="relative mb-3">
-            <img 
-              src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
-              alt="Lord Ganesha" 
-              className="w-24 h-24 sm:w-28 sm:h-28 object-contain animate-glow-soft"
-              loading="lazy"
-            />
-            <div className="absolute -inset-1 rounded-full border border-wedding-gold/30 animate-pulse-soft"></div>
-            <div className="absolute -inset-3 rounded-full border border-wedding-gold/20" style={{animationDelay: '1s'}}></div>
-            <Star 
-              size={16} 
-              className="absolute -top-1 -right-1 text-wedding-gold animate-pulse-soft" 
-              fill="#D4AF37" 
-            />
+        {/* Enhanced Ganesha Section */}
+        <div className="flex flex-col items-center mb-8 sm:mb-10 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          {/* Religious Card with Ganesha */}
+          <div className="relative group">
+            {/* Outer glowing border */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-orange-400/20 via-yellow-400/30 to-red-400/20 rounded-full blur-lg group-hover:blur-xl transition-all duration-700 animate-pulse-soft"></div>
+            
+            {/* Main card */}
+            <div className="relative bg-gradient-to-br from-orange-50/80 to-yellow-50/80 backdrop-blur-md border-2 border-gradient-to-r border-orange-300/40 rounded-full p-6 sm:p-8 shadow-2xl">
+              {/* Inner decorative border */}
+              <div className="absolute inset-3 rounded-full border border-orange-200/50 animate-pulse-soft" style={{animationDelay: '0.5s'}}></div>
+              
+              {/* Floating decorative elements */}
+              <div className="absolute -top-2 -left-2 w-4 h-4 bg-orange-400/30 rounded-full animate-float" style={{animationDelay: '0s'}}></div>
+              <div className="absolute -top-3 -right-1 w-3 h-3 bg-yellow-400/40 rounded-full animate-float" style={{animationDelay: '1s'}}></div>
+              <div className="absolute -bottom-2 -left-1 w-3 h-3 bg-red-400/30 rounded-full animate-float" style={{animationDelay: '2s'}}></div>
+              <div className="absolute -bottom-3 -right-2 w-4 h-4 bg-orange-300/40 rounded-full animate-float" style={{animationDelay: '1.5s'}}></div>
+              
+              {/* Ganesha Image */}
+              <div className="relative">
+                <img 
+                  src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
+                  alt="Lord Ganesha" 
+                  className="w-28 h-28 sm:w-32 sm:h-32 object-contain animate-glow-soft relative z-10"
+                  loading="lazy"
+                />
+                
+                {/* Decorative stars around Ganesha */}
+                <Star 
+                  size={14} 
+                  className="absolute -top-2 -left-2 text-orange-400 animate-pulse-soft" 
+                  fill="#FB923C" 
+                  style={{animationDelay: '0.2s'}}
+                />
+                <Star 
+                  size={12} 
+                  className="absolute -top-1 -right-3 text-yellow-400 animate-pulse-soft" 
+                  fill="#FBBF24" 
+                  style={{animationDelay: '0.8s'}}
+                />
+                <Star 
+                  size={16} 
+                  className="absolute -bottom-1 -left-3 text-red-400 animate-pulse-soft" 
+                  fill="#F87171" 
+                  style={{animationDelay: '1.2s'}}
+                />
+                <Star 
+                  size={13} 
+                  className="absolute -bottom-2 -right-2 text-orange-300 animate-pulse-soft" 
+                  fill="#FDBA74" 
+                  style={{animationDelay: '0.6s'}}
+                />
+                
+                {/* Divine light effect */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-200/10 via-yellow-200/20 to-orange-200/10 animate-pulse-soft"></div>
+              </div>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="font-devanagari text-sm text-wedding-gold mb-1">
+          
+          {/* Sanskrit Shloka */}
+          <div className="text-center mt-4 relative">
+            {/* Decorative line above */}
+            <div className="mx-auto w-24 h-[1px] bg-gradient-to-r from-transparent via-orange-400/50 to-transparent mb-3"></div>
+            
+            <p className="font-devanagari text-sm sm:text-base text-orange-700 mb-1 leading-relaxed">
               वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।
+            </p>
+            <p className="font-devanagari text-sm sm:text-base text-orange-700 leading-relaxed">
               निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥
+            </p>
+            
+            {/* Decorative line below */}
+            <div className="mx-auto w-24 h-[1px] bg-gradient-to-r from-transparent via-orange-400/50 to-transparent mt-3"></div>
+            
+            {/* Translation */}
+            <p className="text-xs sm:text-sm text-orange-600/80 mt-2 italic font-poppins">
+              "O Lord Ganesha, please remove all obstacles from our path"
             </p>
           </div>
         </div>

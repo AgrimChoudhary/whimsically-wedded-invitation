@@ -250,3 +250,76 @@
 .animate-scale-up-fade {
   animation: scale-up-fade 1s forwards;
 }
+
+/* Enhanced Ganesha Section Animations */
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-8px) rotate(-1deg);
+  }
+}
+
+.animate-floating {
+  animation: floating 6s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-15px) scale(1.02);
+  }
+}
+
+/* Enhanced glowing effects */
+.animate-glow-soft {
+  animation: glow-soft 4s ease-in-out infinite;
+}
+
+@keyframes glow-soft {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(251, 146, 60, 0.3), 0 0 30px rgba(251, 191, 36, 0.2);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(251, 146, 60, 0.6), 0 0 50px rgba(251, 191, 36, 0.4);
+    filter: brightness(1.1);
+  }
+}
+
+/* Shimmer effect for ampersand */
+.shimmer-text {
+  background: linear-gradient(45deg, #D4AF37, #FFD700, #D4AF37);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Religious card gradient border */
+.border-gradient-to-r {
+  background: linear-gradient(45deg, rgba(251, 146, 60, 0.4), rgba(251, 191, 36, 0.5), rgba(248, 113, 113, 0.4));
+}
