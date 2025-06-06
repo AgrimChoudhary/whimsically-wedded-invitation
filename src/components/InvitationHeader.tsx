@@ -148,44 +148,41 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           </div>
         </div>
         
-        {/* Enhanced Guest Welcome Section */}
+        {/* Refined Guest Welcome Section */}
         <div className="text-center mb-8 sm:mb-10 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-          <div className="relative inline-block luxury-frame p-6 sm:p-8 rounded-2xl">
-            <div className="absolute -inset-2 bg-gradient-to-r from-wedding-gold/20 via-wedding-blush/20 to-wedding-gold/20 rounded-2xl blur-lg animate-pulse-soft"></div>
+          <div className="relative">
+            {/* Subtle background glow */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-wedding-gold/10 via-wedding-blush/10 to-wedding-gold/10 rounded-2xl blur-lg"></div>
             
-            <h1 className="relative font-great-vibes text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-wedding-maroon mb-3 gold-highlight">
-              Welcome{' '}
-              <span className="relative inline-block">
-                <AnimatedGuestName 
-                  name={guestName} 
-                  fallback="Dear Guest"
-                  animationType="sparkle"
-                  className="font-great-vibes relative inline-block text-wedding-gold shimmer-text"
-                  delay={800}
-                />
-                {!isMobile && (
-                  <Sparkles 
-                    size={24} 
-                    className="absolute -top-4 -right-6 text-wedding-gold animate-sparkle" 
+            <div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-wedding-gold/20">
+              <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4">
+                Welcome{' '}
+                <span className="text-wedding-gold">
+                  <AnimatedGuestName 
+                    name={guestName} 
+                    fallback="Dear Guest"
+                    animationType="typing"
+                    className="font-great-vibes"
+                    delay={800}
                   />
-                )}
-              </span>
-            </h1>
-            
-            <h2 className="font-dancing-script text-xl sm:text-2xl md:text-3xl text-wedding-gold animate-bounce-light mt-2">
-              You are cordially invited to our celebration!
-            </h2>
-            
-            {/* Decorative elements */}
-            <div className="flex items-center justify-center gap-4 mt-4">
-              <div className="h-[1px] w-20 sm:w-32 bg-gradient-to-r from-transparent to-wedding-gold/70"></div>
-              <Heart size={16} className="text-wedding-gold/60 animate-pulse-soft" fill="currentColor" />
-              <div className="h-[1px] w-20 sm:w-32 bg-gradient-to-l from-transparent to-wedding-gold/70"></div>
+                </span>
+              </h1>
+              
+              <h2 className="font-dancing-script text-xl sm:text-2xl text-wedding-gold/90 mt-2">
+                You are cordially invited to our celebration!
+              </h2>
+              
+              {/* Simple decorative line */}
+              <div className="flex items-center justify-center gap-3 mt-4">
+                <div className="h-[1px] w-16 bg-wedding-gold/50"></div>
+                <Heart size={12} className="text-wedding-gold/60" fill="currentColor" />
+                <div className="h-[1px] w-16 bg-wedding-gold/50"></div>
+              </div>
             </div>
           </div>
         </div>
         
-        {/* Enhanced Couple Section */}
+        {/* Clean Couple Section */}
         <div 
           className="text-center relative opacity-0 animate-fade-in-up cursor-pointer"
           style={{ animationDelay: '0.9s' }}
@@ -196,85 +193,50 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           title="Click for a surprise!"
         >
           <div className="flex flex-col items-center">
-            {/* Couple Image with Luxury Frame */}
+            {/* Couple Image with Clean Frame */}
             <div className="relative mb-6 sm:mb-8">
-              <div className="absolute -inset-4 bg-gradient-to-r from-wedding-gold/30 via-wedding-blush/40 to-wedding-gold/30 rounded-full blur-xl animate-pulse-soft"></div>
-              <div className="relative luxury-frame rounded-full p-4">
+              {/* Subtle glow effect */}
+              <div className="absolute -inset-3 bg-gradient-to-r from-wedding-gold/20 via-wedding-blush/20 to-wedding-gold/20 rounded-full blur-lg"></div>
+              
+              <div className="relative bg-white/30 backdrop-blur-sm rounded-full p-3 border border-wedding-gold/30">
                 <img 
                   src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
                   alt={`${groomName} and ${brideName}`}
-                  className="w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain animate-floating relative z-10"
+                  className="w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10"
                   loading="lazy"
                 />
-                
-                {/* Floating hearts around couple */}
-                {!isMobile && (
-                  <>
-                    <Heart size={20} className="absolute -top-4 -left-4 text-wedding-blush animate-float" fill="currentColor" style={{animationDelay: '0s'}} />
-                    <Heart size={16} className="absolute -top-2 -right-6 text-wedding-gold animate-float" fill="currentColor" style={{animationDelay: '1s'}} />
-                    <Heart size={18} className="absolute -bottom-4 -left-6 text-wedding-blush animate-float" fill="currentColor" style={{animationDelay: '2s'}} />
-                    <Heart size={14} className="absolute -bottom-2 -right-4 text-wedding-gold animate-float" fill="currentColor" style={{animationDelay: '1.5s'}} />
-                  </>
-                )}
               </div>
             </div>
             
-            {/* Enhanced Couple Names */}
-            <div className="mt-4 sm:mb-6">
-              <h2 className="relative font-great-vibes text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-wedding-maroon leading-tight mt-2 mb-4">
-                <span className="relative inline-block transform hover:scale-105 transition-transform duration-300">
+            {/* Clean Couple Names */}
+            <div className="mt-4">
+              <h2 className="font-great-vibes text-5xl sm:text-6xl md:text-7xl text-wedding-maroon leading-tight mb-4">
+                <span className="inline-block">
                   {groomName}
-                  <div className="absolute -bottom-2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-wedding-gold/50 to-transparent"></div>
                 </span>
                 
-                <span className="relative inline-block mx-3 sm:mx-4 md:mx-6 px-3 sm:px-4 transform -rotate-6 hover:rotate-0 transition-transform duration-500">
-                  <span className="text-wedding-gold shimmer-text text-6xl sm:text-7xl md:text-8xl">&</span>
-                  <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-wedding-gold/20"></div>
-                  {!isMobile && (
-                    <>
-                      <Sparkles size={16} className="absolute -top-4 -left-2 text-wedding-gold animate-sparkle" />
-                      <Sparkles size={16} className="absolute -bottom-4 -right-2 text-wedding-gold animate-sparkle" style={{animationDelay: '0.5s'}} />
-                    </>
-                  )}
+                <span className="inline-block mx-4 text-wedding-gold text-4xl sm:text-5xl md:text-6xl">
+                  &
                 </span>
                 
-                <span className="relative inline-block transform hover:scale-105 transition-transform duration-300">
+                <span className="inline-block">
                   {brideName}
-                  <div className="absolute -bottom-2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-wedding-gold/50 to-transparent"></div>
                 </span>
-                
-                {!isMobile && (
-                  <>
-                    <Crown size={24} className="absolute -top-8 left-1/4 text-wedding-gold animate-pulse-soft" />
-                    <Crown size={24} className="absolute -top-8 right-1/4 text-wedding-gold animate-pulse-soft" style={{ animationDelay: '0.5s' }} />
-                  </>
-                )}
               </h2>
               
-              <div className="text-center text-base sm:text-lg text-wedding-gold/90 font-dancing-script tracking-wider uppercase my-3">
-                <span className="relative px-6">
-                  <span className="relative z-10 font-semibold">Wedding Invitation</span>
-                  <div className="absolute inset-0 bg-wedding-cream/40 rounded-full blur-md"></div>
-                </span>
+              <div className="text-center text-base sm:text-lg text-wedding-gold/90 font-dancing-script tracking-wider uppercase">
+                Wedding Invitation
               </div>
             </div>
             
-            {/* Enhanced Decorative Divider */}
-            <div className="mt-6 flex items-center justify-center gap-6">
-              <div className="h-[2px] w-20 sm:w-32 bg-gradient-to-r from-transparent to-wedding-gold/80 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-wedding-gold/40 blur-sm"></div>
-              </div>
-              <div className="relative">
-                <div className="w-4 h-4 rounded-full bg-wedding-gold/30 relative">
-                  <div className="absolute inset-1 rounded-full bg-wedding-gold/60 animate-pulse-soft"></div>
-                </div>
-              </div>
-              <div className="h-[2px] w-20 sm:w-32 bg-gradient-to-l from-transparent to-wedding-gold/80 relative">
-                <div className="absolute inset-0 bg-gradient-to-l from-transparent to-wedding-gold/40 blur-sm"></div>
-              </div>
+            {/* Simple Decorative Divider */}
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <div className="h-[1px] w-20 sm:w-24 bg-wedding-gold/60"></div>
+              <div className="w-2 h-2 rounded-full bg-wedding-gold/50"></div>
+              <div className="h-[1px] w-20 sm:w-24 bg-wedding-gold/60"></div>
             </div>
             
-            <p className="text-sm text-gray-500 mt-6 animate-pulse-soft font-medium">Click for a magical surprise ✨</p>
+            <p className="text-sm text-gray-500 mt-6 font-medium">Click for a magical surprise ✨</p>
           </div>
         </div>
       </div>
