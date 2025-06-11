@@ -56,8 +56,8 @@ export const GuestProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             setGuestId(currentGuestId);
             setGuestStatus(data.status);
             
-            // Update status to 'viewed' when the guest opens the invitation
-            if ((location.pathname.includes('invitation') || !location.pathname.includes('guest-management')) && data.status !== 'accepted' && data.status !== 'declined') {
+            // Update status to 'viewed' immediately when the guest opens the URL
+            if (data.status !== 'accepted' && data.status !== 'declined') {
               updateGuestStatus('viewed');
             }
           }
