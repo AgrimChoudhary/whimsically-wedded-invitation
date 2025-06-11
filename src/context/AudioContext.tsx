@@ -18,7 +18,7 @@ const AudioContext = createContext<AudioContextType>({
 
 export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabledOnRoutes = [] }) => {
   const [audio] = useState(new Audio());
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true); // Start with isPlaying as true
   const [isInitialized, setIsInitialized] = useState(false);
   const location = useLocation();
   
@@ -35,59 +35,40 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
     audio.volume = 0.5;
     audio.preload = "auto";
     
-    const initializeAudio = async () => {
+    // Try to play immediately
+    const playAudio = async () => {
       if (!isInitialized && !isMusicDisabled) {
         try {
-          // Try to play immediately
+          // Set audio properties for autoplay
+          audio.muted = false;
+          audio.autoplay = true;
+          
+          // Try to play
           await audio.play();
           setIsPlaying(true);
           setIsInitialized(true);
         } catch (error) {
           console.log("Initial autoplay failed:", error);
-          // If autoplay fails, we'll try again on user interaction
+          // If autoplay fails, try again with a slight delay
+          setTimeout(() => {
+            audio.play().catch(console.error);
+          }, 100);
         }
       }
     };
 
-    // Try to initialize immediately
-    initializeAudio();
-
-    // Add event listeners for user interaction
-    const handleUserInteraction = async () => {
-      if (!isInitialized && !isMusicDisabled) {
-        try {
-          await audio.play();
-          setIsPlaying(true);
-          setIsInitialized(true);
-          // Remove all event listeners after successful play
-          removeEventListeners();
-        } catch (error) {
-          console.log("Playback failed on user interaction:", error);
-        }
-      }
-    };
-
-    const removeEventListeners = () => {
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
-    };
-
-    // Add event listeners for user interaction
-    document.addEventListener('click', handleUserInteraction);
-    document.addEventListener('touchstart', handleUserInteraction);
-    document.addEventListener('keydown', handleUserInteraction);
+    // Try to play immediately
+    playAudio();
 
     // Try again after a short delay
     const timeoutId = setTimeout(() => {
       if (!isInitialized && !isMusicDisabled) {
-        initializeAudio();
+        playAudio();
       }
-    }, 1000);
+    }, 500);
 
     return () => {
       audio.pause();
-      removeEventListeners();
       clearTimeout(timeoutId);
     };
   }, [isInitialized, isMusicDisabled]);
@@ -123,10 +104,12 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
     
     try {
       if (isPlaying) {
-        await audio.pause();
+        // Instead of pausing, just mute the audio
+        audio.muted = true;
         setIsPlaying(false);
       } else {
-        await audio.play();
+        // Unmute the audio
+        audio.muted = false;
         setIsPlaying(true);
       }
     } catch (error) {
