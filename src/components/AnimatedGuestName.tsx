@@ -154,21 +154,22 @@ const AnimatedGuestName: React.FC<AnimatedGuestNameProps> = ({
         }}
       >
         <span 
-          className="absolute -inset-x-1 -inset-y-1 bg-gradient-to-r from-wedding-gold/0 via-wedding-gold/10 to-wedding-gold/0 rounded-md"
+          className="absolute -inset-x-1 -inset-y-1 bg-gradient-to-r from-wedding-gold/0 via-wedding-gold/30 to-wedding-gold/0 rounded-md"
           style={{
             animation: isBrushVisible ? 'brushGlow 2.5s ease-in-out forwards' : 'none',
             opacity: 0,
           }}
         ></span>
         <span 
-          className="relative z-10 inline-block"
+          className="relative z-10 inline-block font-semibold"
           style={{
-            backgroundImage: 'linear-gradient(transparent 60%, rgba(212, 175, 55, 0.25) 40%)',
+            backgroundImage: 'linear-gradient(transparent 60%, rgba(212, 175, 55, 0.3) 40%)',
             backgroundSize: isBrushVisible ? '100% 100%' : '0% 100%',
             backgroundRepeat: 'no-repeat',
             transition: 'background-size 1.2s ease-out',
             padding: '0 4px',
-            textShadow: isBrushVisible ? '0 0 1px rgba(212, 175, 55, 0.3)' : 'none',
+            textShadow: isBrushVisible ? '0 0 3px rgba(212, 175, 55, 0.5)' : 'none',
+            color: isBrushVisible ? '#8B4513' : '#666',
           }}
         >
           {actualName}
@@ -181,25 +182,26 @@ const AnimatedGuestName: React.FC<AnimatedGuestNameProps> = ({
     return (
       <span className={`relative inline-block ${className}`}>
         <span 
-          className="absolute inset-0 bg-gradient-to-r from-wedding-gold/0 via-wedding-gold/20 to-wedding-gold/0" 
+          className="absolute inset-0 bg-gradient-to-r from-wedding-gold/0 via-wedding-gold/40 to-wedding-gold/0" 
           style={{
             animation: isSparkleVisible ? 'shimmerEffect 2s infinite' : 'none',
             borderRadius: '4px',
             transform: 'skewX(-15deg)',
-            filter: 'blur(3px)',
+            filter: 'blur(1px)',
             zIndex: 0
           }}
         ></span>
         {actualName.split('').map((char, index) => (
           <span 
             key={index}
-            className="relative inline-block z-10"
+            className="relative inline-block z-10 font-semibold"
             style={{
               opacity: isSparkleVisible ? 1 : 0,
               transform: isSparkleVisible ? 'translateY(0)' : 'translateY(10px)',
               transition: `opacity 0.5s ease, transform 0.5s ease`,
               transitionDelay: `${index * 0.06}s`,
-              textShadow: isSparkleVisible ? '0 0 5px rgba(212, 175, 55, 0.5)' : 'none'
+              textShadow: isSparkleVisible ? '0 0 3px rgba(212, 175, 55, 0.5)' : 'none',
+              color: isSparkleVisible ? '#8B4513' : '#666',
             }}
           >
             {char === ' ' ? '\u00A0' : char}
@@ -209,8 +211,18 @@ const AnimatedGuestName: React.FC<AnimatedGuestNameProps> = ({
     );
   }
 
-  // Fallback - just show the name
-  return <span className={className}>{actualName}</span>;
+  // Fallback - just show the name with enhanced visibility
+  return (
+    <span 
+      className={`${className} font-semibold`}
+      style={{
+        color: '#8B4513',
+        textShadow: '0 0 2px rgba(212, 175, 55, 0.3)'
+      }}
+    >
+      {actualName}
+    </span>
+  );
 };
 
 export default AnimatedGuestName;
