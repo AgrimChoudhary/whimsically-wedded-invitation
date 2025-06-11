@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -36,70 +35,60 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
     audio.volume = 0.5;
     audio.preload = "auto";
     
-    const initializeAudio = () => {
+    const initializeAudio = async () => {
       if (!isInitialized && !isMusicDisabled) {
-        // Start playing automatically
-        const playPromise = audio.play();
-        
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsPlaying(true);
-              setIsInitialized(true);
-            })
-            .catch((error) => {
-              console.log("Audio playback failed:", error);
-              setIsPlaying(false);
-            });
+        try {
+          // Try to play immediately
+          await audio.play();
+          setIsPlaying(true);
+          setIsInitialized(true);
+        } catch (error) {
+          console.log("Initial autoplay failed:", error);
+          // If autoplay fails, we'll try again on user interaction
         }
       }
     };
 
-    // Multiple event handlers to maximize autoplay chances
-    const autoplayEvents = [
-      'click', 'touchstart', 'scroll', 'mousedown', 
-      'keydown', 'pointerdown', 'pointerup'
-    ];
-    
-    const handleUserInteraction = () => {
-      if (!isMusicDisabled) {
-        initializeAudio();
-        // Remove all event listeners after first interaction
-        autoplayEvents.forEach(event => {
-          document.removeEventListener(event, handleUserInteraction);
-        });
+    // Try to initialize immediately
+    initializeAudio();
+
+    // Add event listeners for user interaction
+    const handleUserInteraction = async () => {
+      if (!isInitialized && !isMusicDisabled) {
+        try {
+          await audio.play();
+          setIsPlaying(true);
+          setIsInitialized(true);
+          // Remove all event listeners after successful play
+          removeEventListeners();
+        } catch (error) {
+          console.log("Playback failed on user interaction:", error);
+        }
       }
     };
 
-    // Try to play immediately (works on some browsers without interaction)
-    initializeAudio();
-    
-    // Add fallback listeners for browsers that require user interaction
-    if (!isMusicDisabled) {
-      autoplayEvents.forEach(event => {
-        document.addEventListener(event, handleUserInteraction, { once: true });
-      });
-    }
+    const removeEventListeners = () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
+    };
 
-    // Set multiple timeouts to try again after delays
-    const timeouts = [
-      setTimeout(() => {
-        if (!isInitialized && !isMusicDisabled) initializeAudio();
-      }, 1000),
-      setTimeout(() => {
-        if (!isInitialized && !isMusicDisabled) initializeAudio();
-      }, 3000),
-      setTimeout(() => {
-        if (!isInitialized && !isMusicDisabled) initializeAudio();
-      }, 5000)
-    ];
+    // Add event listeners for user interaction
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+    document.addEventListener('keydown', handleUserInteraction);
+
+    // Try again after a short delay
+    const timeoutId = setTimeout(() => {
+      if (!isInitialized && !isMusicDisabled) {
+        initializeAudio();
+      }
+    }, 1000);
 
     return () => {
       audio.pause();
-      autoplayEvents.forEach(event => {
-        document.removeEventListener(event, handleUserInteraction);
-      });
-      timeouts.forEach(timeout => clearTimeout(timeout));
+      removeEventListeners();
+      clearTimeout(timeoutId);
     };
   }, [isInitialized, isMusicDisabled]);
 
@@ -129,22 +118,19 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
     };
   }, [isInitialized, audio, isMusicDisabled]);
 
-  const toggleMusic = () => {
+  const toggleMusic = async () => {
     if (isMusicDisabled) return;
     
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => setIsPlaying(true))
-          .catch(error => {
-            console.error("Playback failed:", error);
-            setIsPlaying(false);
-          });
+    try {
+      if (isPlaying) {
+        await audio.pause();
+        setIsPlaying(false);
+      } else {
+        await audio.play();
+        setIsPlaying(true);
       }
+    } catch (error) {
+      console.error("Error toggling music:", error);
     }
   };
 
