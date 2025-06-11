@@ -18,24 +18,21 @@ const AudioContext = createContext<AudioContextType>({
 
 export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabledOnRoutes = [] }) => {
   const [audio] = useState(new Audio());
-  const [isPlaying, setIsPlaying] = useState(true); // Start with isPlaying as true
+  const [isPlaying, setIsPlaying] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
   const location = useLocation();
   
-  // Check if current route is in disabled routes list
   const isMusicDisabled = isDisabledOnRoutes.some(route => 
     location.pathname === route || location.pathname.startsWith(`${route}/`)
   );
 
   // Set up audio on mount
   useEffect(() => {
-    // Kudmayi song from Rocky Aur Rani Kii Prem Kahaani
     audio.src = "/audio/Kudmayi.mp3";
     audio.loop = true;
     audio.volume = 0.5;
     audio.preload = "auto";
     
-    // Try to play immediately
     const playAudio = async () => {
       if (!isInitialized && !isMusicDisabled) {
         try {
@@ -49,10 +46,6 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
           setIsInitialized(true);
         } catch (error) {
           console.log("Initial autoplay failed:", error);
-          // If autoplay fails, try again with a slight delay
-          setTimeout(() => {
-            audio.play().catch(console.error);
-          }, 100);
         }
       }
     };
@@ -60,16 +53,37 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
     // Try to play immediately
     playAudio();
 
+    // Add event listeners for user interaction
+    const handleUserInteraction = async () => {
+      if (!isInitialized && !isMusicDisabled) {
+        try {
+          await audio.play();
+          setIsPlaying(true);
+          setIsInitialized(true);
+        } catch (error) {
+          console.log("Playback failed on user interaction:", error);
+        }
+      }
+    };
+
+    // Listen for any user interaction
+    document.addEventListener('click', handleUserInteraction, { once: true });
+    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+    document.addEventListener('keydown', handleUserInteraction, { once: true });
+
     // Try again after a short delay
     const timeoutId = setTimeout(() => {
       if (!isInitialized && !isMusicDisabled) {
         playAudio();
       }
-    }, 500);
+    }, 1000);
 
     return () => {
       audio.pause();
       clearTimeout(timeoutId);
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
     };
   }, [isInitialized, isMusicDisabled]);
 
@@ -104,11 +118,9 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, isDisabl
     
     try {
       if (isPlaying) {
-        // Instead of pausing, just mute the audio
         audio.muted = true;
         setIsPlaying(false);
       } else {
-        // Unmute the audio
         audio.muted = false;
         setIsPlaying(true);
       }
