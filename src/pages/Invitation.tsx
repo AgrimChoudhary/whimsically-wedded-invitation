@@ -23,8 +23,6 @@ const Invitation = () => {
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const [ganeshaTransition, setGaneshaTransition] = useState(false);
-  const [showFinalGanesha, setShowFinalGanesha] = useState(false);
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
@@ -43,14 +41,6 @@ const Invitation = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-      // Start Ganesha transition after a brief pause
-      setTimeout(() => {
-        setGaneshaTransition(true);
-        // Show final Ganesha after transition completes
-        setTimeout(() => {
-          setShowFinalGanesha(true);
-        }, 1500); // Match transition duration
-      }, 300);
     }, 1500);
     
     // If there's a guestId and they've already accepted, show thank you message
@@ -105,18 +95,6 @@ const Invitation = () => {
     <div className="min-h-screen w-full pattern-background">
       {isLoading ? (
         <div className="loading-overlay flex flex-col items-center justify-center min-h-screen">
-          {/* Ganesha Image in Loading Screen */}
-          <div className="mb-8">
-            <div className="relative w-24 h-24 md:w-32 md:h-32">
-              <img 
-                src="https://i.pinimg.com/564x/99/10/e4/9910e478f8df0b3b729c94c3b534caeb.jpg"
-                alt="Lord Ganesha"
-                className="w-full h-full object-contain drop-shadow-lg animate-pulse-soft"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-orange-100/20 to-transparent rounded-full"></div>
-            </div>
-          </div>
-          
           <div className="relative">
             <div className="loading-spinner mb-4 w-16 h-16 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
             <div className="absolute inset-0 border-4 border-wedding-gold/10 rounded-full animate-pulse-soft"></div>
@@ -148,20 +126,6 @@ const Invitation = () => {
           <FloatingPetals />
           <Confetti isActive={confetti} />
           
-          {/* Transitioning Ganesha Image */}
-          {ganeshaTransition && !showFinalGanesha && (
-            <div className="fixed inset-0 z-50 pointer-events-none">
-              <div className="ganesha-transition w-24 h-24 md:w-32 md:h-32">
-                <img 
-                  src="https://i.pinimg.com/564x/99/10/e4/9910e478f8df0b3b729c94c3b534caeb.jpg"
-                  alt="Lord Ganesha"
-                  className="w-full h-full object-contain drop-shadow-lg"
-                />
-              </div>
-            </div>
-          )}
-          
-          {/* Fixed Controls */}
           <div className="fixed bottom-20 right-4 z-30 flex flex-col gap-3">
             <Button 
               onClick={toggleMusic}
@@ -204,7 +168,6 @@ const Invitation = () => {
           <InvitationHeader 
             groomName={GROOM_FIRST_NAME}
             brideName={BRIDE_FIRST_NAME}
-            showFinalGanesha={showFinalGanesha}
           />
           
           {/* Section ordering: countdown, family details, romantic journey, wedding journey, events, photos */}
