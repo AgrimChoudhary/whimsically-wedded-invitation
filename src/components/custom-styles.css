@@ -495,3 +495,79 @@
 .animate-scale-up-fade {
   animation: scale-up-fade 1s forwards;
 }
+
+/* Ganesha Transition Animation */
+.ganesha-transition {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: ganeshaMove 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  z-index: 50;
+}
+
+@keyframes ganeshaMove {
+  0% {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  70% {
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  100% {
+    top: 18%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0;
+  }
+}
+
+/* Responsive Ganesha transition for mobile */
+@media (max-width: 768px) {
+  @keyframes ganeshaMove {
+    0% {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    30% {
+      transform: translate(-50%, -50%) scale(0.8);
+    }
+    70% {
+      top: 22%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+      top: 16%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.3);
+      opacity: 0;
+    }
+  }
+}
+
+/* Enhanced fade-in animation for final Ganesha */
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
