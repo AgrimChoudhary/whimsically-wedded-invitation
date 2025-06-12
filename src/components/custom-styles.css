@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -494,4 +495,65 @@
 
 .animate-scale-up-fade {
   animation: scale-up-fade 1s forwards;
+}
+
+/* Ganesha Transition Animation */
+.ganesha-transition-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: ganesha-move-to-final 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation-delay: 0.2s;
+}
+
+@keyframes ganesha-move-to-final {
+  0% {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.9;
+  }
+  100% {
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Responsive adjustments for Ganesha transition */
+@media (max-width: 768px) {
+  @keyframes ganesha-move-to-final {
+    0% {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    20% {
+      opacity: 1;
+    }
+    80% {
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      opacity: 0.9;
+    }
+    100% {
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      opacity: 0;
+    }
+  }
 }

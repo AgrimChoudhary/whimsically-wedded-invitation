@@ -23,6 +23,7 @@ const Invitation = () => {
   const [showRSVP, setShowRSVP] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
+  const [showGaneshaTransition, setShowGaneshaTransition] = useState(false);
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
@@ -41,6 +42,10 @@ const Invitation = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
+      // Start Ganesha transition after loading completes
+      setTimeout(() => {
+        setShowGaneshaTransition(true);
+      }, 100);
     }, 1500);
     
     // If there's a guestId and they've already accepted, show thank you message
@@ -99,6 +104,21 @@ const Invitation = () => {
             <div className="loading-spinner mb-4 w-16 h-16 border-4 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
             <div className="absolute inset-0 border-4 border-wedding-gold/10 rounded-full animate-pulse-soft"></div>
           </div>
+          
+          {/* Ganesha Image in Loading Screen */}
+          <div className="relative mb-6">
+            <div className="absolute -inset-4 bg-gradient-to-r from-orange-400/20 via-yellow-400/30 to-red-400/20 rounded-full blur-xl animate-pulse-soft"></div>
+            <div className="relative bg-gradient-to-br from-orange-50/90 via-yellow-50/95 to-orange-50/90 backdrop-blur-lg rounded-full p-6 border border-orange-200/60">
+              <img 
+                src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
+                alt="Lord Ganesha" 
+                className="w-24 h-24 object-contain animate-floating"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+          </div>
+          
           <div className="text-center">
             <p className="text-wedding-maroon font-dancing-script text-xl md:text-2xl mb-2">Preparing your invitation...</p>
             
@@ -123,6 +143,31 @@ const Invitation = () => {
         </div>
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
+          {/* Transitioning Ganesha Image */}
+          {showGaneshaTransition && (
+            <div 
+              className="fixed inset-0 z-50 pointer-events-none"
+              style={{
+                background: 'linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 50%, transparent 100%)'
+              }}
+            >
+              <div className="ganesha-transition-container">
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-orange-400/20 via-yellow-400/30 to-red-400/20 rounded-full blur-xl animate-pulse-soft"></div>
+                  <div className="relative bg-gradient-to-br from-orange-50/90 via-yellow-50/95 to-orange-50/90 backdrop-blur-lg rounded-full p-6 border border-orange-200/60">
+                    <img 
+                      src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
+                      alt="Lord Ganesha" 
+                      className="w-24 h-24 object-contain"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <FloatingPetals />
           <Confetti isActive={confetti} />
           
