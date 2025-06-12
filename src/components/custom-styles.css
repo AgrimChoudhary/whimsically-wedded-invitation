@@ -514,14 +514,20 @@
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
-  20% {
+  10% {
     opacity: 1;
   }
-  80% {
+  70% {
     top: 25%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.8);
-    opacity: 0.9;
+    opacity: 0.8;
+  }
+  90% {
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.3;
   }
   100% {
     top: 25%;
@@ -540,14 +546,20 @@
       transform: translate(-50%, -50%) scale(1);
       opacity: 1;
     }
-    20% {
+    10% {
       opacity: 1;
     }
-    80% {
+    70% {
       top: 30%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.7);
-      opacity: 0.9;
+      opacity: 0.8;
+    }
+    90% {
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      opacity: 0.3;
     }
     100% {
       top: 30%;

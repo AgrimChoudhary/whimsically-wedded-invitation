@@ -24,6 +24,7 @@ const Invitation = () => {
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const [showGaneshaTransition, setShowGaneshaTransition] = useState(false);
+  const [hideGaneshaTransition, setHideGaneshaTransition] = useState(false);
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
@@ -45,6 +46,10 @@ const Invitation = () => {
       // Start Ganesha transition after loading completes
       setTimeout(() => {
         setShowGaneshaTransition(true);
+        // Hide the transition element after animation completes (2.2s total)
+        setTimeout(() => {
+          setHideGaneshaTransition(true);
+        }, 2200);
       }, 100);
     }, 1500);
     
@@ -144,7 +149,7 @@ const Invitation = () => {
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
           {/* Transitioning Ganesha Image */}
-          {showGaneshaTransition && (
+          {showGaneshaTransition && !hideGaneshaTransition && (
             <div 
               className="fixed inset-0 z-50 pointer-events-none"
               style={{
