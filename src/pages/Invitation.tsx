@@ -109,7 +109,7 @@ const Invitation = () => {
           <div className="mb-8">
             <div className="relative w-24 h-24 md:w-32 md:h-32">
               <img 
-                src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png"
+                src="https://i.pinimg.com/564x/99/10/e4/9910e478f8df0b3b729c94c3b534caeb.jpg"
                 alt="Lord Ganesha"
                 className="w-full h-full object-contain drop-shadow-lg animate-pulse-soft"
               />
@@ -153,7 +153,7 @@ const Invitation = () => {
             <div className="fixed inset-0 z-50 pointer-events-none">
               <div className="ganesha-transition w-24 h-24 md:w-32 md:h-32">
                 <img 
-                  src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png"
+                  src="https://i.pinimg.com/564x/99/10/e4/9910e478f8df0b3b729c94c3b534caeb.jpg"
                   alt="Lord Ganesha"
                   className="w-full h-full object-contain drop-shadow-lg"
                 />

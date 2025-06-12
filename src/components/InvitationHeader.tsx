@@ -43,7 +43,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-orange-200/50 to-yellow-200/50 flex items-center justify-center divine-glow">
                   {showFinalGanesha && (
                     <img 
-                      src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png"
+                      src="https://i.pinimg.com/564x/99/10/e4/9910e478f8df0b3b729c94c3b534caeb.jpg"
                       alt="Lord Ganesha"
                       className="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-lg animate-fade-in"
                     />
@@ -80,7 +80,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               <div className="relative group">
                 <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-wedding-gold/30 shadow-gold-glow animate-floating">
                   <img 
-                    src="/lovable-uploads/photo1.jpg"
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEKH3sVJr5XLfvE4iRGCDNl-jLZGNzQQQrNw&s"
                     alt="Couple Caricature"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
@@ -101,7 +101,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 ) : (
                   <AnimatedGuestName 
                     name={guestName}
-                    animationType="typing"
+                    animationType="typewriter"
                     className="font-great-vibes text-wedding-gold animate-sparkle"
                     delay={800}
                     fallback="Guest"
