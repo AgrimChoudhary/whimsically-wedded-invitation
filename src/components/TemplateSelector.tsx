@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, Gift, Building, PartyPopper, ArrowLeft, Sparkles, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import MultiPagePreview from './MultiPagePreview';
 
 interface TemplateCategory {
   id: string;
@@ -187,22 +187,12 @@ const TemplateSelector = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTemplates.map((template) => (
                 <Card key={template.id} className="group hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm border-0 shadow-lg overflow-hidden">
-                  <div className="aspect-video bg-gray-100 relative overflow-hidden">
-                    <img 
-                      src={template.preview_image_url || '/placeholder.svg'}
-                      alt={template.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  <div className="p-4">
+                    <MultiPagePreview 
+                      templateId={template.id}
+                      templateName={template.name}
+                      onSelect={() => handleTemplateSelect(template)}
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <Button 
-                        size="sm" 
-                        className="bg-white text-gray-800 hover:bg-gray-100 rounded-full shadow-lg"
-                        onClick={() => handleTemplateSelect(template)}
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Preview
-                      </Button>
-                    </div>
                   </div>
                   
                   <CardHeader className="pb-3">

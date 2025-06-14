@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useGuestInvitationSync } from '@/hooks/useGuestInvitationSync';
 import { displayPhoneNumber } from '@/utils/phoneUtils';
+import MultiPagePreview from './MultiPagePreview';
 
 interface Invitation {
   id: string;
@@ -192,6 +192,13 @@ const Dashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {hostedInvitations.map((invitation) => (
                   <Card key={invitation.id} className="group hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm border-0 shadow-lg overflow-hidden">
+                    <div className="p-4">
+                      <MultiPagePreview 
+                        templateId="wedding-template"
+                        templateName={invitation.title}
+                      />
+                    </div>
+                    
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">
@@ -264,6 +271,13 @@ const Dashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {guestInvitations.map((invitation) => (
                   <Card key={invitation.id} className="group hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                    <div className="p-4">
+                      <MultiPagePreview 
+                        templateId="wedding-template"
+                        templateName={invitation.invitation_title}
+                      />
+                    </div>
+                    
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <CardTitle className="text-lg">{invitation.invitation_title}</CardTitle>
