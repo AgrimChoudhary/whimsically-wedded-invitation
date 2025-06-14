@@ -1,11 +1,10 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { WeddingData, WeddingCouple, FamilyMember, WeddingEvent, PhotoGalleryItem, ContactPerson } from '@/types/wedding';
 
 interface WeddingContextType {
   weddingData: WeddingData;
   updateCouple: (couple: Partial<WeddingCouple>) => void;
-  updateCustomMessage: (message: string) => void;
-  updateMainWedding: (wedding: Partial<{ date: Date; time: string; venue: { name: string; address: string; mapLink?: string } }>) => void;
   addFamilyMember: (type: 'groom' | 'bride', member: Omit<FamilyMember, 'id'>) => void;
   removeFamilyMember: (type: 'groom' | 'bride', memberId: string) => void;
   addEvent: (event: Omit<WeddingEvent, 'id'>) => void;
@@ -209,20 +208,6 @@ export const WeddingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
-  const updateCustomMessage = (message: string) => {
-    setWeddingData(prev => ({
-      ...prev,
-      customMessage: message
-    }));
-  };
-
-  const updateMainWedding = (wedding: Partial<{ date: Date; time: string; venue: { name: string; address: string; mapLink?: string } }>) => {
-    setWeddingData(prev => ({
-      ...prev,
-      mainWedding: { ...prev.mainWedding, ...wedding }
-    }));
-  };
-
   const addFamilyMember = (type: 'groom' | 'bride', member: Omit<FamilyMember, 'id'>) => {
     const newMember: FamilyMember = {
       ...member,
@@ -315,8 +300,6 @@ export const WeddingProvider: React.FC<{ children: ReactNode }> = ({ children })
     <WeddingContext.Provider value={{
       weddingData,
       updateCouple,
-      updateCustomMessage,
-      updateMainWedding,
       addFamilyMember,
       removeFamilyMember,
       addEvent,

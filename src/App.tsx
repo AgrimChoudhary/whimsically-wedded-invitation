@@ -10,7 +10,6 @@ import { AudioProvider } from "./context/AudioContext";
 import { WeddingProvider } from "./context/WeddingContext";
 import Index from "./pages/Index";
 import Invitation from "./pages/Invitation";
-import Customization from "./pages/Customization";
 import GuestManagement from "./pages/GuestManagement";
 import NotFound from "./pages/NotFound";
 import "./components/custom-styles.css";
@@ -54,11 +53,10 @@ const App: React.FC = () => {
         <BrowserRouter>
           <WeddingProvider>
             <GuestProvider>
-              <AudioProvider isDisabledOnRoutes={["/guest-management", "/customization"]}>
+              <AudioProvider isDisabledOnRoutes={["/guest-management"]}>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/invitation" element={<Invitation />} />
-                  <Route path="/customization" element={<Customization />} />
                   <Route path="/guest-management" element={<GuestManagement />} />
                   {/* Support for guest-specific routes */}
                   <Route path="/:guestId" element={<Index />} />
