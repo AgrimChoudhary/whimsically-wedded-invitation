@@ -22,7 +22,13 @@ const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Index />,
+    element: (
+      <AudioProvider>
+        <GuestProvider>
+          <Index />
+        </GuestProvider>
+      </AudioProvider>
+    ),
   },
   {
     path: "/auth",
@@ -30,7 +36,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/demo",
-    element: <Demo />,
+    element: (
+      <AudioProvider>
+        <GuestProvider>
+          <Demo />
+        </GuestProvider>
+      </AudioProvider>
+    ),
   },
   {
     path: "/dashboard",
