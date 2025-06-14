@@ -3,16 +3,23 @@ import React from 'react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MapPin, Phone, Heart } from 'lucide-react';
 import { useAudio } from "@/context/AudioContext";
+import { useWedding } from "@/context/WeddingContext";
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX } from 'lucide-react';
-
-const GROOM_FIRST_NAME = "Sidharth";
-const BRIDE_FIRST_NAME = "Kiara";
-const WEDDING_DATE = "May 15, 2025";
 
 export const Footer: React.FC = () => {
   const isMobile = useIsMobile();
   const { isPlaying, toggleMusic } = useAudio();
+  const { weddingData } = useWedding();
+  
+  // Format the wedding date for display
+  const formatWeddingDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
   
   return (
     <footer className="w-full py-8 mt-auto bg-gradient-to-b from-wedding-cream/10 to-wedding-cream/40 backdrop-blur-sm border-t border-wedding-gold/20 relative overflow-hidden">
@@ -40,20 +47,22 @@ export const Footer: React.FC = () => {
                   <MapPin size={20} className="text-wedding-maroon" />
                 </div>
                 <h3 className="text-lg font-playfair text-wedding-maroon mb-2">Venue</h3>
-                <p className="text-sm font-medium text-gray-700 mb-1">Suryagarh Palace</p>
-                <p className="text-xs text-gray-600 mb-3">near Kahala Phata, Sam Road, Jaisalmer, Rajasthan</p>
+                <p className="text-sm font-medium text-gray-700 mb-1">{weddingData.mainWedding.venue.name}</p>
+                <p className="text-xs text-gray-600 mb-3">{weddingData.mainWedding.venue.address}</p>
                 
-                <a 
-                  href="https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-3 py-1.5 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-xs font-medium"
-                >
-                  View on Map
-                  <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                  </svg>
-                </a>
+                {weddingData.mainWedding.venue.mapLink && (
+                  <a 
+                    href={weddingData.mainWedding.venue.mapLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-3 py-1.5 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-xs font-medium"
+                  >
+                    View on Map
+                    <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -68,16 +77,20 @@ export const Footer: React.FC = () => {
                   <Phone size={20} className="text-wedding-maroon" />
                 </div>
                 <h3 className="text-lg font-playfair text-wedding-maroon mb-2">Contact</h3>
-                <p className="text-sm font-medium text-gray-700 mb-1">Sidharth Malhotra</p>
-                <p className="text-xs text-gray-600 mb-3">Groom</p>
-                
-                <a 
-                  href="tel:+919876543210" 
-                  className="inline-flex items-center px-3 py-1.5 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-xs font-medium"
-                >
-                  <Phone size={12} className="mr-1" />
-                  +91 98765 43210
-                </a>
+                {weddingData.contacts.length > 0 && (
+                  <>
+                    <p className="text-sm font-medium text-gray-700 mb-1">{weddingData.contacts[0].name}</p>
+                    <p className="text-xs text-gray-600 mb-3">{weddingData.contacts[0].relation}</p>
+                    
+                    <a 
+                      href={`tel:${weddingData.contacts[0].phone}`} 
+                      className="inline-flex items-center px-3 py-1.5 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-xs font-medium"
+                    >
+                      <Phone size={12} className="mr-1" />
+                      {weddingData.contacts[0].phone}
+                    </a>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -97,7 +110,7 @@ export const Footer: React.FC = () => {
           </p>
           
           <p className="text-sm text-gray-500 font-dancing-script">
-            With love, {GROOM_FIRST_NAME} &amp; {BRIDE_FIRST_NAME} | {WEDDING_DATE}
+            With love, {weddingData.couple.groomFirstName} &amp; {weddingData.couple.brideFirstName} | {formatWeddingDate(weddingData.mainWedding.date)}
           </p>
         </div>
       </div>

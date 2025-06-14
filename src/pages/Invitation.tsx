@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
+import { useWedding } from '@/context/WeddingContext';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from '@/components/ui/button';
 import InvitationHeader from '@/components/InvitationHeader';
@@ -27,19 +29,10 @@ const Invitation = () => {
   const [hideGaneshaTransition, setHideGaneshaTransition] = useState(false);
   const [startGuestNameAnimation, setStartGuestNameAnimation] = useState(false);
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
+  const { weddingData } = useWedding();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  
-  // Couple names as placeholders for easy future changes
-  const GROOM_FIRST_NAME = "Sidharth";
-  const GROOM_LAST_NAME = "Malhotra";
-  const BRIDE_FIRST_NAME = "Kiara";
-  const BRIDE_LAST_NAME = "Advani";
-  const GROOM_FATHER = "Sunil Malhotra";
-  const GROOM_MOTHER = "Rimma Malhotra";
-  const BRIDE_FATHER = "Jagdeep Advani";
-  const BRIDE_MOTHER = "Genevieve Advani";
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -82,18 +75,6 @@ const Invitation = () => {
       setConfetti(false);
     }, 800);
   };
-
-  // Calculate wedding date - 1.5 months from now
-  const getWeddingDate = () => {
-    const now = new Date();
-    const futureDate = new Date(now);
-    futureDate.setMonth(now.getMonth() + 1);
-    futureDate.setDate(now.getDate() + 15); // Add 15 days to make it 1.5 months
-    futureDate.setHours(20, 0, 0, 0); // 8:00 PM
-    return futureDate;
-  };
-  
-  const weddingDate = getWeddingDate();
   
   // Get guestId from path to use for navigation
   const getCurrentGuestId = () => {
@@ -221,82 +202,20 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            groomName={GROOM_FIRST_NAME}
-            brideName={BRIDE_FIRST_NAME}
+            groomName={weddingData.couple.groomFirstName}
+            brideName={weddingData.couple.brideFirstName}
             startGuestNameAnimation={startGuestNameAnimation}
           />
           
           {/* Section ordering: countdown, family details, romantic journey, wedding journey, events, photos */}
           <CountdownTimer 
-            weddingDate={weddingDate} 
-            weddingTime="8:00 PM"
+            weddingDate={weddingData.mainWedding.date} 
+            weddingTime={weddingData.mainWedding.time}
           />
           
           <FamilyDetails 
-            groomFamily={{
-              title: "Groom's Family",
-              members: [
-                { 
-                  name: `Mr. ${GROOM_FATHER} & Mrs. ${GROOM_MOTHER}`, 
-                  relation: "Parents of the Groom",
-                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2021/11/sunil-malhotra-with-wife-rimma-malhotra.webp",
-                  description: "Loving parents who have guided him through life's journey."
-                },
-                { 
-                  name: `Mr. ${GROOM_FATHER}`, 
-                  relation: "Father of the Groom",
-                  image: "https://i.redd.it/cpy26r2olopc1.jpeg",
-                  description: "A captain in the merchant navy who has been his son's strength and inspiration.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mrs. Rimma Malhotra", 
-                  relation: "Mother of the Groom",
-                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlLzeDQRuyataQCZvhLYG9Zmnt5Ukhga_Y4s-7kapr87PeSxxd",
-                  description: "A homemaker whose love and support have been the foundation of their family.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mr. Harshad Malhotra", 
-                  relation: "Brother of the Groom",
-                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSky-6UnO7vxLPnf6QWlgLPKcgqNNQpkVVwHvtzeEDgnZcMkPPA8y5nsMJzf63z58v6WPBhb37K3tVNKO72k8iuCg",
-                  description: "An elder brother who works in the banking sector and has always been Sidharth's role model.",
-                  showInDialogOnly: true
-                },
-              ],
-            }}
-            brideFamily={{
-              title: "Bride's Family",
-              members: [
-                { 
-                  name: `Mr. ${BRIDE_FATHER} & Mrs. ${BRIDE_MOTHER}`, 
-                  relation: "Parents of the Bride",
-                  image: "https://static.toiimg.com/thumb/imgsize-23456,msid-70473421,width-600,resizemode-4/70473421.jpg",
-                  description: "Loving parents who have always encouraged her to follow her dreams."
-                },
-                { 
-                  name: `Mr. ${BRIDE_FATHER}`, 
-                  relation: "Father of the Bride",
-                  image: "https://starsunfolded.com/wp-content/uploads/2023/02/Jagdeep-Advani.jpg",
-                  description: "A successful businessman from a Sindhi family who has been her pillar of strength.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mrs. Genevieve Advani", 
-                  relation: "Mother of the Bride",
-                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2023/02/Genevieve-Jaffrey.jpg",
-                  description: "A former teacher with Scottish, Irish, and Portuguese ancestry who has been her guiding light.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mr. Mishaal Advani", 
-                  relation: "Brother of the Bride",
-                  image: "https://static.sociofyme.com/thumb/97725020/97725020.jpg?imgsize=702924&width=420&height=746&resizemode=76",
-                  description: "A musician who followed his passion after working as a software engineer.",
-                  showInDialogOnly: true
-                },
-              ],
-            }}
+            groomFamily={weddingData.family.groomFamily}
+            brideFamily={weddingData.family.brideFamily}
           />
 
           {/* New Romantic Journey Section */}
@@ -308,38 +227,7 @@ const Invitation = () => {
           
           <PhotoGrid
             title="Our Photo Gallery" 
-            photos={[
-              { 
-                url: "https://shaadiwish.com/blog/wp-content/uploads/2023/02/Kiara-Advani-Pink-Lehenga-1.jpg",
-                title: "Our Wedding Day",
-                description: "The most magical day of our lives"
-              },
-              { 
-                url: "https://i.ytimg.com/vi/ie5LRcmvSss/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBa2_kuZKn5ezhF-rnkbiN_HPK4bA",
-                title: "Mehendi Celebration",
-                description: "Celebrating our mehendi ceremony with loved ones"
-              },
-              { 
-                url: "https://i.ytimg.com/vi/PuDFCIGk0Ow/sddefault.jpg",
-                title: "Mumbai Reception",
-                description: "Our reception with friends and family"
-              },
-              { 
-                url: "https://cdn.shopify.com/s/files/1/0665/6222/8454/files/Kiara_Advani_wedding_jewellery_480x480.jpg?v=1681196092",
-                title: "Wedding Jewelry",
-                description: "Beautiful jewelry for our special day"
-              },
-              { 
-                url: "https://peepingmoon-cdn.sgp1.digitaloceanspaces.com/engpeepingmoon/060223115000-63e0e9683fa72sidharth-malhotra-kiara-advani-sangeet-resized.jpg",
-                title: "Sangeet Ceremony",
-                description: "Joyful moments from our sangeet celebration"
-              },
-              { 
-                url: "https://data1.ibtimes.co.in/en/full/781807/sidharth-malhotra-kiara-advani-wedding.jpg?h=450&l=50&t=40",
-                title: "Wedding Portrait",
-                description: "A special portrait after our wedding"
-              },
-            ]}
+            photos={weddingData.photoGallery}
           />
           
           <div className="py-10 w-full text-center bg-floral-pattern">

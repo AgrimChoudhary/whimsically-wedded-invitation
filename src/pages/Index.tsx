@@ -5,10 +5,7 @@ import { FloatingPetals } from '@/components/AnimatedElements';
 import { Sparkles, Heart, Star } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGuest } from '@/context/GuestContext';
-
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const BRIDE_FIRST_NAME = "Kiara";
+import { useWedding } from '@/context/WeddingContext';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -16,6 +13,7 @@ const Index = () => {
   const [currentIcon, setCurrentIcon] = useState(0);
   const isMobile = useIsMobile();
   const { guestName } = useGuest();
+  const { weddingData } = useWedding();
   
   const floatingIcons = [
     <Heart key="heart" className="text-wedding-blush" />,
@@ -46,6 +44,15 @@ const Index = () => {
       clearInterval(iconTimer);
     };
   }, []);
+
+  // Format the wedding date for display
+  const formatWeddingDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
   return (
     <div className="min-h-screen pattern-background relative overflow-hidden">
@@ -84,7 +91,7 @@ const Index = () => {
               </div>
               
               <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
-                {GROOM_FIRST_NAME} & {BRIDE_FIRST_NAME}
+                {weddingData.couple.groomFirstName} & {weddingData.couple.brideFirstName}
                 {showSparkle && (
                   <Sparkles 
                     size={isMobile ? 18 : 28} 
@@ -123,7 +130,7 @@ const Index = () => {
               <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-wedding-cream/80 to-wedding-blush/60 backdrop-blur-sm border border-wedding-gold/30 shadow-gold-soft">
                 <p className="text-sm font-medium text-wedding-maroon flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-wedding-gold animate-pulse"></span>
-                  Save the Date: May 15, 2025
+                  Save the Date: {formatWeddingDate(weddingData.mainWedding.date)}
                   <span className="w-2 h-2 rounded-full bg-wedding-gold animate-pulse"></span>
                 </p>
               </div>
