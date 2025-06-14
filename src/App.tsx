@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
@@ -16,19 +15,14 @@ import Demo from './pages/Demo';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
+import LandingPage from './components/LandingPage';
 
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <AudioProvider>
-        <GuestProvider>
-          <Index />
-        </GuestProvider>
-      </AudioProvider>
-    ),
+    element: <LandingPage />,
   },
   {
     path: "/auth",
