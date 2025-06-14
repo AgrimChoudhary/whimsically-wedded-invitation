@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { useScrollTrigger } from '@/hooks/useScrollTrigger';
 
 interface GuestFormProps {
   onSuccess: () => void;
@@ -15,12 +14,6 @@ export const GuestForm: React.FC<GuestFormProps> = ({ onSuccess }) => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Scroll trigger for guest name input
-  const { isTriggered: isNameTriggered, elementRef: nameRef } = useScrollTrigger({
-    threshold: 0.6,
-    rootMargin: '-20% 0px -20% 0px'
-  });
 
   const generateShortId = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -118,19 +111,13 @@ export const GuestForm: React.FC<GuestFormProps> = ({ onSuccess }) => {
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div 
-          ref={nameRef as React.RefObject<HTMLDivElement>}
-          className={`flex items-center gap-3 transition-all duration-700 ${
-            isNameTriggered ? 'golden-underline-triggered golden-glow-triggered' : ''
-          }`}
-        >
+        <div className="flex items-center gap-3">
           <User size={18} className="text-wedding-gold flex-shrink-0" />
           <Input
             placeholder="Guest Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            variant="underlined-golden"
-            className="genZ-placeholder"
+            className="border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
           />
         </div>
         
