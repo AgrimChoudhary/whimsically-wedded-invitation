@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import WelcomeForm from '@/components/WelcomeForm';
 import { FloatingPetals } from '@/components/AnimatedElements';
-import { Sparkles, Heart, Star } from 'lucide-react';
+import { Sparkles, Heart, Star, Settings, Users, Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGuest } from '@/context/GuestContext';
 import { useWedding } from '@/context/WeddingContext';
@@ -12,6 +14,7 @@ const Index = () => {
   const [showSparkle, setShowSparkle] = useState(false);
   const [currentIcon, setCurrentIcon] = useState(0);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { guestName } = useGuest();
   const { weddingData } = useWedding();
   
@@ -63,6 +66,37 @@ const Index = () => {
         </div>
       ) : (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+          {/* Admin Navigation */}
+          <div className="fixed top-4 right-4 z-30 flex flex-col gap-2">
+            <Button
+              onClick={() => navigate('/customization')}
+              variant="outline"
+              size="sm"
+              className="bg-white/90 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-sm"
+            >
+              <Settings size={14} className="mr-1" />
+              <span className="hidden sm:inline">Customize</span>
+            </Button>
+            <Button
+              onClick={() => navigate('/guest-management')}
+              variant="outline"
+              size="sm"
+              className="bg-white/90 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-sm"
+            >
+              <Users size={14} className="mr-1" />
+              <span className="hidden sm:inline">Guests</span>
+            </Button>
+            <Button
+              onClick={() => navigate('/invitation')}
+              variant="outline"
+              size="sm"
+              className="bg-white/90 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-sm"
+            >
+              <Eye size={14} className="mr-1" />
+              <span className="hidden sm:inline">Preview</span>
+            </Button>
+          </div>
+
           {/* Enhanced gradient background with multiple layers */}
           <div className="absolute inset-0 bg-gradient-to-br from-wedding-cream via-wedding-blush/20 to-wedding-cream z-0"></div>
           <div className="absolute inset-0 bg-gradient-to-tr from-wedding-gold/5 via-transparent to-wedding-maroon/5 z-0"></div>
