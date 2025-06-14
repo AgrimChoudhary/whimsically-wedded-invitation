@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Heart, User, Copy, Edit, Trash, Share2 } from 'lucide-react';
+import { Settings, Heart, User, Copy, Edit, Trash, Share2, ArrowLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,11 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { GuestCard } from '@/components/GuestCard';
 import { GuestForm } from '@/components/GuestForm';
 import { TemplateSelector } from '@/components/TemplateSelector';
-
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const BRIDE_FIRST_NAME = "Kiara";
-const WEDDING_DATE = "May 15, 2025";
+import { useWedding } from '@/context/WeddingContext';
 
 interface Guest {
   id: string;
@@ -32,28 +28,28 @@ interface Guest {
   updated_at?: string;
 }
 
-const defaultMessageTemplate = `Dear {guest-name},\n\nYou are cordially invited to the wedding ceremony of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nClick here to view your personalized invitation: {unique-link}\n\nWe look forward to celebrating our special day with you!`;
+const defaultMessageTemplate = `Dear {guest-name},\n\nYou are cordially invited to the wedding ceremony of Sidharth & Kiara on May 15, 2025.\n\nClick here to view your personalized invitation: {unique-link}\n\nWe look forward to celebrating our special day with you!`;
 
 const messageTemplates = [
   {
     name: "Formal Invitation",
-    template: `Dear {guest-name},\n\nWe are delighted to invite you to the wedding ceremony of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nPlease find your personalized invitation here: {unique-link}\n\nYour presence would make our special day complete.\n\nWarm regards,\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME}`
+    template: `Dear {guest-name},\n\nWe are delighted to invite you to the wedding ceremony of Sidharth & Kiara on May 15, 2025.\n\nPlease find your personalized invitation here: {unique-link}\n\nYour presence would make our special day complete.\n\nWarm regards,\nSidharth & Kiara`
   },
   {
     name: "Casual & Friendly",
-    template: `Hey {guest-name}! 🎉\n\nWe're tying the knot! You're invited to our wedding celebration on ${WEDDING_DATE}.\n\nCheck out your personal invitation: {unique-link}\n\nCan't wait to celebrate with you!\n\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME}`
+    template: `Hey {guest-name}! 🎉\n\nWe're tying the knot! You're invited to our wedding celebration on May 15, 2025.\n\nCheck out your personal invitation: {unique-link}\n\nCan't wait to celebrate with you!\n\nSidharth & Kiara`
   },
   {
     name: "Short & Sweet",
-    template: `Hi {guest-name},\n\nYou're invited! ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} are getting married on ${WEDDING_DATE}.\n\nYour invitation: {unique-link}`
+    template: `Hi {guest-name},\n\nYou're invited! Sidharth & Kiara are getting married on May 15, 2025.\n\nYour invitation: {unique-link}`
   },
   {
     name: "Elegant Request",
-    template: `Dear {guest-name},\n\nThe honor of your presence is requested at the marriage of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nKindly view your invitation: {unique-link}\n\nWe would be delighted by your attendance.`
+    template: `Dear {guest-name},\n\nThe honor of your presence is requested at the marriage of Sidharth & Kiara on May 15, 2025.\n\nKindly view your invitation: {unique-link}\n\nWe would be delighted by your attendance.`
   },
   {
     name: "Family Focused",
-    template: `Dear {guest-name},\n\nWith great joy, our families invite you to share in our happiness as we unite in marriage on ${WEDDING_DATE}.\n\nYour personal invitation awaits: {unique-link}\n\nWith love,\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} and Families`
+    template: `Dear {guest-name},\n\nWith great joy, our families invite you to share in our happiness as we unite in marriage on May 15, 2025.\n\nYour personal invitation awaits: {unique-link}\n\nWith love,\nSidharth & Kiara and Families`
   }
 ];
 
@@ -70,6 +66,7 @@ const GuestManagement = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { weddingData } = useWedding();
   
   // Fetch existing guests
   useEffect(() => {
@@ -123,7 +120,6 @@ const GuestManagement = () => {
         throw error;
       }
       
-      // Update the local state
       setGuests(guests.filter(guest => guest.id !== guestToDelete.id));
       
       toast({
@@ -165,7 +161,6 @@ const GuestManagement = () => {
         throw error;
       }
       
-      // Update the local state
       setGuests(guests.map(guest => 
         guest.id === guestToEdit.id 
           ? { ...guest, name: editName, mobile: editMobile } 
@@ -189,17 +184,13 @@ const GuestManagement = () => {
   };
   
   const getGuestLink = (guestId: string) => {
-    // Get the base URL of the site
     const baseUrl = window.location.origin;
-    // Create the guest-specific link
     return `${baseUrl}/${guestId}`;
   };
 
   const copyGuestLink = (guestId: string) => {
-    // Get the welcome link
     const welcomeLink = getGuestLink(guestId);
     
-    // Copy to clipboard
     navigator.clipboard.writeText(welcomeLink)
       .then(() => {
         toast({
@@ -220,17 +211,13 @@ const GuestManagement = () => {
   const shareOnWhatsApp = (guest: Guest) => {
     const welcomeLink = getGuestLink(guest.id);
     
-    // Replace template variables with actual values
     let personalizedMessage = messageTemplate
       .replace(/{guest-name}/g, guest.name)
       .replace(/{unique-link}/g, welcomeLink);
     
-    // Encode for URL
     const message = encodeURIComponent(personalizedMessage);
     
-    // Format the phone number (remove any non-digits)
     let phoneNumber = guest.mobile.replace(/\D/g, "");
-    // If it doesn't start with a country code, add India's country code
     if (!phoneNumber.startsWith("+") && !phoneNumber.startsWith("00")) {
       phoneNumber = "91" + phoneNumber;
     }
@@ -283,9 +270,20 @@ const GuestManagement = () => {
       
       <div className="w-full max-w-5xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-          <div>
-            <h1 className="font-great-vibes text-3xl sm:text-4xl text-wedding-maroon mb-2">Guest Management</h1>
-            <p className="text-gray-600">Create personalized invitation links for your guests</p>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/')}
+              className="border-wedding-gold/30 text-wedding-maroon hover:bg-wedding-cream"
+            >
+              <ArrowLeft size={16} className="mr-1" />
+              Back
+            </Button>
+            <div>
+              <h1 className="font-great-vibes text-3xl sm:text-4xl text-wedding-maroon mb-2">Guest Management</h1>
+              <p className="text-gray-600">Create personalized invitation links for your guests</p>
+            </div>
           </div>
           
           <div className="mt-4 md:mt-0">
@@ -313,7 +311,7 @@ const GuestManagement = () => {
           <div className="p-6">
             <h2 className="font-playfair text-xl text-wedding-maroon mb-4 text-center">
               <User size={18} className="inline-block mr-2 text-wedding-gold" />
-              Guest List
+              Guest List ({guests.length} guests)
             </h2>
             
             {isLoading ? (
@@ -329,7 +327,6 @@ const GuestManagement = () => {
             ) : (
               <div className="overflow-x-auto">
                 {isMobile ? (
-                  // Mobile card view for guests - Improved layout
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {guests.map((guest) => (
                       <GuestCard
@@ -343,7 +340,6 @@ const GuestManagement = () => {
                     ))}
                   </div>
                 ) : (
-                  // Desktop table view
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -526,7 +522,7 @@ const GuestManagement = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Settings Dialog - Improved Mobile Friendly */}
+      {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <DialogContent className="bg-white max-w-xl overflow-auto">
           <DialogHeader>
