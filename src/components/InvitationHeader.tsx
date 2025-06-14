@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
@@ -100,7 +101,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
       <div className="w-full max-w-4xl px-4">
-        {/* Enhanced Ganesha Section - Always visible, but image appears after transition */}
+        {/* Enhanced Ganesha Section - Frame always visible, image appears after transition */}
         <div className="flex flex-col items-center mb-10 sm:mb-12 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           {/* Religious Card with Ganesha */}
           <div className="relative group">
@@ -108,7 +109,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
             <div className="absolute -inset-6 bg-gradient-to-r from-orange-400/20 via-yellow-400/30 to-red-400/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-1000 animate-pulse-soft"></div>
             <div className="absolute -inset-4 bg-gradient-to-r from-orange-300/30 via-yellow-300/40 to-orange-300/30 rounded-full blur-lg transition-all duration-700"></div>
             
-            {/* Main divine card */}
+            {/* Main divine card - Always visible */}
             <div className="relative luxury-frame bg-gradient-to-br from-orange-50/90 via-yellow-50/95 to-orange-50/90 backdrop-blur-lg rounded-full p-8 sm:p-10 divine-glow">
               {/* Sacred geometric pattern */}
               <div className="absolute inset-4 rounded-full border-2 border-orange-200/60 animate-pulse-soft" style={{animationDelay: '0.5s'}}></div>
@@ -128,20 +129,22 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 <span className="text-xs">ॐ</span>
               </div>
               
-              {/* Ganesha Image with enhanced effects - Only show after transition */}
-              <div className="relative">
+              {/* Ganesha Image container - Frame always visible, image shows after transition */}
+              <div className="relative w-32 h-32 sm:w-36 sm:h-36">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-200/20 via-yellow-200/30 to-orange-200/20 rounded-full animate-pulse-soft blur-sm"></div>
+                
+                {/* Only show the image after transition completes */}
                 {showGaneshaImage && (
                   <img 
                     src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
                     alt="Lord Ganesha" 
-                    className="w-32 h-32 sm:w-36 sm:h-36 object-contain animate-floating relative z-10 opacity-0 animate-fade-in"
+                    className="w-full h-full object-contain animate-floating relative z-10 opacity-0 animate-fade-in"
                     loading="lazy"
                     style={{ animationDelay: '0.2s' }}
                   />
                 )}
                 
-                {/* Enhanced decorative elements */}
+                {/* Enhanced decorative elements - Always visible */}
                 <Star 
                   size={16} 
                   className="absolute -top-3 -left-3 text-orange-400 animate-pulse-soft" 
