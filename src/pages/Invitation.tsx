@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -166,7 +165,7 @@ const Invitation: React.FC = () => {
       </div>
       
       <RSVPModal 
-        isOpen={isRSVPOpen} 
+        open={isRSVPOpen} 
         onClose={() => setIsRSVPOpen(false)} 
       />
     </div>

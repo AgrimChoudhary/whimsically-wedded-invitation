@@ -9,13 +9,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, MapPin, Users, Image, Phone, Heart, Settings } from 'lucide-react';
+import { Calendar, MapPin, Users, Image, Phone, Heart, Settings, Plus, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { FloatingPetals } from '@/components/AnimatedElements';
 
 const Customization: React.FC = () => {
   const navigate = useNavigate();
-  const { weddingData, updateCouple, addFamilyMember, removeFamilyMember, addEvent, removeEvent, addPhoto, removePhoto, addContact, removeContact } = useWedding();
+  const { weddingData, updateCouple, addEvent, removeEvent, addPhoto, removePhoto, addContact, removeContact } = useWedding();
   
   const [coupleData, setCoupleData] = useState(weddingData.couple);
   const [mainWeddingData, setMainWeddingData] = useState({
@@ -26,6 +26,24 @@ const Customization: React.FC = () => {
     mapLink: weddingData.mainWedding.venue.mapLink || ''
   });
   const [customMessage, setCustomMessage] = useState(weddingData.customMessage || '');
+  const [newEvent, setNewEvent] = useState({
+    name: '',
+    date: '',
+    time: '',
+    venue: '',
+    address: '',
+    description: ''
+  });
+  const [newPhoto, setNewPhoto] = useState({
+    url: '',
+    title: '',
+    description: ''
+  });
+  const [newContact, setNewContact] = useState({
+    name: '',
+    relation: '',
+    phone: ''
+  });
 
   const handleSave = () => {
     updateCouple(coupleData);
@@ -33,6 +51,39 @@ const Customization: React.FC = () => {
       title: "Success",
       description: "Wedding details have been saved successfully!",
     });
+  };
+
+  const handleAddEvent = () => {
+    if (newEvent.name && newEvent.date && newEvent.time && newEvent.venue) {
+      addEvent(newEvent);
+      setNewEvent({ name: '', date: '', time: '', venue: '', address: '', description: '' });
+      toast({
+        title: "Event Added",
+        description: `${newEvent.name} has been added to your wedding events.`,
+      });
+    }
+  };
+
+  const handleAddPhoto = () => {
+    if (newPhoto.url && newPhoto.title) {
+      addPhoto(newPhoto);
+      setNewPhoto({ url: '', title: '', description: '' });
+      toast({
+        title: "Photo Added",
+        description: "Photo has been added to your gallery.",
+      });
+    }
+  };
+
+  const handleAddContact = () => {
+    if (newContact.name && newContact.phone) {
+      addContact(newContact);
+      setNewContact({ name: '', relation: '', phone: '' });
+      toast({
+        title: "Contact Added",
+        description: `${newContact.name} has been added to your contacts.`,
+      });
+    }
   };
 
   const handlePreview = () => {
@@ -298,11 +349,98 @@ const Customization: React.FC = () => {
                   Manage all your wedding events and ceremonies
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  <Calendar size={48} className="mx-auto mb-2 opacity-30" />
-                  <p>Event management functionality coming soon...</p>
-                  <p className="text-sm">You can currently view events in the preview</p>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="font-medium text-wedding-maroon">Add New Event</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="eventName">Event Name</Label>
+                      <Input
+                        id="eventName"
+                        value={newEvent.name}
+                        onChange={(e) => setNewEvent({...newEvent, name: e.target.value})}
+                        placeholder="e.g., Sangeet Night"
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="eventVenue">Venue</Label>
+                      <Input
+                        id="eventVenue"
+                        value={newEvent.venue}
+                        onChange={(e) => setNewEvent({...newEvent, venue: e.target.value})}
+                        placeholder="Venue name"
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="eventDate">Date</Label>
+                      <Input
+                        id="eventDate"
+                        type="date"
+                        value={newEvent.date}
+                        onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="eventTime">Time</Label>
+                      <Input
+                        id="eventTime"
+                        value={newEvent.time}
+                        onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                        placeholder="e.g., 7:00 PM"
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="eventAddress">Address</Label>
+                    <Input
+                      id="eventAddress"
+                      value={newEvent.address}
+                      onChange={(e) => setNewEvent({...newEvent, address: e.target.value})}
+                      placeholder="Full address"
+                      className="border-wedding-gold/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="eventDescription">Description</Label>
+                    <Textarea
+                      id="eventDescription"
+                      value={newEvent.description}
+                      onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
+                      placeholder="Event description..."
+                      className="border-wedding-gold/30"
+                    />
+                  </div>
+                  <Button onClick={handleAddEvent} className="bg-wedding-gold hover:bg-wedding-deep-gold">
+                    <Plus size={16} className="mr-2" />
+                    Add Event
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <h3 className="font-medium text-wedding-maroon">Current Events</h3>
+                  {weddingData.events.map((event) => (
+                    <div key={event.id} className="flex items-center justify-between p-4 border border-wedding-gold/20 rounded-lg">
+                      <div>
+                        <h4 className="font-medium">{event.name}</h4>
+                        <p className="text-sm text-gray-600">{event.date} at {event.time}</p>
+                        <p className="text-sm text-gray-600">{event.venue}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeEvent(event.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -319,11 +457,73 @@ const Customization: React.FC = () => {
                   Upload and manage your wedding photos
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  <Image size={48} className="mx-auto mb-2 opacity-30" />
-                  <p>Photo gallery management coming soon...</p>
-                  <p className="text-sm">You can currently view photos in the preview</p>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="font-medium text-wedding-maroon">Add New Photo</h3>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="photoUrl">Photo URL</Label>
+                      <Input
+                        id="photoUrl"
+                        value={newPhoto.url}
+                        onChange={(e) => setNewPhoto({...newPhoto, url: e.target.value})}
+                        placeholder="https://example.com/photo.jpg"
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="photoTitle">Title</Label>
+                      <Input
+                        id="photoTitle"
+                        value={newPhoto.title}
+                        onChange={(e) => setNewPhoto({...newPhoto, title: e.target.value})}
+                        placeholder="Photo title"
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="photoDescription">Description</Label>
+                      <Textarea
+                        id="photoDescription"
+                        value={newPhoto.description}
+                        onChange={(e) => setNewPhoto({...newPhoto, description: e.target.value})}
+                        placeholder="Photo description..."
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                    <Button onClick={handleAddPhoto} className="bg-wedding-gold hover:bg-wedding-deep-gold">
+                      <Plus size={16} className="mr-2" />
+                      Add Photo
+                    </Button>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <h3 className="font-medium text-wedding-maroon">Current Photos</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {weddingData.photoGallery.map((photo) => (
+                      <div key={photo.id} className="relative group">
+                        <img 
+                          src={photo.url} 
+                          alt={photo.title}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removePhoto(photo.id)}
+                            className="text-white border-white hover:bg-red-600"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                        <p className="text-sm font-medium mt-2">{photo.title}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -340,11 +540,68 @@ const Customization: React.FC = () => {
                   Add contact persons for your wedding
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  <Phone size={48} className="mx-auto mb-2 opacity-30" />
-                  <p>Contact management functionality coming soon...</p>
-                  <p className="text-sm">You can currently view contacts in the preview</p>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="font-medium text-wedding-maroon">Add New Contact</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactName">Name</Label>
+                      <Input
+                        id="contactName"
+                        value={newContact.name}
+                        onChange={(e) => setNewContact({...newContact, name: e.target.value})}
+                        placeholder="Contact name"
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contactRelation">Relation</Label>
+                      <Input
+                        id="contactRelation"
+                        value={newContact.relation}
+                        onChange={(e) => setNewContact({...newContact, relation: e.target.value})}
+                        placeholder="e.g., Father of Bride"
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contactPhone">Phone</Label>
+                      <Input
+                        id="contactPhone"
+                        value={newContact.phone}
+                        onChange={(e) => setNewContact({...newContact, phone: e.target.value})}
+                        placeholder="+91 98765 43210"
+                        className="border-wedding-gold/30"
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={handleAddContact} className="bg-wedding-gold hover:bg-wedding-deep-gold">
+                    <Plus size={16} className="mr-2" />
+                    Add Contact
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <h3 className="font-medium text-wedding-maroon">Current Contacts</h3>
+                  {weddingData.contacts.map((contact) => (
+                    <div key={contact.id} className="flex items-center justify-between p-4 border border-wedding-gold/20 rounded-lg">
+                      <div>
+                        <h4 className="font-medium">{contact.name}</h4>
+                        <p className="text-sm text-gray-600">{contact.relation}</p>
+                        <p className="text-sm text-gray-600">{contact.phone}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeContact(contact.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
