@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
-import { Sparkles, Star, Music, Heart, Crown } from 'lucide-react';
+import { Star, Music, Heart, Crown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AnimatedGuestName from './AnimatedGuestName';
 
@@ -28,7 +28,6 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   const { guestName } = useGuest();
   const [showHearts, setShowHearts] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
-  const [showSparkles, setShowSparkles] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [clickCount, setClickCount] = useState(0);
@@ -42,22 +41,17 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
     // 1. Start with confetti burst
     setShowConfetti(true);
     
-    // 2. Add sparkles after 300ms
-    setTimeout(() => {
-      setShowSparkles(true);
-    }, 300);
-    
-    // 3. Add hearts after 600ms
+    // 2. Add hearts after 600ms
     setTimeout(() => {
       setShowHearts(true);
     }, 600);
     
-    // 4. Add fireworks after 1000ms
+    // 3. Add fireworks after 1000ms
     setTimeout(() => {
       setShowFireworks(true);
     }, 1000);
     
-    // 5. Add second wave of effects for multiple clicks
+    // 4. Add second wave of effects for multiple clicks
     if (clickCount > 0) {
       setTimeout(() => {
         setShowConfetti(true);
@@ -67,9 +61,6 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
     
     // Reset confetti after 3 seconds
     setTimeout(() => setShowConfetti(false), 3000);
-    
-    // Reset sparkles after 4 seconds
-    setTimeout(() => setShowSparkles(false), 4000);
     
     // Reset hearts after 5 seconds
     setTimeout(() => setShowHearts(false), 5000);
@@ -252,24 +243,6 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 isClicked ? 'animate-pulse scale-110' : ''
               }`}></div>
               
-              {/* Magical sparkles around the image */}
-              {showSparkles && (
-                <>
-                  <div className="absolute -top-2 -left-2 animate-ping">
-                    <Sparkles size={16} className="text-yellow-400" fill="currentColor" />
-                  </div>
-                  <div className="absolute -top-3 -right-1 animate-ping" style={{animationDelay: '0.3s'}}>
-                    <Star size={14} className="text-pink-400" fill="currentColor" />
-                  </div>
-                  <div className="absolute -bottom-2 -left-3 animate-ping" style={{animationDelay: '0.6s'}}>
-                    <Sparkles size={12} className="text-purple-400" fill="currentColor" />
-                  </div>
-                  <div className="absolute -bottom-1 -right-2 animate-ping" style={{animationDelay: '0.9s'}}>
-                    <Star size={18} className="text-orange-400" fill="currentColor" />
-                  </div>
-                </>
-              )}
-              
               <div className={`relative bg-white/30 backdrop-blur-sm rounded-full p-3 border border-wedding-gold/30 transition-all duration-500 ${
                 isClicked ? 'shadow-2xl border-wedding-gold/60' : ''
               }`}>
@@ -349,31 +322,6 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 transform: `rotate(${Math.random() * 360}deg)`,
               }}
             />
-          ))}
-        </div>
-      )}
-      
-      {/* New Sparkles Effect */}
-      {showSparkles && (
-        <div className="fixed inset-0 pointer-events-none z-25 overflow-hidden">
-          {Array.from({ length: isMobile ? 20 : 30 }, (_, i) => (
-            <div
-              key={i}
-              className="absolute animate-sparkle-float"
-              style={{
-                left: `${Math.random() * 100}vw`,
-                top: `${Math.random() * 100}vh`,
-                animationDuration: `${Math.random() * 4 + 3}s`,
-                animationDelay: `${Math.random() * 2}s`,
-              }}
-            >
-              <Sparkles 
-                size={Math.random() * 16 + 8} 
-                className="text-yellow-400" 
-                fill="currentColor"
-                style={{ opacity: Math.random() * 0.8 + 0.2 }}
-              />
-            </div>
           ))}
         </div>
       )}
