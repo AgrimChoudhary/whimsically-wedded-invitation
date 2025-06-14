@@ -1,156 +1,37 @@
 
-import React, { useState, useEffect } from 'react';
-import WelcomeForm from '@/components/WelcomeForm';
-import { FloatingPetals } from '@/components/AnimatedElements';
-import { Sparkles, Heart, Star } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { useGuest } from '@/context/GuestContext';
-
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const BRIDE_FIRST_NAME = "Kiara";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useGuestContext } from "@/context/GuestContext";
+import WelcomeSection from "@/components/WelcomeSection";
+import MainContent from "@/components/MainContent";
 
 const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [showSparkle, setShowSparkle] = useState(false);
-  const [currentIcon, setCurrentIcon] = useState(0);
-  const isMobile = useIsMobile();
-  const { guestName } = useGuest();
-  
-  const floatingIcons = [
-    <Heart key="heart" className="text-wedding-blush" />,
-    <Sparkles key="sparkles" className="text-wedding-gold" />,
-    <Star key="star" className="text-wedding-maroon" />
-  ];
-  
+  const { guestId } = useParams();
+  const [showWelcome, setShowWelcome] = useState(true);
+  const { guestName, setGuestName } = useGuestContext();
+
   useEffect(() => {
-    // Simulating assets loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    console.log('Index component mounted, guestId:', guestId);
     
-    // Sparkle effect timing
-    const sparkleTimer = setInterval(() => {
-      setShowSparkle(true);
-      setTimeout(() => setShowSparkle(false), 700);
-    }, 3000);
+    if (guestId) {
+      console.log('Guest ID found in URL, setting guest name and skipping welcome');
+      setGuestName(guestId);
+      setShowWelcome(false);
+    } else if (guestName) {
+      console.log('Guest name already exists, skipping welcome');
+      setShowWelcome(false);
+    }
+  }, [guestId, guestName, setGuestName]);
 
-    // Rotating icons
-    const iconTimer = setInterval(() => {
-      setCurrentIcon((prev) => (prev + 1) % floatingIcons.length);
-    }, 2000);
-    
-    return () => {
-      clearTimeout(timer);
-      clearInterval(sparkleTimer);
-      clearInterval(iconTimer);
-    };
-  }, []);
+  const handleWelcomeComplete = () => {
+    setShowWelcome(false);
+  };
 
-  return (
-    <div className="min-h-screen pattern-background relative overflow-hidden">
-      {isLoading ? (
-        <div className="loading-overlay">
-          <div className="loading-spinner mb-4"></div>
-          <p className="text-wedding-maroon font-dancing-script text-xl">Loading our love story...</p>
-        </div>
-      ) : (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
-          {/* Enhanced gradient background with multiple layers */}
-          <div className="absolute inset-0 bg-gradient-to-br from-wedding-cream via-wedding-blush/20 to-wedding-cream z-0"></div>
-          <div className="absolute inset-0 bg-gradient-to-tr from-wedding-gold/5 via-transparent to-wedding-maroon/5 z-0"></div>
-          
-          {/* Animated background elements */}
-          <div className="absolute top-10 left-10 w-3 h-3 bg-wedding-gold/30 rounded-full animate-pulse"></div>
-          <div className="absolute top-32 right-16 w-2 h-2 bg-wedding-maroon/20 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-20 left-20 w-4 h-4 bg-wedding-gold/40 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute bottom-32 right-32 w-2.5 h-2.5 bg-wedding-blush/60 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
-          
-          {/* Floating geometric shapes */}
-          <div className="absolute top-1/4 left-8 w-8 h-8 border border-wedding-gold/20 rotate-45 animate-float"></div>
-          <div className="absolute top-1/3 right-12 w-6 h-6 border border-wedding-maroon/20 rounded-full animate-float" style={{ animationDelay: '1.5s' }}></div>
-          <div className="absolute bottom-1/4 left-16 w-5 h-5 bg-wedding-blush/30 rotate-12 animate-float" style={{ animationDelay: '2.5s' }}></div>
-          
-          <FloatingPetals />
-          
-          {/* Modern header with enhanced styling */}
-          <div className="relative z-10 text-center mb-8">
-            <div className="relative mb-6">
-              {/* Decorative lines and elements */}
-              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex items-center gap-3">
-                <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-wedding-gold/50"></div>
-                <div className="w-3 h-3 rounded-full bg-wedding-gold/40 animate-pulse"></div>
-                <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-wedding-gold/50"></div>
-              </div>
-              
-              <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
-                {GROOM_FIRST_NAME} & {BRIDE_FIRST_NAME}
-                {showSparkle && (
-                  <Sparkles 
-                    size={isMobile ? 18 : 28} 
-                    className="absolute text-wedding-gold animate-pulse-soft" 
-                    style={{ 
-                      top: isMobile ? '-12px' : '-18px', 
-                      right: isMobile ? '-18px' : '-30px'
-                    }} 
-                  />
-                )}
-              </h1>
-              
-              {/* Enhanced subtitle with modern styling */}
-              <div className="opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                <div className="relative inline-block">
-                  <h2 className="font-dancing-script text-2xl sm:text-3xl text-wedding-gold mb-3 relative z-10">
-                    Wedding Invitation
-                  </h2>
-                  <div className="absolute inset-0 bg-wedding-gold/10 rounded-lg blur-sm transform scale-110"></div>
-                </div>
-                
-                {/* Modern decorative separator */}
-                <div className="flex items-center justify-center gap-4 mt-4">
-                  <div className="h-[2px] w-20 bg-gradient-to-r from-transparent via-wedding-gold/60 to-wedding-gold rounded-full"></div>
-                  <div className="relative">
-                    <div className="w-4 h-4 rounded-full bg-wedding-gold/40 animate-pulse"></div>
-                    <div className="absolute inset-0 w-4 h-4 rounded-full bg-wedding-gold/20 animate-ping"></div>
-                  </div>
-                  <div className="h-[2px] w-20 bg-gradient-to-l from-transparent via-wedding-gold/60 to-wedding-gold rounded-full"></div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Enhanced date preview with modern card */}
-            <div className="opacity-0 animate-fade-in mb-6" style={{ animationDelay: '0.6s' }}>
-              <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-wedding-cream/80 to-wedding-blush/60 backdrop-blur-sm border border-wedding-gold/30 shadow-gold-soft">
-                <p className="text-sm font-medium text-wedding-maroon flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-wedding-gold animate-pulse"></span>
-                  Save the Date: May 15, 2025
-                  <span className="w-2 h-2 rounded-full bg-wedding-gold animate-pulse"></span>
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <WelcomeForm />
-          
-          {/* Enhanced decorative corner elements with modern touch */}
-          <div className="absolute bottom-8 left-8 w-20 h-20 border-b-2 border-l-2 border-wedding-gold/30 rounded-bl-3xl opacity-40">
-            <div className="absolute bottom-2 left-2 w-3 h-3 bg-wedding-gold/40 rounded-full animate-pulse"></div>
-          </div>
-          <div className="absolute top-8 right-8 w-20 h-20 border-t-2 border-r-2 border-wedding-gold/30 rounded-tr-3xl opacity-40">
-            <div className="absolute top-2 right-2 w-3 h-3 bg-wedding-gold/40 rounded-full animate-pulse"></div>
-          </div>
-          
-          {/* Floating icons for modern appeal */}
-          <div className="absolute top-1/2 left-4 transform -translate-y-1/2 opacity-20 animate-float">
-            {floatingIcons[currentIcon]}
-          </div>
-          <div className="absolute top-1/2 right-4 transform -translate-y-1/2 opacity-20 animate-float" style={{ animationDelay: '1s' }}>
-            {floatingIcons[(currentIcon + 1) % floatingIcons.length]}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  if (showWelcome) {
+    return <WelcomeSection />;
+  }
+
+  return <MainContent />;
 };
 
 export default Index;
