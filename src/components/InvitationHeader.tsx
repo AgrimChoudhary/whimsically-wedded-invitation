@@ -28,23 +28,70 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   const { guestName } = useGuest();
   const [showHearts, setShowHearts] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
+  const [showSparkles, setShowSparkles] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
   const isMobile = useIsMobile();
   
-  const triggerHearts = () => {
-    setShowHearts(true);
-    setTimeout(() => setShowHearts(false), 3000);
-  };
-  
-  const triggerFireworks = () => {
-    setShowFireworks(true);
-    setTimeout(() => setShowFireworks(false), 3000);
+  const triggerMagicalSurprise = () => {
+    setIsClicked(true);
+    setClickCount(prev => prev + 1);
+    
+    // Create a spectacular sequence of effects
+    // 1. Start with confetti burst
+    setShowConfetti(true);
+    
+    // 2. Add sparkles after 300ms
+    setTimeout(() => {
+      setShowSparkles(true);
+    }, 300);
+    
+    // 3. Add hearts after 600ms
+    setTimeout(() => {
+      setShowHearts(true);
+    }, 600);
+    
+    // 4. Add fireworks after 1000ms
+    setTimeout(() => {
+      setShowFireworks(true);
+    }, 1000);
+    
+    // 5. Add second wave of effects for multiple clicks
+    if (clickCount > 0) {
+      setTimeout(() => {
+        setShowConfetti(true);
+        setShowFireworks(true);
+      }, 1500);
+    }
+    
+    // Reset confetti after 3 seconds
+    setTimeout(() => setShowConfetti(false), 3000);
+    
+    // Reset sparkles after 4 seconds
+    setTimeout(() => setShowSparkles(false), 4000);
+    
+    // Reset hearts after 5 seconds
+    setTimeout(() => setShowHearts(false), 5000);
+    
+    // Reset fireworks after 4 seconds
+    setTimeout(() => setShowFireworks(false), 4000);
+    
+    // Reset click state after all effects
+    setTimeout(() => {
+      setIsClicked(false);
+    }, 6000);
   };
   
   useEffect(() => {
     // Auto-play visual effects on load for a more immersive experience
     const initialTimer = setTimeout(() => {
-      triggerHearts();
-      setTimeout(() => triggerFireworks(), 1500);
+      setShowHearts(true);
+      setTimeout(() => {
+        setShowFireworks(true);
+        setTimeout(() => setShowFireworks(false), 3000);
+      }, 1500);
+      setTimeout(() => setShowHearts(false), 3000);
     }, 2000);
     
     return () => {
@@ -188,40 +235,67 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
           </div>
         </div>
         
-        {/* Clean Couple Section */}
+        {/* Enhanced Magical Couple Section */}
         <div 
-          className="text-center relative opacity-0 animate-fade-in-up cursor-pointer"
+          className={`text-center relative opacity-0 animate-fade-in-up cursor-pointer transform transition-all duration-500 ${
+            isClicked ? 'scale-105' : 'hover:scale-102'
+          }`}
           style={{ animationDelay: '0.9s' }}
-          onClick={() => {
-            triggerHearts();
-            triggerFireworks();
-          }}
-          title="Click for a surprise!"
+          onClick={triggerMagicalSurprise}
+          title="Click for a magical surprise!"
         >
           <div className="flex flex-col items-center">
-            {/* Couple Image with Clean Frame */}
+            {/* Couple Image with Enhanced Magical Frame */}
             <div className="relative mb-6 sm:mb-8">
-              {/* Subtle glow effect */}
-              <div className="absolute -inset-3 bg-gradient-to-r from-wedding-gold/20 via-wedding-blush/20 to-wedding-gold/20 rounded-full blur-lg"></div>
+              {/* Enhanced magical glow effect */}
+              <div className={`absolute -inset-3 bg-gradient-to-r from-wedding-gold/20 via-wedding-blush/20 to-wedding-gold/20 rounded-full blur-lg transition-all duration-700 ${
+                isClicked ? 'animate-pulse scale-110' : ''
+              }`}></div>
               
-              <div className="relative bg-white/30 backdrop-blur-sm rounded-full p-3 border border-wedding-gold/30">
+              {/* Magical sparkles around the image */}
+              {showSparkles && (
+                <>
+                  <div className="absolute -top-2 -left-2 animate-ping">
+                    <Sparkles size={16} className="text-yellow-400" fill="currentColor" />
+                  </div>
+                  <div className="absolute -top-3 -right-1 animate-ping" style={{animationDelay: '0.3s'}}>
+                    <Star size={14} className="text-pink-400" fill="currentColor" />
+                  </div>
+                  <div className="absolute -bottom-2 -left-3 animate-ping" style={{animationDelay: '0.6s'}}>
+                    <Sparkles size={12} className="text-purple-400" fill="currentColor" />
+                  </div>
+                  <div className="absolute -bottom-1 -right-2 animate-ping" style={{animationDelay: '0.9s'}}>
+                    <Star size={18} className="text-orange-400" fill="currentColor" />
+                  </div>
+                </>
+              )}
+              
+              <div className={`relative bg-white/30 backdrop-blur-sm rounded-full p-3 border border-wedding-gold/30 transition-all duration-500 ${
+                isClicked ? 'shadow-2xl border-wedding-gold/60' : ''
+              }`}>
                 <img 
                   src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
                   alt={`${groomName} and ${brideName}`}
-                  className="w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10"
+                  className={`w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10 transition-all duration-500 ${
+                    isClicked ? 'brightness-110 contrast-110' : ''
+                  }`}
                   loading="lazy"
                 />
               </div>
             </div>
             
-            {/* Clean Couple Names */}
+            {/* Enhanced Couple Names with magical effects */}
             <div className="mt-4">
-              <h2 className="font-great-vibes text-5xl sm:text-6xl md:text-7xl text-wedding-maroon leading-tight mb-4">
+              <h2 className={`font-great-vibes text-5xl sm:text-6xl md:text-7xl text-wedding-maroon leading-tight mb-4 transition-all duration-500 ${
+                isClicked ? 'text-shadow-lg' : ''
+              }`}>
                 <span className="inline-block">
                   {groomName}
                 </span>
                 
-                <span className="inline-block mx-4 text-wedding-gold text-4xl sm:text-5xl md:text-6xl">
+                <span className={`inline-block mx-4 text-wedding-gold text-4xl sm:text-5xl md:text-6xl transition-all duration-500 ${
+                  isClicked ? 'animate-pulse scale-110' : ''
+                }`}>
                   &
                 </span>
                 
@@ -235,20 +309,74 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               </div>
             </div>
             
-            {/* Simple Decorative Divider */}
+            {/* Enhanced Decorative Divider */}
             <div className="mt-6 flex items-center justify-center gap-4">
               <div className="h-[1px] w-20 sm:w-24 bg-wedding-gold/60"></div>
-              <div className="w-2 h-2 rounded-full bg-wedding-gold/50"></div>
+              <div className={`w-2 h-2 rounded-full bg-wedding-gold/50 transition-all duration-500 ${
+                isClicked ? 'animate-ping scale-150' : ''
+              }`}></div>
               <div className="h-[1px] w-20 sm:w-24 bg-wedding-gold/60"></div>
             </div>
             
-            <p className="text-sm text-gray-500 mt-6 font-medium">Click for a magical surprise ✨</p>
+            <p className={`text-sm text-gray-500 mt-6 font-medium transition-all duration-300 ${
+              isClicked ? 'text-wedding-gold animate-bounce' : ''
+            }`}>
+              {isClicked ? '✨ Magical! Click again for more surprises! ✨' : 'Click for a magical surprise ✨'}
+            </p>
           </div>
         </div>
       </div>
       
+      {/* Enhanced Animation Components */}
       <FallingHearts isActive={showHearts} />
       <FireworksDisplay isActive={showFireworks} />
+      
+      {/* New Confetti Effect */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-20 overflow-hidden">
+          {Array.from({ length: isMobile ? 40 : 60 }, (_, i) => (
+            <div
+              key={i}
+              className="absolute animate-fall-confetti"
+              style={{
+                left: `${Math.random() * 100}vw`,
+                top: '-10px',
+                backgroundColor: `hsl(${Math.random() * 360}, 80%, 60%)`,
+                width: `${Math.random() * 10 + 5}px`,
+                height: `${Math.random() * 10 + 5}px`,
+                animationDuration: `${Math.random() * 3 + 2}s`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                transform: `rotate(${Math.random() * 360}deg)`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* New Sparkles Effect */}
+      {showSparkles && (
+        <div className="fixed inset-0 pointer-events-none z-25 overflow-hidden">
+          {Array.from({ length: isMobile ? 20 : 30 }, (_, i) => (
+            <div
+              key={i}
+              className="absolute animate-sparkle-float"
+              style={{
+                left: `${Math.random() * 100}vw`,
+                top: `${Math.random() * 100}vh`,
+                animationDuration: `${Math.random() * 4 + 3}s`,
+                animationDelay: `${Math.random() * 2}s`,
+              }}
+            >
+              <Sparkles 
+                size={Math.random() * 16 + 8} 
+                className="text-yellow-400" 
+                fill="currentColor"
+                style={{ opacity: Math.random() * 0.8 + 0.2 }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </header>
   );
 };
