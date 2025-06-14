@@ -4,10 +4,16 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import { GuestProvider } from "./context/GuestContext";
 import { AudioProvider } from "./context/AudioContext";
-import Index from "./pages/Index";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LandingPage from "./components/LandingPage";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import Templates from "./pages/Templates";
+import Customize from "./pages/Customize";
 import Invitation from "./pages/Invitation";
 import GuestManagement from "./pages/GuestManagement";
 import NotFound from "./pages/NotFound";
@@ -50,20 +56,51 @@ const App: React.FC = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <GuestProvider>
-            <AudioProvider isDisabledOnRoutes={["/guest-management"]}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/invitation" element={<Invitation />} />
-                <Route path="/guest-management" element={<GuestManagement />} />
-                {/* Support for guest-specific routes */}
-                <Route path="/:guestId" element={<Index />} />
-                <Route path="/invitation/:guestId" element={<Invitation />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AudioProvider>
-          </GuestProvider>
+          <AuthProvider>
+            <GuestProvider>
+              <AudioProvider isDisabledOnRoutes={["/guest-management", "/dashboard", "/templates", "/customize"]}>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/auth" element={<Auth />} />
+                  
+                  {/* Protected routes */}
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/templates" element={
+                    <ProtectedRoute>
+                      <Templates />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/customize/:templateId" element={
+                    <ProtectedRoute>
+                      <Customize />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/guest-management/:invitationId" element={
+                    <ProtectedRoute>
+                      <GuestManagement />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Public invitation routes */}
+                  <Route path="/invitation" element={<Invitation />} />
+                  <Route path="/invitation/:guestId" element={<Invitation />} />
+                  <Route path="/i/:invitationId" element={<Invitation />} />
+                  <Route path="/i/:invitationId/:guestId" element={<Invitation />} />
+                  
+                  {/* Support for legacy guest-specific routes */}
+                  <Route path="/:guestId" element={<Navigate to={`/invitation/${window.location.pathname.split('/')[1]}`} replace />} />
+                  
+                  {/* 404 route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AudioProvider>
+            </GuestProvider>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

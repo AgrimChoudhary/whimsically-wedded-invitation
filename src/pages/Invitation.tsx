@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
 import { useAudio } from '@/context/AudioContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import InvitationHeader from '@/components/InvitationHeader';
 import CoupleSection from '@/components/CoupleSection';
@@ -13,9 +15,9 @@ import PhotoGrid from '@/components/PhotoGrid';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeftCircle, Heart, Music, Volume2, VolumeX, Home } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import AnimatedGuestName from '../components/AnimatedGuestName';
 
 const Invitation = () => {
@@ -26,31 +28,21 @@ const Invitation = () => {
   const [showGaneshaTransition, setShowGaneshaTransition] = useState(false);
   const [hideGaneshaTransition, setHideGaneshaTransition] = useState(false);
   const [startGuestNameAnimation, setStartGuestNameAnimation] = useState(false);
+  const [invitationData, setInvitationData] = useState<any>(null);
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
+  const { invitationId, guestId: urlGuestId } = useParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  
-  // Couple names as placeholders for easy future changes
-  const GROOM_FIRST_NAME = "Sidharth";
-  const GROOM_LAST_NAME = "Malhotra";
-  const BRIDE_FIRST_NAME = "Kiara";
-  const BRIDE_LAST_NAME = "Advani";
-  const GROOM_FATHER = "Sunil Malhotra";
-  const GROOM_MOTHER = "Rimma Malhotra";
-  const BRIDE_FATHER = "Jagdeep Advani";
-  const BRIDE_MOTHER = "Genevieve Advani";
   
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-      // Start Ganesha transition after loading completes with a slight delay for smoother experience
+      // Start Ganesha transition after loading completes
       setTimeout(() => {
         setShowGaneshaTransition(true);
-        // Hide the transition element after animation completes (4s total for smoother transition)
         setTimeout(() => {
           setHideGaneshaTransition(true);
-          // Start guest name animation after Ganesha transition completes
           setTimeout(() => {
             setStartGuestNameAnimation(true);
           }, 300);
@@ -58,13 +50,32 @@ const Invitation = () => {
       }, 200);
     }, 1500);
     
-    // If there's a guestId and they've already accepted, show thank you message
-    if (guestId && hasAccepted) {
-      setShowThankYouMessage(true);
-    }
-    
     return () => clearTimeout(timer);
-  }, [guestId, hasAccepted]);
+  }, []);
+
+  useEffect(() => {
+    if (invitationId) {
+      fetchInvitationData();
+    }
+  }, [invitationId]);
+  
+  const fetchInvitationData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('wedding_invitations')
+        .select('*')
+        .eq('id', invitationId)
+        .eq('is_published', true)
+        .single();
+
+      if (error) throw error;
+      setInvitationData(data);
+    } catch (error: any) {
+      console.error('Error fetching invitation:', error);
+      toast.error('Invitation not found');
+      navigate('/');
+    }
+  };
   
   const handleOpenRSVP = () => {
     setConfetti(true);
@@ -83,28 +94,29 @@ const Invitation = () => {
     }, 800);
   };
 
-  // Calculate wedding date - 1.5 months from now
   const getWeddingDate = () => {
+    if (invitationData?.wedding_date) {
+      const date = new Date(invitationData.wedding_date);
+      if (invitationData?.wedding_time) {
+        const timeString = invitationData.wedding_time;
+        const [hours, minutes] = timeString.split(':');
+        date.setHours(parseInt(hours), parseInt(minutes));
+      } else {
+        date.setHours(20, 0, 0, 0);
+      }
+      return date;
+    }
+    
+    // Fallback to 1.5 months from now
     const now = new Date();
     const futureDate = new Date(now);
     futureDate.setMonth(now.getMonth() + 1);
-    futureDate.setDate(now.getDate() + 15); // Add 15 days to make it 1.5 months
-    futureDate.setHours(20, 0, 0, 0); // 8:00 PM
+    futureDate.setDate(now.getDate() + 15);
+    futureDate.setHours(20, 0, 0, 0);
     return futureDate;
   };
   
   const weddingDate = getWeddingDate();
-  
-  // Get guestId from path to use for navigation
-  const getCurrentGuestId = () => {
-    const pathParts = window.location.pathname.split('/').filter(Boolean);
-    if (pathParts.length === 2 && pathParts[0] === 'invitation') {
-      return pathParts[1];
-    }
-    return null;
-  };
-  
-  const currentGuestId = getCurrentGuestId();
 
   return (
     <div className="min-h-screen w-full pattern-background">
@@ -198,70 +210,48 @@ const Invitation = () => {
             
             {!isMobile && (
               <Button 
-                onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
+                onClick={() => navigate('/')}
                 variant="outline"
                 size="icon"
                 className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
-                aria-label="Go back"
+                aria-label="Go home"
               >
-                <ArrowLeftCircle size={18} className="text-wedding-maroon" />
+                <Home size={18} className="text-wedding-maroon" />
               </Button>
             )}
           </div>
           
           {isMobile && (
             <button 
-              onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
+              onClick={() => navigate('/')}
               className="fixed top-4 left-4 z-30 flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm"
-              aria-label="Go back"
+              aria-label="Go home"
             >
-              <ArrowLeftCircle size={16} className="mr-1" />
-              <span className="text-xs">Back</span>
+              <Home size={16} className="mr-1" />
+              <span className="text-xs">Home</span>
             </button>
           )}
           
           <InvitationHeader 
-            groomName={GROOM_FIRST_NAME}
-            brideName={BRIDE_FIRST_NAME}
+            invitationData={invitationData}
             startGuestNameAnimation={startGuestNameAnimation}
           />
           
-          {/* Section ordering: countdown, family details, romantic journey, wedding journey, events, photos */}
           <CountdownTimer 
             weddingDate={weddingDate} 
-            weddingTime="8:00 PM"
+            weddingTime={invitationData?.wedding_time || "8:00 PM"}
           />
           
+          {/* Use dynamic data if available, otherwise show default family details */}
           <FamilyDetails 
             groomFamily={{
               title: "Groom's Family",
               members: [
                 { 
-                  name: `Mr. ${GROOM_FATHER} & Mrs. ${GROOM_MOTHER}`, 
+                  name: invitationData?.groom_parents || `Mr. ${invitationData?.invitation_data?.groom_father || 'Sunil Malhotra'} & Mrs. ${invitationData?.invitation_data?.groom_mother || 'Rimma Malhotra'}`, 
                   relation: "Parents of the Groom",
                   image: "https://www.bollywoodbiography.in/wp-content/uploads/2021/11/sunil-malhotra-with-wife-rimma-malhotra.webp",
                   description: "Loving parents who have guided him through life's journey."
-                },
-                { 
-                  name: `Mr. ${GROOM_FATHER}`, 
-                  relation: "Father of the Groom",
-                  image: "https://i.redd.it/cpy26r2olopc1.jpeg",
-                  description: "A captain in the merchant navy who has been his son's strength and inspiration.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mrs. Rimma Malhotra", 
-                  relation: "Mother of the Groom",
-                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlLzeDQRuyataQCZvhLYG9Zmnt5Ukhga_Y4s-7kapr87PeSxxd",
-                  description: "A homemaker whose love and support have been the foundation of their family.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mr. Harshad Malhotra", 
-                  relation: "Brother of the Groom",
-                  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSky-6UnO7vxLPnf6QWlgLPKcgqNNQpkVVwHvtzeEDgnZcMkPPA8y5nsMJzf63z58v6WPBhb37K3tVNKO72k8iuCg",
-                  description: "An elder brother who works in the banking sector and has always been Sidharth's role model.",
-                  showInDialogOnly: true
                 },
               ],
             }}
@@ -269,41 +259,17 @@ const Invitation = () => {
               title: "Bride's Family",
               members: [
                 { 
-                  name: `Mr. ${BRIDE_FATHER} & Mrs. ${BRIDE_MOTHER}`, 
+                  name: invitationData?.bride_parents || `Mr. ${invitationData?.invitation_data?.bride_father || 'Jagdeep Advani'} & Mrs. ${invitationData?.invitation_data?.bride_mother || 'Genevieve Advani'}`, 
                   relation: "Parents of the Bride",
                   image: "https://static.toiimg.com/thumb/imgsize-23456,msid-70473421,width-600,resizemode-4/70473421.jpg",
                   description: "Loving parents who have always encouraged her to follow her dreams."
-                },
-                { 
-                  name: `Mr. ${BRIDE_FATHER}`, 
-                  relation: "Father of the Bride",
-                  image: "https://starsunfolded.com/wp-content/uploads/2023/02/Jagdeep-Advani.jpg",
-                  description: "A successful businessman from a Sindhi family who has been her pillar of strength.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mrs. Genevieve Advani", 
-                  relation: "Mother of the Bride",
-                  image: "https://www.bollywoodbiography.in/wp-content/uploads/2023/02/Genevieve-Jaffrey.jpg",
-                  description: "A former teacher with Scottish, Irish, and Portuguese ancestry who has been her guiding light.",
-                  showInDialogOnly: true
-                },
-                { 
-                  name: "Mr. Mishaal Advani", 
-                  relation: "Brother of the Bride",
-                  image: "https://static.sociofyme.com/thumb/97725020/97725020.jpg?imgsize=702924&width=420&height=746&resizemode=76",
-                  description: "A musician who followed his passion after working as a software engineer.",
-                  showInDialogOnly: true
                 },
               ],
             }}
           />
 
-          {/* New Romantic Journey Section */}
           <RomanticJourneySection />
-
           <CoupleSection />
-  
           <EventTimeline />
           
           <PhotoGrid
@@ -378,13 +344,6 @@ const Invitation = () => {
                     Accept Invitation
                   </span>
                   <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
-                  
-                  <span className="absolute -top-6 -left-6 text-white/10">
-                    <User size={24} />
-                  </span>
-                  <span className="absolute -bottom-6 -right-6 text-white/10">
-                    <Heart size={24} />
-                  </span>
                 </Button>
               )}
               

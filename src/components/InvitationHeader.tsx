@@ -6,23 +6,13 @@ import { Star, Music, Heart, Crown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AnimatedGuestName from './AnimatedGuestName';
 
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const GROOM_LAST_NAME = "Malhotra";
-const BRIDE_FIRST_NAME = "Kiara";
-const BRIDE_LAST_NAME = "Advani";
-
 interface InvitationHeaderProps {
-  brideName?: string;
-  groomName?: string;
-  coupleImageUrl?: string;
+  invitationData?: any;
   startGuestNameAnimation?: boolean;
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
-  brideName = BRIDE_FIRST_NAME, 
-  groomName = GROOM_FIRST_NAME,
-  coupleImageUrl,
+  invitationData,
   startGuestNameAnimation = false
 }) => {
   const { guestName } = useGuest();
@@ -33,26 +23,27 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   const [clickCount, setClickCount] = useState(0);
   const [showGaneshaImage, setShowGaneshaImage] = useState(false);
   const isMobile = useIsMobile();
+
+  // Get invitation data or use defaults
+  const brideName = invitationData?.bride_name?.split(' ')[0] || invitationData?.invitation_data?.bride_first_name || "Kiara";
+  const groomName = invitationData?.groom_name?.split(' ')[0] || invitationData?.invitation_data?.groom_first_name || "Sidharth";
+  const coupleImageUrl = invitationData?.couple_image_url || invitationData?.invitation_data?.couple_image_url || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png";
   
   const triggerMagicalSurprise = () => {
     setIsClicked(true);
     setClickCount(prev => prev + 1);
     
     // Create a spectacular sequence of effects
-    // 1. Start with confetti burst
     setShowConfetti(true);
     
-    // 2. Add hearts after 600ms
     setTimeout(() => {
       setShowHearts(true);
     }, 600);
     
-    // 3. Add fireworks after 1000ms
     setTimeout(() => {
       setShowFireworks(true);
     }, 1000);
     
-    // 4. Add second wave of effects for multiple clicks
     if (clickCount > 0) {
       setTimeout(() => {
         setShowConfetti(true);
@@ -60,16 +51,10 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
       }, 1500);
     }
     
-    // Reset confetti after 3 seconds
+    // Reset effects
     setTimeout(() => setShowConfetti(false), 3000);
-    
-    // Reset hearts after 5 seconds
     setTimeout(() => setShowHearts(false), 5000);
-    
-    // Reset fireworks after 4 seconds
     setTimeout(() => setShowFireworks(false), 4000);
-    
-    // Reset click state after all effects
     setTimeout(() => {
       setIsClicked(false);
     }, 6000);
@@ -77,10 +62,9 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   
   useEffect(() => {
     // Show Ganesha image after the transition animation completes
-    // This creates the effect of the image moving into position
     const ganeshaImageTimer = setTimeout(() => {
       setShowGaneshaImage(true);
-    }, 4500); // 4.5s to ensure transition is fully complete
+    }, 4500);
     
     // Auto-play visual effects on load for a more immersive experience
     const initialTimer = setTimeout(() => {
@@ -90,7 +74,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
         setTimeout(() => setShowFireworks(false), 3000);
       }, 1500);
       setTimeout(() => setShowHearts(false), 3000);
-    }, 6000); // Delay initial effects until after Ganesha appears
+    }, 6000);
     
     return () => {
       clearTimeout(ganeshaImageTimer);
@@ -260,7 +244,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 isClicked ? 'shadow-2xl border-wedding-gold/60' : ''
               }`}>
                 <img 
-                  src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
+                  src={coupleImageUrl}
                   alt={`${groomName} and ${brideName}`}
                   className={`w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10 transition-all duration-500 ${
                     isClicked ? 'brightness-110 contrast-110' : ''
