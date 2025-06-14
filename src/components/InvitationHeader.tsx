@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
@@ -31,7 +30,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   const [showConfetti, setShowConfetti] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [clickCount, setClickCount] = useState(0);
-  const [showGaneshaInHeader, setShowGaneshaInHeader] = useState(false);
+  const [showGaneshaImage, setShowGaneshaImage] = useState(false);
   const isMobile = useIsMobile();
   
   const triggerMagicalSurprise = () => {
@@ -76,10 +75,10 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   };
   
   useEffect(() => {
-    // Show Ganesha in header only after the transition animation completes
-    // This prevents double Ganesha images during the transition
-    const ganeshaTimer = setTimeout(() => {
-      setShowGaneshaInHeader(true);
+    // Show Ganesha image after the transition animation completes
+    // This creates the effect of the image moving into position
+    const ganeshaImageTimer = setTimeout(() => {
+      setShowGaneshaImage(true);
     }, 4500); // 4.5s to ensure transition is fully complete
     
     // Auto-play visual effects on load for a more immersive experience
@@ -93,7 +92,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
     }, 6000); // Delay initial effects until after Ganesha appears
     
     return () => {
-      clearTimeout(ganeshaTimer);
+      clearTimeout(ganeshaImageTimer);
       clearTimeout(initialTimer);
     };
   }, []);
@@ -101,102 +100,103 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
       <div className="w-full max-w-4xl px-4">
-        {/* Enhanced Ganesha Section - Only show after transition completes */}
-        {showGaneshaInHeader && (
-          <div className="flex flex-col items-center mb-10 sm:mb-12 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            {/* Religious Card with Ganesha */}
-            <div className="relative group">
-              {/* Multiple glowing layers */}
-              <div className="absolute -inset-6 bg-gradient-to-r from-orange-400/20 via-yellow-400/30 to-red-400/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-1000 animate-pulse-soft"></div>
-              <div className="absolute -inset-4 bg-gradient-to-r from-orange-300/30 via-yellow-300/40 to-orange-300/30 rounded-full blur-lg transition-all duration-700"></div>
+        {/* Enhanced Ganesha Section - Always visible, but image appears after transition */}
+        <div className="flex flex-col items-center mb-10 sm:mb-12 opacity-0 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          {/* Religious Card with Ganesha */}
+          <div className="relative group">
+            {/* Multiple glowing layers */}
+            <div className="absolute -inset-6 bg-gradient-to-r from-orange-400/20 via-yellow-400/30 to-red-400/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-1000 animate-pulse-soft"></div>
+            <div className="absolute -inset-4 bg-gradient-to-r from-orange-300/30 via-yellow-300/40 to-orange-300/30 rounded-full blur-lg transition-all duration-700"></div>
+            
+            {/* Main divine card */}
+            <div className="relative luxury-frame bg-gradient-to-br from-orange-50/90 via-yellow-50/95 to-orange-50/90 backdrop-blur-lg rounded-full p-8 sm:p-10 divine-glow">
+              {/* Sacred geometric pattern */}
+              <div className="absolute inset-4 rounded-full border-2 border-orange-200/60 animate-pulse-soft" style={{animationDelay: '0.5s'}}></div>
+              <div className="absolute inset-6 rounded-full border border-yellow-300/40 animate-pulse-soft" style={{animationDelay: '1s'}}></div>
               
-              {/* Main divine card */}
-              <div className="relative luxury-frame bg-gradient-to-br from-orange-50/90 via-yellow-50/95 to-orange-50/90 backdrop-blur-lg rounded-full p-8 sm:p-10 divine-glow">
-                {/* Sacred geometric pattern */}
-                <div className="absolute inset-4 rounded-full border-2 border-orange-200/60 animate-pulse-soft" style={{animationDelay: '0.5s'}}></div>
-                <div className="absolute inset-6 rounded-full border border-yellow-300/40 animate-pulse-soft" style={{animationDelay: '1s'}}></div>
-                
-                {/* Floating Om symbols */}
-                <div className="absolute -top-3 -left-3 w-6 h-6 bg-orange-400/40 rounded-full flex items-center justify-center animate-float text-orange-600" style={{animationDelay: '0s'}}>
-                  <span className="text-xs">ॐ</span>
-                </div>
-                <div className="absolute -top-4 -right-2 w-5 h-5 bg-yellow-400/50 rounded-full flex items-center justify-center animate-float text-yellow-700" style={{animationDelay: '1s'}}>
-                  <span className="text-xs">ॐ</span>
-                </div>
-                <div className="absolute -bottom-3 -left-2 w-5 h-5 bg-red-400/40 rounded-full flex items-center justify-center animate-float text-red-600" style={{animationDelay: '2s'}}>
-                  <span className="text-xs">ॐ</span>
-                </div>
-                <div className="absolute -bottom-4 -right-3 w-6 h-6 bg-orange-300/50 rounded-full flex items-center justify-center animate-float text-orange-600" style={{animationDelay: '1.5s'}}>
-                  <span className="text-xs">ॐ</span>
-                </div>
-                
-                {/* Ganesha Image with enhanced effects */}
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-200/20 via-yellow-200/30 to-orange-200/20 rounded-full animate-pulse-soft blur-sm"></div>
+              {/* Floating Om symbols */}
+              <div className="absolute -top-3 -left-3 w-6 h-6 bg-orange-400/40 rounded-full flex items-center justify-center animate-float text-orange-600" style={{animationDelay: '0s'}}>
+                <span className="text-xs">ॐ</span>
+              </div>
+              <div className="absolute -top-4 -right-2 w-5 h-5 bg-yellow-400/50 rounded-full flex items-center justify-center animate-float text-yellow-700" style={{animationDelay: '1s'}}>
+                <span className="text-xs">ॐ</span>
+              </div>
+              <div className="absolute -bottom-3 -left-2 w-5 h-5 bg-red-400/40 rounded-full flex items-center justify-center animate-float text-red-600" style={{animationDelay: '2s'}}>
+                <span className="text-xs">ॐ</span>
+              </div>
+              <div className="absolute -bottom-4 -right-3 w-6 h-6 bg-orange-300/50 rounded-full flex items-center justify-center animate-float text-orange-600" style={{animationDelay: '1.5s'}}>
+                <span className="text-xs">ॐ</span>
+              </div>
+              
+              {/* Ganesha Image with enhanced effects - Only show after transition */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-200/20 via-yellow-200/30 to-orange-200/20 rounded-full animate-pulse-soft blur-sm"></div>
+                {showGaneshaImage && (
                   <img 
                     src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
                     alt="Lord Ganesha" 
-                    className="w-32 h-32 sm:w-36 sm:h-36 object-contain animate-floating relative z-10"
+                    className="w-32 h-32 sm:w-36 sm:h-36 object-contain animate-floating relative z-10 opacity-0 animate-fade-in"
                     loading="lazy"
+                    style={{ animationDelay: '0.2s' }}
                   />
-                  
-                  {/* Enhanced decorative elements */}
-                  <Star 
-                    size={16} 
-                    className="absolute -top-3 -left-3 text-orange-400 animate-pulse-soft" 
-                    fill="#FB923C" 
-                    style={{animationDelay: '0.2s'}}
-                  />
-                  <Crown 
-                    size={14} 
-                    className="absolute -top-2 -right-4 text-yellow-500 animate-pulse-soft" 
-                    fill="#EAB308" 
-                    style={{animationDelay: '0.8s'}}
-                  />
-                  <Heart 
-                    size={18} 
-                    className="absolute -bottom-2 -left-4 text-red-400 animate-pulse-soft" 
-                    fill="#F87171" 
-                    style={{animationDelay: '1.2s'}}
-                  />
-                  <Star 
-                    size={15} 
-                    className="absolute -bottom-3 -right-3 text-orange-300 animate-pulse-soft" 
-                    fill="#FDBA74" 
-                    style={{animationDelay: '0.6s'}}
-                  />
-                </div>
+                )}
+                
+                {/* Enhanced decorative elements */}
+                <Star 
+                  size={16} 
+                  className="absolute -top-3 -left-3 text-orange-400 animate-pulse-soft" 
+                  fill="#FB923C" 
+                  style={{animationDelay: '0.2s'}}
+                />
+                <Crown 
+                  size={14} 
+                  className="absolute -top-2 -right-4 text-yellow-500 animate-pulse-soft" 
+                  fill="#EAB308" 
+                  style={{animationDelay: '0.8s'}}
+                />
+                <Heart 
+                  size={18} 
+                  className="absolute -bottom-2 -left-4 text-red-400 animate-pulse-soft" 
+                  fill="#F87171" 
+                  style={{animationDelay: '1.2s'}}
+                />
+                <Star 
+                  size={15} 
+                  className="absolute -bottom-3 -right-3 text-orange-300 animate-pulse-soft" 
+                  fill="#FDBA74" 
+                  style={{animationDelay: '0.6s'}}
+                />
               </div>
-            </div>
-            
-            {/* Enhanced Sanskrit Shloka */}
-            <div className="text-center mt-6 relative max-w-md">
-              {/* Decorative line above */}
-              <div className="mx-auto w-32 h-[2px] bg-gradient-to-r from-transparent via-orange-400/60 to-transparent mb-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent blur-sm"></div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-orange-50/60 to-yellow-50/60 backdrop-blur-sm rounded-lg p-4 border border-orange-200/30">
-                <p className="font-hindi text-base sm:text-lg text-orange-800 mb-2 leading-relaxed font-medium">
-                  वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।
-                </p>
-                <p className="font-hindi text-base sm:text-lg text-orange-800 leading-relaxed font-medium">
-                  निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥
-                </p>
-              </div>
-              
-              {/* Decorative line below */}
-              <div className="mx-auto w-32 h-[2px] bg-gradient-to-r from-transparent via-orange-400/60 to-transparent mt-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent blur-sm"></div>
-              </div>
-              
-              {/* Translation */}
-              <p className="text-sm sm:text-base text-orange-700/90 mt-3 italic font-medium">
-                "O Lord Ganesha, please remove all obstacles from our path"
-              </p>
             </div>
           </div>
-        )}
+          
+          {/* Enhanced Sanskrit Shloka */}
+          <div className="text-center mt-6 relative max-w-md">
+            {/* Decorative line above */}
+            <div className="mx-auto w-32 h-[2px] bg-gradient-to-r from-transparent via-orange-400/60 to-transparent mb-4 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent blur-sm"></div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-orange-50/60 to-yellow-50/60 backdrop-blur-sm rounded-lg p-4 border border-orange-200/30">
+              <p className="font-hindi text-base sm:text-lg text-orange-800 mb-2 leading-relaxed font-medium">
+                वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ।
+              </p>
+              <p className="font-hindi text-base sm:text-lg text-orange-800 leading-relaxed font-medium">
+                निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥
+              </p>
+            </div>
+            
+            {/* Decorative line below */}
+            <div className="mx-auto w-32 h-[2px] bg-gradient-to-r from-transparent via-orange-400/60 to-transparent mt-4 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent blur-sm"></div>
+            </div>
+            
+            {/* Translation */}
+            <p className="text-sm sm:text-base text-orange-700/90 mt-3 italic font-medium">
+              "O Lord Ganesha, please remove all obstacles from our path"
+            </p>
+          </div>
+        </div>
         
         {/* Refined Guest Welcome Section */}
         <div className="text-center mb-8 sm:mb-10 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
