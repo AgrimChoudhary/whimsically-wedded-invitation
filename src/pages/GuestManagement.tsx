@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { GuestCard } from '@/components/GuestCard';
-import { GuestForm } from '@/components/GuestForm';
+import GuestForm from '@/components/GuestForm';
 
 // Couple names as placeholders for easy future changes
 const GROOM_FIRST_NAME = "Sidharth";

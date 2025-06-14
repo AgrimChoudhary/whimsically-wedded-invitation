@@ -29,6 +29,7 @@ interface GuestInvitation {
   invitation_date: string;
   status: string;
   invitation_id: string;
+  guest_id: string;
 }
 
 const Dashboard = () => {
