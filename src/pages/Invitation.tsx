@@ -1,12 +1,12 @@
 
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useGuestContext } from "@/context/GuestContext";
+import { useGuest } from "@/context/GuestContext";
 import InvitationLayout from "@/components/InvitationLayout";
 
 const Invitation = () => {
   const { guestId } = useParams();
-  const { setGuestName } = useGuestContext();
+  const { setGuestName } = useGuest();
 
   useEffect(() => {
     console.log('Invitation page mounted, guestId:', guestId);

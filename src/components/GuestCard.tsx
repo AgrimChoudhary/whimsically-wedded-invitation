@@ -3,31 +3,30 @@ import React from 'react';
 import { Phone, Copy, Edit, Trash, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface Guest {
   id: string;
   name: string;
   mobile: string;
   status?: string | null;
+  created_at: string;
+  updated_at: string | null;
 }
 
 interface GuestCardProps {
   guest: Guest;
-  onCopy: (id: string) => void;
-  onShare: (guest: Guest) => void; 
-  onEdit: (guest: Guest) => void;
-  onDelete: (guest: Guest) => void;
+  onUpdate: () => void;
 }
 
-export const GuestCard: React.FC<GuestCardProps> = ({ 
-  guest, 
-  onCopy, 
-  onShare, 
-  onEdit, 
-  onDelete 
-}) => {
+export const GuestCard: React.FC<GuestCardProps> = ({ guest, onUpdate }) => {
   const getStatusBadge = (status: string | null | undefined) => {
-    if (!status) return null;
+    if (!status) return (
+      <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
+        Pending
+      </Badge>
+    );
     
     switch (status) {
       case 'viewed':
@@ -36,10 +35,11 @@ export const GuestCard: React.FC<GuestCardProps> = ({
             Viewed
           </Badge>
         );
+      case 'confirmed':
       case 'accepted':
         return (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-            Accepted
+            Confirmed
           </Badge>
         );
       case 'declined':
@@ -49,7 +49,74 @@ export const GuestCard: React.FC<GuestCardProps> = ({
           </Badge>
         );
       default:
-        return null;
+        return (
+          <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
+            {status}
+          </Badge>
+        );
+    }
+  };
+
+  const handleCopy = async () => {
+    const inviteUrl = `${window.location.origin}/${guest.id}`;
+    await navigator.clipboard.writeText(inviteUrl);
+    toast({
+      title: "Link copied!",
+      description: "Invitation link copied to clipboard",
+    });
+  };
+
+  const handleShare = async () => {
+    const inviteUrl = `${window.location.origin}/${guest.id}`;
+    const shareText = `You're invited to our wedding! ${inviteUrl}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Wedding Invitation',
+          text: shareText,
+          url: inviteUrl,
+        });
+      } catch (error) {
+        // Fallback to copy
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: "Shared!",
+          description: "Invitation details copied to clipboard",
+        });
+      }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast({
+        title: "Shared!",
+        description: "Invitation details copied to clipboard",
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (confirm(`Are you sure you want to delete ${guest.name}?`)) {
+      try {
+        const { error } = await supabase
+          .from('guests')
+          .delete()
+          .eq('id', guest.id);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Guest deleted",
+          description: `${guest.name} has been removed from the guest list`,
+        });
+        onUpdate();
+      } catch (error) {
+        console.error('Error deleting guest:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete guest",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -60,14 +127,6 @@ export const GuestCard: React.FC<GuestCardProps> = ({
           <h3 className="font-medium text-wedding-maroon truncate">{guest.name}</h3>
           {getStatusBadge(guest.status)}
         </div>
-        <Button 
-          onClick={() => onEdit(guest)} 
-          variant="ghost" 
-          size="sm"
-          className="h-8 w-8 p-0 rounded-full"
-        >
-          <Edit size={16} className="text-blue-600" />
-        </Button>
       </div>
       
       <div className="p-4">
@@ -81,8 +140,8 @@ export const GuestCard: React.FC<GuestCardProps> = ({
             size="sm" 
             variant="outline" 
             className="h-9 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
-            onClick={() => onCopy(guest.id)}
-            title="Copy"
+            onClick={handleCopy}
+            title="Copy Link"
           >
             <Copy size={16} />
           </Button>
@@ -91,7 +150,7 @@ export const GuestCard: React.FC<GuestCardProps> = ({
             size="sm" 
             variant="outline" 
             className="h-9 border-wedding-gold/20 text-green-600 hover:bg-green-50"
-            onClick={() => onShare(guest)}
+            onClick={handleShare}
             title="Share"
           >
             <Share2 size={16} />
@@ -101,7 +160,7 @@ export const GuestCard: React.FC<GuestCardProps> = ({
             size="sm" 
             variant="outline" 
             className="h-9 border-wedding-gold/20 text-red-600 hover:bg-red-50"
-            onClick={() => onDelete(guest)}
+            onClick={handleDelete}
             title="Delete"
           >
             <Trash size={16} />

@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useGuestContext } from "@/context/GuestContext";
+import { useGuest } from "@/context/GuestContext";
 import WelcomeSection from "@/components/WelcomeSection";
 import MainContent from "@/components/MainContent";
 
 const Index = () => {
   const { guestId } = useParams();
   const [showWelcome, setShowWelcome] = useState(true);
-  const { guestName, setGuestName } = useGuestContext();
+  const { guestName, setGuestName } = useGuest();
 
   useEffect(() => {
     console.log('Index component mounted, guestId:', guestId);
