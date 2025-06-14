@@ -43,14 +43,14 @@ const Invitation = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-      // Start Ganesha transition after loading completes
+      // Start Ganesha transition after loading completes with a slight delay for smoother experience
       setTimeout(() => {
         setShowGaneshaTransition(true);
-        // Hide the transition element after animation completes (2.2s total)
+        // Hide the transition element after animation completes (3.5s total for smoother transition)
         setTimeout(() => {
           setHideGaneshaTransition(true);
-        }, 2200);
-      }, 100);
+        }, 3500);
+      }, 200);
     }, 1500);
     
     // If there's a guestId and they've already accepted, show thank you message
@@ -148,12 +148,12 @@ const Invitation = () => {
         </div>
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
-          {/* Transitioning Ganesha Image */}
+          {/* Enhanced Transitioning Ganesha Image */}
           {showGaneshaTransition && !hideGaneshaTransition && (
             <div 
               className="fixed inset-0 z-50 pointer-events-none"
               style={{
-                background: 'linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 50%, transparent 100%)'
+                background: 'linear-gradient(to bottom, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.3) 70%, transparent 100%)'
               }}
             >
               <div className="ganesha-transition-container">
