@@ -25,6 +25,7 @@ const Invitation = () => {
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const [showGaneshaTransition, setShowGaneshaTransition] = useState(false);
   const [hideGaneshaTransition, setHideGaneshaTransition] = useState(false);
+  const [startGuestNameAnimation, setStartGuestNameAnimation] = useState(false);
   const { guestName, isLoading: isGuestLoading, updateGuestStatus, guestId, hasAccepted } = useGuest();
   const { isPlaying, toggleMusic } = useAudio();
   const navigate = useNavigate();
@@ -46,10 +47,14 @@ const Invitation = () => {
       // Start Ganesha transition after loading completes with a slight delay for smoother experience
       setTimeout(() => {
         setShowGaneshaTransition(true);
-        // Hide the transition element after animation completes (3.5s total for smoother transition)
+        // Hide the transition element after animation completes (4s total for smoother transition)
         setTimeout(() => {
           setHideGaneshaTransition(true);
-        }, 3500);
+          // Start guest name animation after Ganesha transition completes
+          setTimeout(() => {
+            setStartGuestNameAnimation(true);
+          }, 300);
+        }, 4000);
       }, 200);
     }, 1500);
     
@@ -218,6 +223,7 @@ const Invitation = () => {
           <InvitationHeader 
             groomName={GROOM_FIRST_NAME}
             brideName={BRIDE_FIRST_NAME}
+            startGuestNameAnimation={startGuestNameAnimation}
           />
           
           {/* Section ordering: countdown, family details, romantic journey, wedding journey, events, photos */}

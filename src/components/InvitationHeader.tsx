@@ -16,12 +16,14 @@ interface InvitationHeaderProps {
   brideName?: string;
   groomName?: string;
   coupleImageUrl?: string;
+  startGuestNameAnimation?: boolean;
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
   brideName = BRIDE_FIRST_NAME, 
   groomName = GROOM_FIRST_NAME,
-  coupleImageUrl
+  coupleImageUrl,
+  startGuestNameAnimation = false
 }) => {
   const { guestName } = useGuest();
   const [showHearts, setShowHearts] = useState(false);
@@ -158,13 +160,17 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
               <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4">
                 Welcome{' '}
                 <span className="text-wedding-gold">
-                  <AnimatedGuestName 
-                    name={guestName} 
-                    fallback="Dear Guest"
-                    animationType="typing"
-                    className="font-great-vibes"
-                    delay={800}
-                  />
+                  {startGuestNameAnimation ? (
+                    <AnimatedGuestName 
+                      name={guestName} 
+                      fallback="Dear Guest"
+                      animationType="typing"
+                      className="font-great-vibes"
+                      delay={0}
+                    />
+                  ) : (
+                    <span className="font-great-vibes">{guestName || "Dear Guest"}</span>
+                  )}
                 </span>
               </h1>
               
