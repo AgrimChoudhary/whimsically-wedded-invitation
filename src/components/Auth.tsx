@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Heart, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Heart, Sparkles, Phone } from 'lucide-react';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +15,9 @@ const Auth = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    fullName: ''
+    fullName: '',
+    phone: '',
+    countryCode: '+91'
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,18 +27,35 @@ const Auth = () => {
     }));
   };
 
+  const handleCountryCodeChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      countryCode: value
+    }));
+  };
+
+  const formatPhoneNumber = (phone: string, countryCode: string) => {
+    // Remove any non-digits from phone
+    const cleanPhone = phone.replace(/\D/g, '');
+    // Combine country code with phone number
+    return `${countryCode}${cleanPhone}`;
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      const fullPhoneNumber = formatPhoneNumber(formData.phone, formData.countryCode);
+      
       const { error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
-            full_name: formData.fullName
+            full_name: formData.fullName,
+            phone: fullPhoneNumber
           }
         }
       });
@@ -69,6 +89,15 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  const countryCodes = [
+    { code: '+91', country: 'India' },
+    { code: '+1', country: 'US/Canada' },
+    { code: '+44', country: 'UK' },
+    { code: '+61', country: 'Australia' },
+    { code: '+971', country: 'UAE' },
+    { code: '+65', country: 'Singapore' },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center p-4">
@@ -156,12 +185,38 @@ const Auth = () => {
                     className="h-12 border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl"
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Select value={formData.countryCode} onValueChange={handleCountryCodeChange}>
+                      <SelectTrigger className="w-24 h-12 border-gray-200 focus:border-purple-400 rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countryCodes.map((country) => (
+                          <SelectItem key={country.code} value={country.code}>
+                            {country.code}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      name="phone"
+                      type="tel"
+                      placeholder="Your phone number 📱"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                      className="flex-1 h-12 border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl"
+                    />
+                  </div>
+                </div>
                 
                 <div className="space-y-2">
                   <Input
                     name="email"
                     type="email"
-                    placeholder="Your email ✉️"
+                    placeholder="Your email (for verification) ✉️"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -187,6 +242,12 @@ const Auth = () => {
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
+                </div>
+
+                <div className="text-xs text-gray-500 p-3 bg-blue-50 rounded-lg">
+                  <Phone className="inline w-4 h-4 mr-1" />
+                  Your phone number will be used to link you to wedding invitations. 
+                  Email is only for account verification - no SMS charges!
                 </div>
 
                 <Button

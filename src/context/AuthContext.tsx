@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  userPhone: string | null;
   signOut: () => Promise<void>;
 }
 
@@ -24,6 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userPhone, setUserPhone] = useState<string | null>(null);
 
   useEffect(() => {
     // Set up auth state listener
@@ -31,6 +33,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Extract phone number from user metadata
+        if (session?.user?.user_metadata?.phone) {
+          setUserPhone(session.user.user_metadata.phone);
+        } else {
+          setUserPhone(null);
+        }
+        
         setLoading(false);
       }
     );
@@ -39,6 +49,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Extract phone number from user metadata
+      if (session?.user?.user_metadata?.phone) {
+        setUserPhone(session.user.user_metadata.phone);
+      } else {
+        setUserPhone(null);
+      }
+      
       setLoading(false);
     });
 
@@ -47,12 +65,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUserPhone(null);
   };
 
   const value = {
     user,
     session,
     loading,
+    userPhone,
     signOut
   };
 

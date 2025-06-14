@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { GuestCard } from '@/components/GuestCard';
 import { GuestForm } from '@/components/GuestForm';
-import { TemplateSelector } from '@/components/TemplateSelector';
 
 // Couple names as placeholders for easy future changes
 const GROOM_FIRST_NAME = "Sidharth";
@@ -526,7 +525,7 @@ const GuestManagement = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Settings Dialog - Improved Mobile Friendly */}
+      {/* Settings Dialog - Updated to remove TemplateSelector */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <DialogContent className="bg-white max-w-xl overflow-auto">
           <DialogHeader>
@@ -575,12 +574,30 @@ const GuestManagement = () => {
             </div>
             
             <div className="space-y-2">
-              <Label>Message Templates</Label>
-              <TemplateSelector 
-                templates={messageTemplates}
-                selectedTemplate={selectedTemplate}
-                onSelect={selectTemplate}
-              />
+              <Label>Quick Templates</Label>
+              <div className="grid gap-2">
+                {messageTemplates.map((template, index) => (
+                  <Button
+                    key={index}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={`text-left h-auto p-3 border-wedding-gold/30 ${
+                      selectedTemplate === template.name 
+                        ? 'bg-wedding-cream border-wedding-gold' 
+                        : 'hover:bg-wedding-cream/50'
+                    }`}
+                    onClick={() => selectTemplate(template.template, template.name)}
+                  >
+                    <div className="w-full">
+                      <div className="font-medium text-wedding-maroon mb-1">{template.name}</div>
+                      <div className="text-xs text-gray-600 line-clamp-2">
+                        {template.template.split('\n')[0]}...
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
           

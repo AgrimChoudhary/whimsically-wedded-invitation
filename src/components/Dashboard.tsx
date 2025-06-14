@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Calendar, Users, Heart, Gift, Building, PartyPopper, Eye, Edit, Share2, LogOut } from 'lucide-react';
+import { Plus, Calendar, Users, Heart, Gift, Building, PartyPopper, Eye, Edit, Share2, LogOut, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useGuestInvitationSync } from '@/hooks/useGuestInvitationSync';
+import { displayPhoneNumber } from '@/utils/phoneUtils';
 
 interface Invitation {
   id: string;
@@ -30,11 +32,14 @@ interface GuestInvitation {
 }
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user, userPhone, signOut } = useAuth();
   const navigate = useNavigate();
   const [hostedInvitations, setHostedInvitations] = useState<Invitation[]>([]);
   const [guestInvitations, setGuestInvitations] = useState<GuestInvitation[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Sync guest invitations when user logs in
+  useGuestInvitationSync();
 
   useEffect(() => {
     if (user) {
@@ -119,9 +124,17 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              <span className="text-gray-600 hidden sm:block">
-                Welcome back, <span className="font-semibold text-purple-600">{user?.user_metadata?.full_name || user?.email}</span>!
-              </span>
+              <div className="text-right hidden sm:block">
+                <div className="text-gray-600">
+                  Welcome back, <span className="font-semibold text-purple-600">{user?.user_metadata?.full_name || user?.email}</span>!
+                </div>
+                {userPhone && (
+                  <div className="text-xs text-gray-500 flex items-center justify-end gap-1">
+                    <Phone size={12} />
+                    {displayPhoneNumber(userPhone)}
+                  </div>
+                )}
+              </div>
               <Button
                 onClick={handleSignOut}
                 variant="outline"
@@ -141,10 +154,10 @@ const Dashboard = () => {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
             <TabsList className="bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-lg">
               <TabsTrigger value="hosted" className="rounded-lg font-medium px-6 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-                Hosted Events
+                Hosted Events ({hostedInvitations.length})
               </TabsTrigger>
               <TabsTrigger value="invited" className="rounded-lg font-medium px-6 py-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-                Invited Events
+                Invited Events ({guestInvitations.length})
               </TabsTrigger>
             </TabsList>
 
@@ -195,16 +208,31 @@ const Dashboard = () => {
                     
                     <CardContent className="pt-0">
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="flex-1 rounded-lg">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex-1 rounded-lg"
+                          onClick={() => navigate(`/i/${invitation.id}`)}
+                        >
                           <Eye className="w-4 h-4 mr-1" />
                           Preview
                         </Button>
-                        <Button size="sm" variant="outline" className="flex-1 rounded-lg">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex-1 rounded-lg"
+                          onClick={() => navigate(`/customize/${invitation.id}`)}
+                        >
                           <Edit className="w-4 h-4 mr-1" />
                           Edit
                         </Button>
-                        <Button size="sm" variant="outline" className="rounded-lg">
-                          <Share2 className="w-4 h-4" />
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="rounded-lg"
+                          onClick={() => navigate(`/guest-management/${invitation.id}`)}
+                        >
+                          <Users className="w-4 h-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -220,7 +248,15 @@ const Dashboard = () => {
                 <CardContent>
                   <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-gray-700 mb-2">No invitations received</h3>
-                  <p className="text-gray-500">When someone invites you to their event, it will appear here.</p>
+                  <p className="text-gray-500 mb-4">When someone invites you to their event, it will appear here automatically.</p>
+                  {userPhone && (
+                    <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                      <Phone className="inline w-4 h-4 mr-1" />
+                      Your phone number: {displayPhoneNumber(userPhone)}
+                      <br />
+                      <span className="text-xs">Invitations are automatically linked when hosts add this number to their guest list.</span>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ) : (
@@ -246,7 +282,7 @@ const Dashboard = () => {
                       <Button 
                         size="sm" 
                         className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg"
-                        onClick={() => navigate(`/i/${invitation.invitation_id}`)}
+                        onClick={() => navigate(`/i/${invitation.invitation_id}/${invitation.guest_id}`)}
                       >
                         View Invitation
                       </Button>
