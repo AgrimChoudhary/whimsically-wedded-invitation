@@ -1,189 +1,160 @@
 
 import React, { useState } from 'react';
+import { User, Phone, Plus } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from '@/hooks/use-toast';
-import { UserPlus } from 'lucide-react';
-import { formatPhoneNumber, validatePhoneNumber } from '@/utils/phoneUtils';
-import { useAuth } from '@/context/AuthContext';
 
 interface GuestFormProps {
   onSuccess: () => void;
 }
 
-const GuestForm: React.FC<GuestFormProps> = ({ onSuccess }) => {
-  const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    mobile: '',
-    countryCode: '+91'
-  });
+export const GuestForm: React.FC<GuestFormProps> = ({ onSuccess }) => {
+  const [name, setName] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const handleCountryCodeChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      countryCode: value
-    }));
+  const generateShortId = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 5; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
+    if (!name.trim() || !mobile.trim()) {
       toast({
-        title: "Error",
-        description: "You must be logged in to add guests",
+        title: "Missing information",
+        description: "Please provide both name and mobile number",
         variant: "destructive",
       });
       return;
     }
-
-    setIsLoading(true);
-
+    
+    setIsSubmitting(true);
+    
     try {
-      const fullPhoneNumber = formatPhoneNumber(formData.mobile, formData.countryCode);
+      // Generate a short ID (5 characters)
+      const shortId = generateShortId();
       
-      if (!validatePhoneNumber(fullPhoneNumber)) {
-        toast({
-          title: "Invalid phone number",
-          description: "Please enter a valid phone number",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Generate a unique guest ID
-      const guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('guests')
-        .insert({
-          id: guestId,
-          name: formData.name.trim(),
-          mobile: fullPhoneNumber,
-          user_id: user.id,
-          status: null
-        });
-
+        .insert([{ 
+          id: shortId,
+          name, 
+          mobile,
+          status: null,
+          updated_at: null
+        }])
+        .select();
+      
       if (error) {
-        throw error;
+        // If there's an error, try again with another ID
+        console.error('Error adding guest:', error);
+        const newShortId = generateShortId();
+        
+        const { error: retryError } = await supabase
+          .from('guests')
+          .insert([{ 
+            id: newShortId,
+            name, 
+            mobile,
+            status: null,
+            updated_at: null
+          }]);
+        
+        if (retryError) {
+          throw retryError;
+        }
+        
+        toast({
+          title: "Success",
+          description: "Guest added successfully",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Guest added successfully",
+          variant: "default",
+        });
       }
-
-      // Reset form
-      setFormData({
-        name: '',
-        mobile: '',
-        countryCode: '+91'
-      });
-
-      toast({
-        title: "Guest added successfully!",
-        description: `${formData.name} has been added to your guest list`,
-      });
-
+      
+      // Reset the form
+      setName('');
+      setMobile('');
+      
+      // Refresh guest list
       onSuccess();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error adding guest:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to add guest",
+        description: "Failed to add guest",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const countryCodes = [
-    { code: '+91', country: 'India' },
-    { code: '+1', country: 'US/Canada' },
-    { code: '+44', country: 'UK' },
-    { code: '+61', country: 'Australia' },
-    { code: '+971', country: 'UAE' },
-    { code: '+65', country: 'Singapore' },
-  ];
-
   return (
-    <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
-      <CardHeader className="text-center">
-        <CardTitle className="font-playfair text-xl text-wedding-maroon flex items-center justify-center gap-2">
-          <UserPlus size={20} className="text-wedding-gold" />
-          Add New Guest
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-wedding-maroon font-medium">
-              Guest Name *
-            </Label>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Enter guest's full name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              className="border-wedding-gold/30 focus-visible:ring-wedding-gold/30 rounded-lg"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="mobile" className="text-wedding-maroon font-medium">
-              Mobile Number *
-            </Label>
-            <div className="flex gap-2">
-              <Select value={formData.countryCode} onValueChange={handleCountryCodeChange}>
-                <SelectTrigger className="w-24 border-wedding-gold/30 focus:ring-wedding-gold/30 rounded-lg">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {countryCodes.map((country) => (
-                    <SelectItem key={country.code} value={country.code}>
-                      {country.code}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                id="mobile"
-                name="mobile"
-                type="tel"
-                placeholder="Enter mobile number"
-                value={formData.mobile}
-                onChange={handleInputChange}
-                required
-                className="flex-1 border-wedding-gold/30 focus-visible:ring-wedding-gold/30 rounded-lg"
-              />
-            </div>
-            <p className="text-xs text-gray-500">
-              This number will be used to send WhatsApp invitations and identify the guest
-            </p>
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isLoading || !formData.name.trim() || !formData.mobile.trim()}
-            className="w-full bg-wedding-gold hover:bg-wedding-deep-gold text-white font-medium py-2 rounded-lg transition-colors"
-          >
-            {isLoading ? 'Adding Guest...' : 'Add Guest'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <form onSubmit={handleSubmit} className="p-6">
+      <h2 className="font-playfair text-xl text-wedding-maroon mb-4 text-center">
+        <Plus size={18} className="inline-block mr-2 text-wedding-gold" />
+        Add New Guest
+      </h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="flex items-center gap-3">
+          <User size={18} className="text-wedding-gold flex-shrink-0" />
+          <Input
+            placeholder="Guest Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
+          />
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Phone size={18} className="text-wedding-gold flex-shrink-0" />
+          <Input
+            placeholder="Mobile Number"
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+            className="border-wedding-gold/30 focus-visible:ring-wedding-gold/30"
+          />
+        </div>
+      </div>
+      
+      <div className="flex justify-center">
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="bg-wedding-gold hover:bg-wedding-deep-gold text-white"
+        >
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </>
+          ) : (
+            <>
+              <Plus size={16} className="mr-2" />
+              Add Guest
+            </>
+          )}
+        </Button>
+      </div>
+    </form>
   );
 };
 

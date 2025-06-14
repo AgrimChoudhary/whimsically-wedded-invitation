@@ -171,7 +171,6 @@ export type Database = {
           name: string
           status: string | null
           updated_at: string | null
-          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -181,7 +180,6 @@ export type Database = {
           name: string
           status?: string | null
           updated_at?: string | null
-          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -191,7 +189,6 @@ export type Database = {
           name?: string
           status?: string | null
           updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -199,57 +196,6 @@ export type Database = {
             columns: ["invitation_id"]
             isOneToOne: false
             referencedRelation: "invitations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "guests_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      invitation_templates: {
-        Row: {
-          category_id: string
-          created_at: string
-          description: string | null
-          id: string
-          is_active: boolean
-          name: string
-          preview_image_url: string | null
-          required_fields: Json
-          styling_config: Json | null
-        }
-        Insert: {
-          category_id: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          name: string
-          preview_image_url?: string | null
-          required_fields?: Json
-          styling_config?: Json | null
-        }
-        Update: {
-          category_id?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          name?: string
-          preview_image_url?: string | null
-          required_fields?: Json
-          styling_config?: Json | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invitation_templates_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "template_categories"
             referencedColumns: ["id"]
           },
         ]
@@ -308,108 +254,6 @@ export type Database = {
         }
         Relationships: []
       }
-      template_categories: {
-        Row: {
-          created_at: string
-          description: string | null
-          icon: string | null
-          id: string
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      user_guest_invitations: {
-        Row: {
-          created_at: string
-          guest_id: string
-          guest_name: string
-          hosts_names: string
-          id: string
-          invitation_date: string | null
-          invitation_id: string
-          invitation_title: string
-          status: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          guest_id: string
-          guest_name: string
-          hosts_names: string
-          id?: string
-          invitation_date?: string | null
-          invitation_id: string
-          invitation_title: string
-          status?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          guest_id?: string
-          guest_name?: string
-          hosts_names?: string
-          id?: string
-          invitation_date?: string | null
-          invitation_id?: string
-          invitation_title?: string
-          status?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_guest_invitations_invitation_id_fkey"
-            columns: ["invitation_id"]
-            isOneToOne: false
-            referencedRelation: "wedding_invitations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_guest_invitations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      users: {
-        Row: {
-          created_at: string
-          email: string
-          full_name: string | null
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          full_name?: string | null
-          id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          full_name?: string | null
-          id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       wedding_events: {
         Row: {
           created_at: string | null
@@ -463,21 +307,15 @@ export type Database = {
           couple_story: string | null
           created_at: string | null
           custom_message: string | null
-          custom_url_slug: string | null
           gallery_images: Json | null
           groom_about: string | null
           groom_family: string | null
           groom_name: string
           groom_parents: string | null
           id: string
-          invitation_data: Json | null
-          is_published: boolean | null
           map_url: string | null
           rsvp_email: string | null
           rsvp_phone: string | null
-          template_id: string | null
-          title: string | null
-          user_id: string | null
           wedding_address: string | null
           wedding_date: string
           wedding_time: string | null
@@ -494,21 +332,15 @@ export type Database = {
           couple_story?: string | null
           created_at?: string | null
           custom_message?: string | null
-          custom_url_slug?: string | null
           gallery_images?: Json | null
           groom_about?: string | null
           groom_family?: string | null
           groom_name: string
           groom_parents?: string | null
           id?: string
-          invitation_data?: Json | null
-          is_published?: boolean | null
           map_url?: string | null
           rsvp_email?: string | null
           rsvp_phone?: string | null
-          template_id?: string | null
-          title?: string | null
-          user_id?: string | null
           wedding_address?: string | null
           wedding_date: string
           wedding_time?: string | null
@@ -525,42 +357,21 @@ export type Database = {
           couple_story?: string | null
           created_at?: string | null
           custom_message?: string | null
-          custom_url_slug?: string | null
           gallery_images?: Json | null
           groom_about?: string | null
           groom_family?: string | null
           groom_name?: string
           groom_parents?: string | null
           id?: string
-          invitation_data?: Json | null
-          is_published?: boolean | null
           map_url?: string | null
           rsvp_email?: string | null
           rsvp_phone?: string | null
-          template_id?: string | null
-          title?: string | null
-          user_id?: string | null
           wedding_address?: string | null
           wedding_date?: string
           wedding_time?: string | null
           wedding_venue?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "wedding_invitations_template_id_fkey"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "invitation_templates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wedding_invitations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
