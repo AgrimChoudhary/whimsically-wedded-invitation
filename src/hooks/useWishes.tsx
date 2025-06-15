@@ -69,23 +69,6 @@ export const useWishes = () => {
 
       console.log('Uploading image:', fileName);
 
-      // Create bucket if it doesn't exist
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const wishBucket = buckets?.find(bucket => bucket.name === 'wishes');
-      
-      if (!wishBucket) {
-        console.log('Creating wishes storage bucket...');
-        const { error: bucketError } = await supabase.storage.createBucket('wishes', {
-          public: true,
-          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-          fileSizeLimit: 5242880 // 5MB
-        });
-        
-        if (bucketError) {
-          console.error('Error creating bucket:', bucketError);
-        }
-      }
-
       const { error: uploadError } = await supabase.storage
         .from('wishes')
         .upload(filePath, file);
@@ -113,16 +96,6 @@ export const useWishes = () => {
       toast({
         title: "Invalid wish",
         description: "Please enter a wish between 1 and 280 characters.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!guestId || !guestName) {
-      console.error('Missing guest information:', { guestId, guestName });
-      toast({
-        title: "Guest information missing",
-        description: "Please reload the page and try again.",
         variant: "destructive",
       });
       return false;
@@ -185,16 +158,6 @@ export const useWishes = () => {
 
   // Toggle like on a wish
   const toggleLike = async (wishId: string, guestId: string, guestName: string) => {
-    if (!guestId || !guestName) {
-      console.error('Cannot like - missing guest info:', { guestId, guestName });
-      toast({
-        title: "Guest information missing",
-        description: "Please reload the page and try again.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       console.log('Toggling like for wish:', wishId, 'by guest:', guestId);
       

@@ -26,22 +26,23 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
   const { guestId, guestName } = useGuest();
 
   const handleSubmitWish = async (content: string, imageFile?: File) => {
-    // Generate fallback guest info if missing
-    const currentGuestId = guestId || `guest-${Date.now()}`;
-    const currentGuestName = guestName || 'Anonymous Guest';
+    if (!guestId || !guestName) {
+      console.error('Missing guest info:', { guestId, guestName });
+      return false;
+    }
 
-    console.log('Submitting wish with image:', { content, hasImage: !!imageFile, guestId: currentGuestId, guestName: currentGuestName });
-    const success = await submitWish(content, currentGuestId, currentGuestName, imageFile);
+    console.log('Submitting wish with image:', { content, hasImage: !!imageFile, guestId, guestName });
+    const success = await submitWish(content, guestId, guestName, imageFile);
     return success;
   };
 
   const handleLike = (wishId: string) => {
-    // Generate fallback guest info if missing
-    const currentGuestId = guestId || `guest-${Date.now()}`;
-    const currentGuestName = guestName || 'Anonymous Guest';
-    
-    console.log('Liking wish:', wishId, 'by:', currentGuestName);
-    toggleLike(wishId, currentGuestId, currentGuestName);
+    if (!guestId || !guestName) {
+      console.error('Cannot like - missing guest info:', { guestId, guestName });
+      return;
+    }
+    console.log('Liking wish:', wishId, 'by:', guestName);
+    toggleLike(wishId, guestId, guestName);
   };
 
   return (
