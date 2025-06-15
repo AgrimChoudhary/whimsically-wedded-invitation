@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Heart, User, Copy, Edit, Trash, Share2, Phone } from 'lucide-react';
+import { Settings, Heart, User, Copy, Edit, Trash, Share2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { GuestCard } from '@/components/GuestCard';
 import { GuestForm } from '@/components/GuestForm';
 import { TemplateSelector } from '@/components/TemplateSelector';
 
@@ -276,33 +277,6 @@ const GuestManagement = () => {
     setSelectedTemplate(null);
   };
 
-  const getStatusBadge = (status: string | null | undefined) => {
-    if (!status) return <span className="text-xs text-gray-400">Pending</span>;
-    
-    switch (status) {
-      case 'viewed':
-        return (
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-            Viewed
-          </Badge>
-        );
-      case 'accepted':
-        return (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
-            Accepted
-          </Badge>
-        );
-      case 'declined':
-        return (
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
-            Declined
-          </Badge>
-        );
-      default:
-        return <span className="text-xs text-gray-400">Pending</span>;
-    }
-  };
-
   return (
     <div className="min-h-screen pattern-background">
       <FloatingPetals />
@@ -355,65 +329,17 @@ const GuestManagement = () => {
             ) : (
               <div className="overflow-x-auto">
                 {isMobile ? (
-                  // Mobile-friendly table view
-                  <div className="space-y-4">
+                  // Mobile card view for guests - Improved layout
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {guests.map((guest) => (
-                      <div key={guest.id} className="border border-wedding-gold/20 rounded-lg bg-white/95 shadow-sm">
-                        {/* Guest Header */}
-                        <div className="flex justify-between items-start p-4 border-b border-wedding-gold/10 bg-wedding-cream/20">
-                          <div className="flex-1">
-                            <h3 className="font-medium text-wedding-maroon text-lg mb-1">{guest.name}</h3>
-                            <div className="flex items-center text-gray-600 text-sm mb-2">
-                              <Phone size={14} className="mr-2 text-wedding-gold" />
-                              {guest.mobile}
-                            </div>
-                            {getStatusBadge(guest.status)}
-                          </div>
-                          <Button 
-                            onClick={() => openEditDialog(guest)} 
-                            variant="ghost" 
-                            size="sm"
-                            className="h-8 w-8 p-0 rounded-full"
-                          >
-                            <Edit size={16} className="text-blue-600" />
-                          </Button>
-                        </div>
-                        
-                        {/* Action Buttons */}
-                        <div className="p-4">
-                          <div className="grid grid-cols-3 gap-3">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="flex flex-col items-center gap-1 h-auto py-3 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
-                              onClick={() => copyGuestLink(guest.id)}
-                            >
-                              <Copy size={16} />
-                              <span className="text-xs">Copy Link</span>
-                            </Button>
-                            
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="flex flex-col items-center gap-1 h-auto py-3 border-wedding-gold/20 text-green-600 hover:bg-green-50"
-                              onClick={() => shareOnWhatsApp(guest)}
-                            >
-                              <Share2 size={16} />
-                              <span className="text-xs">WhatsApp</span>
-                            </Button>
-                            
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="flex flex-col items-center gap-1 h-auto py-3 border-wedding-gold/20 text-red-600 hover:bg-red-50"
-                              onClick={() => confirmDeleteGuest(guest)}
-                            >
-                              <Trash size={16} />
-                              <span className="text-xs">Delete</span>
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
+                      <GuestCard
+                        key={guest.id}
+                        guest={guest}
+                        onCopy={copyGuestLink}
+                        onShare={shareOnWhatsApp}
+                        onEdit={openEditDialog}
+                        onDelete={confirmDeleteGuest}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -433,7 +359,15 @@ const GuestManagement = () => {
                           <TableCell className="font-medium">{guest.name}</TableCell>
                           <TableCell>{guest.mobile}</TableCell>
                           <TableCell>
-                            {getStatusBadge(guest.status)}
+                            {guest.status && (
+                              <Badge variant="outline" className={`
+                                ${guest.status === 'viewed' ? 'bg-blue-50 text-blue-700 border-blue-200' : 
+                                  guest.status === 'accepted' ? 'bg-green-50 text-green-700 border-green-200' :
+                                  'bg-red-50 text-red-700 border-red-200'}
+                              `}>
+                                {guest.status.charAt(0).toUpperCase() + guest.status.slice(1)}
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
