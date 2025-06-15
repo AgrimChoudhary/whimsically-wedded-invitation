@@ -36,7 +36,7 @@ const EventTimeline = () => {
                       {event.name}
                     </h3>
                     
-                    <div className="space-y-2 text-gray-600 mb-4">
+                    <div className="space-y-2 text-gray-600">
                       <div className="flex items-center gap-2">
                         {index % 2 === 0 ? (
                           <>
@@ -78,19 +78,13 @@ const EventTimeline = () => {
                           </>
                         )}
                       </div>
+                      
+                      {event.address && (
+                        <p className="text-xs text-gray-500 mt-2">
+                          {event.address}
+                        </p>
+                      )}
                     </div>
-                    
-                    {event.description && (
-                      <p className="text-sm text-gray-600 italic">
-                        {event.description}
-                      </p>
-                    )}
-                    
-                    {event.address && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        {event.address}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
