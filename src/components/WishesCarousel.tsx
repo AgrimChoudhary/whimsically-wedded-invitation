@@ -45,29 +45,34 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
   const displayWishes = wishes.slice(0, 6); // Show latest 6 wishes in carousel
 
   return (
-    <div className="py-8 w-full bg-gradient-to-b from-white/50 to-wedding-cream/30">
+    <div className="py-6 w-full bg-gradient-to-b from-white/50 to-wedding-cream/30" style={{ minHeight: '280px', maxHeight: '320px' }}>
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-6">
+        {/* Compact Header with View All Link */}
+        <div className="flex items-center justify-between mb-4">
           <div className="relative inline-block">
-            <h2 className="text-2xl md:text-3xl font-playfair text-wedding-maroon mb-2">
+            <h2 className="text-xl md:text-2xl font-playfair text-wedding-maroon">
               Wedding Wishes
             </h2>
-            <div className="absolute -left-4 -top-2 text-wedding-gold/30">
-              <Heart size={20} />
+            <div className="absolute -left-3 -top-1 text-wedding-gold/30">
+              <Heart size={16} />
             </div>
-            <div className="absolute -right-4 -bottom-2 text-wedding-gold/30">
-              <Heart size={20} />
+            <div className="absolute -right-3 -bottom-1 text-wedding-gold/30">
+              <Heart size={16} />
             </div>
           </div>
-          <p className="text-gray-600 font-poppins text-sm">
-            Share your heartfelt wishes for the happy couple
-          </p>
+          {wishes.length > 6 && (
+            <button
+              onClick={onViewAll}
+              className="text-xs text-wedding-maroon hover:text-wedding-gold transition-colors underline underline-offset-2 font-poppins"
+            >
+              View all {wishes.length} wishes
+            </button>
+          )}
         </div>
 
-        {/* Inline Post Wish Section */}
-        <div className="mb-6 max-w-2xl mx-auto">
-          <div className="glass-card p-4 border border-wedding-gold/20 rounded-lg">
+        {/* Compact Inline Post Wish Section */}
+        <div className="mb-4 max-w-2xl mx-auto">
+          <div className="glass-card p-3 border border-wedding-gold/20 rounded-lg">
             <Textarea
               placeholder="Share your wishes for the happy couple..."
               value={wishText}
@@ -75,13 +80,13 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
               onFocus={() => setIsExpanded(true)}
               maxLength={280}
               className={`resize-none border-wedding-gold/30 focus:border-wedding-gold transition-all duration-300 ${
-                isExpanded ? 'min-h-[80px]' : 'min-h-[40px]'
+                isExpanded ? 'min-h-[70px]' : 'min-h-[36px]'
               }`}
               rows={isExpanded ? 3 : 1}
             />
             
             {isExpanded && (
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-wedding-gold/20">
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-wedding-gold/20">
                 <div className="text-xs text-gray-500">
                   {wishText.length}/280 characters
                 </div>
@@ -93,7 +98,7 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
                       setIsExpanded(false);
                       setWishText('');
                     }}
-                    className="text-gray-600"
+                    className="text-gray-600 h-7 px-2 text-xs"
                   >
                     Cancel
                   </Button>
@@ -101,10 +106,10 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
                     size="sm"
                     onClick={handleSubmitWish}
                     disabled={!wishText.trim() || isSubmitting || wishText.length > 280}
-                    className="bg-wedding-gold hover:bg-wedding-deep-gold text-white"
+                    className="bg-wedding-gold hover:bg-wedding-deep-gold text-white h-7 px-2 text-xs"
                   >
-                    <Send size={14} className="mr-1" />
-                    {isSubmitting ? 'Posting...' : 'Post Wish'}
+                    <Send size={12} className="mr-1" />
+                    {isSubmitting ? 'Posting...' : 'Post'}
                   </Button>
                 </div>
               </div>
@@ -112,14 +117,14 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
           </div>
         </div>
 
-        {/* Wishes Carousel */}
+        {/* Compact Wishes Carousel */}
         {isLoading ? (
-          <div className="text-center py-8">
-            <div className="inline-block w-6 h-6 border-2 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-2 text-gray-600">Loading wishes...</p>
+          <div className="text-center py-6">
+            <div className="inline-block w-5 h-5 border-2 border-wedding-gold border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-2 text-gray-600 text-sm">Loading wishes...</p>
           </div>
         ) : displayWishes.length > 0 ? (
-          <div className="relative">
+          <div className="relative" style={{ height: '140px' }}>
             <Carousel
               opts={{
                 align: "start",
@@ -144,30 +149,20 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
               
               {!isMobile && displayWishes.length > 2 && (
                 <>
-                  <CarouselPrevious className="bg-wedding-cream/80 border-wedding-gold/30 hover:bg-wedding-cream text-wedding-maroon" />
-                  <CarouselNext className="bg-wedding-cream/80 border-wedding-gold/30 hover:bg-wedding-cream text-wedding-maroon" />
+                  <CarouselPrevious className="bg-wedding-cream/80 border-wedding-gold/30 hover:bg-wedding-cream text-wedding-maroon -left-8" />
+                  <CarouselNext className="bg-wedding-cream/80 border-wedding-gold/30 hover:bg-wedding-cream text-wedding-maroon -right-8" />
                 </>
               )}
             </Carousel>
-
-            {/* View All Link */}
-            {wishes.length > 6 && (
-              <div className="text-center mt-4">
-                <button
-                  onClick={onViewAll}
-                  className="text-sm text-wedding-maroon hover:text-wedding-gold transition-colors underline underline-offset-2 font-poppins"
-                >
-                  View all {wishes.length} wishes
-                </button>
-              </div>
-            )}
           </div>
         ) : (
-          <div className="text-center py-8 glass-card border border-wedding-gold/20 rounded-lg">
-            <Heart size={48} className="mx-auto text-wedding-gold/50 mb-4" />
-            <p className="text-gray-600 font-poppins">
-              Be the first to share your wishes for the happy couple!
-            </p>
+          <div className="text-center py-6 glass-card border border-wedding-gold/20 rounded-lg" style={{ height: '140px' }}>
+            <div className="flex flex-col items-center justify-center h-full">
+              <Heart size={32} className="text-wedding-gold/50 mb-2" />
+              <p className="text-gray-600 font-poppins text-sm">
+                Be the first to share your wishes!
+              </p>
+            </div>
           </div>
         )}
       </div>
