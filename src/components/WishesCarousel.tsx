@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { Send, Heart, Sparkles, Users, Edit3, Feather, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, Sparkles, Users, Feather, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useWishes } from '@/hooks/useWishes';
 import { useGuest } from '@/context/GuestContext';
 import WishCard from './WishCard';
+import WishComposerModal from './WishComposerModal';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -21,19 +21,17 @@ interface WishesCarouselProps {
 }
 
 const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
-  const [wishText, setWishText] = useState('');
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { wishes, isLoading, isSubmitting, submitWish, toggleLike } = useWishes();
   const { guestId, guestName } = useGuest();
 
-  const handleSubmitWish = async () => {
-    if (!wishText.trim() || !guestId || !guestName) return;
+  const handleSubmitWish = async (content: string, imageFile?: File) => {
+    if (!guestId || !guestName) return false;
 
-    const success = await submitWish(wishText, guestId, guestName);
-    if (success) {
-      setWishText('');
-      setIsExpanded(false);
-    }
+    // For now, we'll handle the image upload in a future enhancement
+    // Currently just submitting the text content
+    const success = await submitWish(content, guestId, guestName);
+    return success;
   };
 
   const handleLike = (wishId: string) => {
@@ -84,23 +82,23 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
           )}
         </div>
 
-        {/* Wishes Carousel with Enhanced Luxury Cards */}
+        {/* Wishes Carousel */}
         {isLoading ? (
           <div className="mb-16">
             <div className="flex space-x-6 overflow-hidden justify-center">
               {[...Array(3)].map((_, i) => (
-                <Card key={i} className="min-w-[350px] h-64 p-6 bg-white/60 border-2 border-wedding-gold/20 shadow-xl">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <Skeleton className="w-12 h-12 rounded-full" />
-                    <div className="space-y-3">
+                <Card key={i} className="min-w-[300px] h-80 p-6 bg-white/60 border-2 border-wedding-gold/20 shadow-xl">
+                  <div className="flex flex-col items-center space-y-4">
+                    <Skeleton className="w-16 h-16 rounded-full" />
+                    <div className="space-y-2 text-center">
                       <Skeleton className="h-5 w-32" />
                       <Skeleton className="h-4 w-24" />
                     </div>
-                  </div>
-                  <div className="space-y-3">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <Skeleton className="h-4 w-4/5" />
+                    <div className="space-y-2 w-full">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6 mx-auto" />
+                      <Skeleton className="h-4 w-4/5 mx-auto" />
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -122,63 +120,10 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
                       className="animate-fade-in h-full"
                       style={{ animationDelay: `${index * 150}ms` }}
                     >
-                      <Card className="group relative overflow-hidden bg-gradient-to-br from-white/95 via-wedding-cream/90 to-wedding-blush/20 border-2 border-wedding-gold/30 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-[1.02] h-64 backdrop-blur-sm">
-                        {/* Luxury border effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-wedding-gold/20 via-transparent to-wedding-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
-                        {/* Corner decorations */}
-                        <div className="absolute top-3 right-3 text-wedding-gold/30 group-hover:text-wedding-gold/60 transition-colors duration-300">
-                          <Sparkles size={18} className="animate-pulse" />
-                        </div>
-                        
-                        <div className="p-6 h-full flex flex-col justify-between relative z-10">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-4 mb-4">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-wedding-gold/40 to-wedding-deep-gold/30 flex items-center justify-center shadow-lg border-2 border-wedding-gold/30">
-                                <span className="font-bold text-wedding-maroon text-lg">
-                                  {wish.guest_name.charAt(0).toUpperCase()}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="font-semibold text-wedding-maroon text-lg">
-                                  {wish.guest_name}
-                                </p>
-                                <p className="text-wedding-gold/70 text-sm font-poppins">
-                                  {new Date(wish.created_at).toLocaleDateString()}
-                                </p>
-                              </div>
-                            </div>
-
-                            <p className="text-gray-700 leading-relaxed font-poppins italic text-sm line-clamp-4">
-                              "{wish.content}"
-                            </p>
-                          </div>
-
-                          <div className="flex items-center justify-between pt-4 border-t border-wedding-gold/20">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleLike(wish.id)}
-                              className="px-3 text-gray-600 hover:text-red-500 hover:bg-red-50/80 transition-all duration-300 h-8 rounded-full group/like"
-                            >
-                              <Heart 
-                                size={16} 
-                                className={`mr-2 transition-all duration-300 ${
-                                  wish.likes_count > 0 
-                                    ? 'fill-red-500 text-red-500 animate-pulse' 
-                                    : 'group-hover/like:scale-110'
-                                }`}
-                              />
-                              <span className="text-sm font-medium">
-                                {wish.likes_count}
-                              </span>
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Subtle luxury gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-wedding-gold/5 via-transparent to-transparent pointer-events-none"></div>
-                      </Card>
+                      <WishCard 
+                        wish={wish}
+                        onLike={handleLike}
+                      />
                     </div>
                   </CarouselItem>
                 ))}
@@ -221,87 +166,24 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
           </div>
         )}
 
-        {/* Enhanced Wish Composer Section */}
+        {/* Post Your Wish Button */}
         <div className="flex justify-center">
-          <div className="w-full max-w-2xl">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-playfair text-wedding-maroon mb-2">Share Your Blessing</h3>
-              <p className="text-wedding-gold/70 font-poppins">Leave a heartfelt wish for the happy couple</p>
-            </div>
-            
-            <Card className={`relative overflow-hidden transition-all duration-700 ease-in-out ${isExpanded ? 'h-72' : 'h-32'} border-2 border-wedding-gold/40 bg-gradient-to-br from-white/95 via-wedding-cream/90 to-wedding-blush/20 shadow-2xl hover:shadow-3xl backdrop-blur-sm`}>
-              {/* Luxury border effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-wedding-gold/10 via-transparent to-wedding-gold/10"></div>
-              
-              {!isExpanded ? (
-                <div 
-                  className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 cursor-pointer group hover:scale-105 transition-transform duration-300"
-                  onClick={() => setIsExpanded(true)}
-                >
-                  <div className="p-5 rounded-full bg-gradient-to-br from-wedding-gold/20 to-wedding-deep-gold/10 mb-4 border-2 border-wedding-gold/30 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                    <Feather className="w-8 h-8 text-wedding-gold group-hover:scale-110 transition-transform duration-300" />
-                  </div>
-                  <p className="text-wedding-maroon font-poppins font-medium group-hover:text-wedding-gold transition-colors duration-300">
-                    Click here to write your wish...
-                  </p>
-                </div>
-              ) : (
-                <div className="p-6 flex flex-col h-full animate-fade-in relative z-10">
-                  <Textarea
-                    placeholder="Share your heartfelt wishes, blessings, and beautiful thoughts for the couple's journey together..."
-                    value={wishText}
-                    onChange={(e) => setWishText(e.target.value)}
-                    maxLength={280}
-                    className="flex-grow resize-none border-2 border-wedding-gold/30 focus:border-wedding-gold bg-white/90 text-sm font-poppins leading-relaxed p-4 rounded-lg shadow-inner"
-                    rows={6}
-                    autoFocus
-                  />
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t-2 border-wedding-gold/20">
-                    <div className="text-sm text-gray-500 font-poppins">
-                      {wishText.length}/280 characters
-                    </div>
-                    <div className="flex space-x-3">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setIsExpanded(false);
-                          setWishText('');
-                        }}
-                        className="text-gray-600 hover:text-gray-800 h-10 px-4 text-sm hover:bg-gray-100/80 font-poppins transition-all duration-300"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={handleSubmitWish}
-                        disabled={!wishText.trim() || isSubmitting || wishText.length > 280}
-                        className="bg-gradient-to-r from-wedding-gold to-wedding-deep-gold hover:from-wedding-deep-gold hover:to-wedding-gold text-white h-10 px-6 text-sm shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 font-poppins font-medium"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Sharing...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Send size={14} className="mr-2" />
-                            <span>Share Wish</span>
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Corner decorations */}
-              <div className="absolute top-3 right-3 text-wedding-gold/30">
-                <Heart size={16} className="animate-pulse" />
-              </div>
-            </Card>
-          </div>
+          <Button
+            onClick={() => setIsComposerOpen(true)}
+            className="group bg-gradient-to-r from-wedding-gold to-wedding-deep-gold hover:from-wedding-deep-gold hover:to-wedding-gold text-white px-8 py-4 text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 rounded-full font-poppins font-semibold"
+          >
+            <Plus size={20} className="mr-3 group-hover:rotate-90 transition-transform duration-300" />
+            Post Your Wish
+          </Button>
         </div>
+
+        {/* Wish Composer Modal */}
+        <WishComposerModal
+          isOpen={isComposerOpen}
+          onClose={() => setIsComposerOpen(false)}
+          onSubmit={handleSubmitWish}
+          isSubmitting={isSubmitting}
+        />
       </div>
     </div>
   );
