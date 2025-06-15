@@ -464,17 +464,18 @@ const GuestManagement = () => {
                   </div>
                 )}
               </div>
-            </TabsContent>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="wishes">
-              <div className="glass-card">
-                <div className="p-6">
-                  <WishManagement />
-                </div>
+          <TabsContent value="wishes">
+            <div className="glass-card">
+              <div className="p-6">
+                <WishManagement />
               </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
       
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!guestToDelete} onOpenChange={(open) => !open && setGuestToDelete(null)}>
