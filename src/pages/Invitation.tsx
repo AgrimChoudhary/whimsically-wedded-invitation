@@ -213,7 +213,10 @@ const Invitation = () => {
             weddingTime={weddingData.mainWedding.time}
           />
           
-          <FamilyDetails />
+          <FamilyDetails 
+            groomFamily={weddingData.family.groomFamily}
+            brideFamily={weddingData.family.brideFamily}
+          />
 
           {/* New Romantic Journey Section */}
           <RomanticJourneySection />

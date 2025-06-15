@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import FamilyMemberCard from './FamilyMemberCard';
 import { Heart, Users, Crown, Sparkles } from 'lucide-react';
@@ -6,7 +7,6 @@ import { AspectRatio } from "./ui/aspect-ratio";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { motion } from "framer-motion";
-import { useWedding } from '@/context/WeddingContext';
 
 interface FamilyMember {
   name: string;
@@ -26,23 +26,22 @@ interface FamilyDetailsProps {
   brideFamily: FamilyData;
 }
 
-const FamilyDetails: React.FC = () => {
-  const [selectedFamily, setSelectedFamily] = useState<any>(null);
+const FamilyDetails: React.FC<FamilyDetailsProps> = ({ groomFamily, brideFamily }) => {
+  const [selectedFamily, setSelectedFamily] = useState<FamilyData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { weddingData } = useWedding();
 
-  const handleShowFamily = (family: any) => {
+  const handleShowFamily = (family: FamilyData) => {
     setSelectedFamily(family);
     setIsDialogOpen(true);
   };
 
   // Filter out members that should only show in dialog
-  const getVisibleMembers = (members: any[]) => {
+  const getVisibleMembers = (members: FamilyMember[]) => {
     return members.filter(member => !member.showInDialogOnly);
   };
 
   // For dialog view, filter out the combined parent card
-  const getDialogMembers = (members: any[]) => {
+  const getDialogMembers = (members: FamilyMember[]) => {
     // Remove entries that contain both parents (typically contain " & " in the name)
     return members.filter(member => !member.name.includes(" & "));
   };
@@ -78,21 +77,21 @@ const FamilyDetails: React.FC = () => {
             className="relative rounded-xl overflow-hidden luxury-card cursor-pointer group"
             whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => handleShowFamily(weddingData.family.groomFamily)}
+            onClick={() => handleShowFamily(groomFamily)}
           >
             <div className="absolute inset-0 luxury-glow-border opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="relative p-6 bg-gradient-to-br from-white/95 to-wedding-cream/80 backdrop-blur-sm">
               <div className="text-center mb-4">
                 <h3 className="text-xl font-playfair text-wedding-maroon flex items-center justify-center gap-2">
                   <Crown size={18} className="text-wedding-gold" />
-                  {weddingData.family.groomFamily.title}
+                  {groomFamily.title}
                 </h3>
               </div>
               
               <FamilyMemberCard
-                name={getVisibleMembers(weddingData.family.groomFamily.members)[0]?.name || ''}
-                relation={getVisibleMembers(weddingData.family.groomFamily.members)[0]?.relation || ''}
-                photoUrl={getVisibleMembers(weddingData.family.groomFamily.members)[0]?.image}
+                name={getVisibleMembers(groomFamily.members)[0]?.name || ''}
+                relation={getVisibleMembers(groomFamily.members)[0]?.relation || ''}
+                photoUrl={getVisibleMembers(groomFamily.members)[0]?.image}
               />
 
               <div className="mt-4 flex items-center justify-center">
@@ -110,21 +109,21 @@ const FamilyDetails: React.FC = () => {
             className="relative rounded-xl overflow-hidden luxury-card cursor-pointer group"
             whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => handleShowFamily(weddingData.family.brideFamily)}
+            onClick={() => handleShowFamily(brideFamily)}
           >
             <div className="absolute inset-0 luxury-glow-border opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="relative p-6 bg-gradient-to-br from-white/95 to-wedding-cream/80 backdrop-blur-sm">
               <div className="text-center mb-4">
                 <h3 className="text-xl font-playfair text-wedding-maroon flex items-center justify-center gap-2">
                   <Crown size={18} className="text-wedding-gold" />
-                  {weddingData.family.brideFamily.title}
+                  {brideFamily.title}
                 </h3>
               </div>
               
               <FamilyMemberCard
-                name={getVisibleMembers(weddingData.family.brideFamily.members)[0]?.name || ''}
-                relation={getVisibleMembers(weddingData.family.brideFamily.members)[0]?.relation || ''}
-                photoUrl={getVisibleMembers(weddingData.family.brideFamily.members)[0]?.image}
+                name={getVisibleMembers(brideFamily.members)[0]?.name || ''}
+                relation={getVisibleMembers(brideFamily.members)[0]?.relation || ''}
+                photoUrl={getVisibleMembers(brideFamily.members)[0]?.image}
               />
 
               <div className="mt-4 flex items-center justify-center">
@@ -153,7 +152,7 @@ const FamilyDetails: React.FC = () => {
             </DialogHeader>
             
             <div className="grid grid-cols-1 gap-6 mt-4 max-h-[60vh] overflow-y-auto pr-1">
-              {selectedFamily && getDialogMembers(selectedFamily.members).map((member: any, index: number) => (
+              {selectedFamily && getDialogMembers(selectedFamily.members).map((member, index) => (
                 <div key={index} className="bg-gradient-to-br from-white/90 to-wedding-cream/60 rounded-lg shadow-sm p-4 border border-wedding-gold/20 hover:border-wedding-gold/40 transition-all duration-300">
                   <div className="flex flex-col sm:flex-row gap-4 items-center">
                     <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-wedding-gold/30 shadow-lg">
