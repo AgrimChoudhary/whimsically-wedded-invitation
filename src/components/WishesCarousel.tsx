@@ -8,6 +8,13 @@ import { useGuest } from '@/context/GuestContext';
 import WishCard from './WishCard';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface WishesCarouselProps {
   onViewAll?: () => void;
@@ -35,20 +42,18 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
     }
   };
 
-  const displayWishes = wishes.slice(0, 5); // Show latest 5 wishes in grid
-
   const WishComposer = () => (
-    <Card className={`relative overflow-hidden transition-all duration-500 ease-in-out group ${isExpanded ? 'h-56' : 'h-44'} border-wedding-gold/30 bg-gradient-to-br from-wedding-cream/90 via-white/95 to-wedding-blush/20 shadow-lg`}>
+    <Card className={`relative overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'h-56' : 'h-44'} border-wedding-gold/30 bg-gradient-to-br from-wedding-cream/90 via-white/95 to-wedding-blush/20 shadow-lg max-w-md mx-auto`}>
       {!isExpanded ? (
         <div 
-          className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 cursor-pointer hover:scale-105 transition-transform duration-300"
+          className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 cursor-pointer hover:scale-105 transition-transform duration-300"
           onClick={() => setIsExpanded(true)}
         >
-          <div className="p-3 rounded-full bg-wedding-gold/10 mb-2 border border-wedding-gold/20">
-            <Feather className="w-6 h-6 text-wedding-gold" />
+          <div className="p-4 rounded-full bg-wedding-gold/10 mb-4 border border-wedding-gold/20">
+            <Feather className="w-8 h-8 text-wedding-gold" />
           </div>
-          <h3 className="font-playfair text-lg text-wedding-maroon">Leave a Wish</h3>
-          <p className="text-sm text-wedding-gold/80 mt-1 font-poppins">Share your blessings</p>
+          <h3 className="font-playfair text-xl text-wedding-maroon mb-2">Share Your Blessing</h3>
+          <p className="text-sm text-wedding-gold/80 font-poppins">Leave a heartfelt wish for the couple</p>
         </div>
       ) : (
         <div className="p-4 flex flex-col h-full animate-fade-in">
@@ -101,6 +106,7 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
 
   return (
     <div className="py-12 md:py-16 w-full bg-wedding-cream/30 relative overflow-hidden bg-floral-pattern">
+      {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-4 left-4 text-wedding-gold/20">
           <Heart size={24} className="animate-pulse" />
@@ -114,6 +120,7 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="relative">
             <div className="flex items-center space-x-3">
@@ -127,7 +134,7 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
                 <Heart size={24} className="animate-pulse" />
               </div>
             </div>
-            <p className="text-base text-wedding-gold/70 mt-2 font-poppins">Share your love and best wishes for the couple</p>
+            <p className="text-base text-wedding-gold/70 mt-2 font-poppins">Celebrating love with heartfelt wishes</p>
           </div>
           
           {wishes.length > 5 && (
@@ -141,58 +148,75 @@ const WishesCarousel: React.FC<WishesCarouselProps> = ({ onViewAll }) => {
           )}
         </div>
 
+        {/* Wishes Carousel */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i} className="h-44 p-4 bg-white/50">
-                <div className="flex items-center space-x-3 mb-4">
-                  <Skeleton className="w-10 h-10 rounded-full" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-3 w-20" />
+          <div className="mb-12">
+            <div className="flex space-x-6 overflow-hidden">
+              {[...Array(3)].map((_, i) => (
+                <Card key={i} className="min-w-[300px] h-44 p-4 bg-white/50">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Skeleton className="w-10 h-10 rounded-full" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-5/6" />
-                </div>
-              </Card>
-            ))}
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ) : wishes.length > 0 ? (
+          <div className="mb-12">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {wishes.map((wish, index) => (
+                  <CarouselItem key={wish.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                    <div 
+                      className="animate-fade-in"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <WishCard 
+                        wish={wish} 
+                        onLike={handleLike}
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-4 bg-white/80 border-wedding-gold/30 hover:bg-wedding-cream/80 text-wedding-maroon" />
+              <CarouselNext className="hidden md:flex -right-4 bg-white/80 border-wedding-gold/30 hover:bg-wedding-cream/80 text-wedding-maroon" />
+            </Carousel>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <WishComposer />
-            
-            {displayWishes.map((wish, index) => (
-              <div 
-                key={wish.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <WishCard 
-                  wish={wish} 
-                  onLike={handleLike}
-                />
+          <div className="mb-12 flex justify-center">
+            <Card className="max-w-md h-44 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-br from-wedding-cream/90 via-white/95 to-wedding-blush/20 border-wedding-gold/30 shadow-lg">
+              <div className="p-3 rounded-full bg-wedding-gold/10 mb-3 border border-wedding-gold/20">
+                <Sparkles size={24} className="text-wedding-gold" />
               </div>
-            ))}
-
-            {wishes.length === 0 && (
-              <div className="md:col-span-2 lg:col-span-2 animate-fade-in">
-                 <Card className="h-44 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-br from-wedding-cream/90 via-white/95 to-wedding-blush/20 border-wedding-gold/30 shadow-lg">
-                    <div className="p-3 rounded-full bg-wedding-gold/10 mb-3 border border-wedding-gold/20">
-                      <Sparkles size={24} className="text-wedding-gold" />
-                    </div>
-                    <h3 className="text-lg font-playfair text-wedding-maroon">
-                      Be the First to Congratulate
-                    </h3>
-                    <p className="text-gray-600 font-poppins text-sm max-w-xs mt-1">
-                      Your beautiful words will start the celebration of love!
-                    </p>
-                </Card>
-              </div>
-            )}
+              <h3 className="text-lg font-playfair text-wedding-maroon">
+                Be the First to Congratulate
+              </h3>
+              <p className="text-gray-600 font-poppins text-sm max-w-xs mt-1">
+                Your beautiful words will start the celebration of love!
+              </p>
+            </Card>
           </div>
         )}
+
+        {/* Wish Composer */}
+        <div className="flex justify-center">
+          <WishComposer />
+        </div>
       </div>
     </div>
   );
