@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Heart, Check, X, Clock, Search, Filter } from 'lucide-react';
+import { Heart, Check, X, Clock, Search, Filter, Image } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -206,15 +206,6 @@ const WishManagement = () => {
         </Select>
       </div>
 
-      {/* Debug info */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-gray-100 p-4 rounded text-sm">
-          <p>Debug: Total wishes: {wishes.length}</p>
-          <p>Debug: Filtered wishes: {filteredWishes.length}</p>
-          <p>Debug: Loading: {isLoading ? 'Yes' : 'No'}</p>
-        </div>
-      )}
-
       {/* Wishes List */}
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
@@ -276,6 +267,23 @@ const WishManagement = () => {
                     <p className="text-gray-700 leading-relaxed font-poppins italic mb-4">
                       "{wish.content}"
                     </p>
+
+                    {/* Display attached image if present */}
+                    {wish.image_url && (
+                      <div className="mb-4">
+                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                          <Image size={14} className="mr-1" />
+                          Attached Image:
+                        </div>
+                        <div className="relative inline-block">
+                          <img 
+                            src={wish.image_url} 
+                            alt="Wish attachment"
+                            className="max-w-xs max-h-40 object-cover rounded-lg border-2 border-wedding-gold/20 shadow-md"
+                          />
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <span className="flex items-center">
