@@ -38,7 +38,7 @@ export const useWishes = () => {
         .select('*')
         .eq('is_approved', true)
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (error) throw error;
       setWishes(data || []);
@@ -72,8 +72,9 @@ export const useWishes = () => {
       if (error) throw error;
 
       toast({
-        title: "Wish Submitted!",
-        description: "Your wish has been submitted and is awaiting approval.",
+        title: "✨ Wish Submitted!",
+        description: "Your heartfelt wish has been submitted and is awaiting approval.",
+        duration: 4000,
       });
 
       return true;
@@ -121,6 +122,12 @@ export const useWishes = () => {
           });
 
         if (error) throw error;
+
+        toast({
+          title: "❤️ Liked!",
+          description: "You liked this wish",
+          duration: 2000,
+        });
       }
 
       // Refresh wishes to get updated counts
