@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -12,6 +11,8 @@ import FamilyDetails from '@/components/FamilyDetails';
 import RomanticJourneySection from '@/components/RomanticJourneySection';
 import EventTimeline from '@/components/EventTimeline';
 import PhotoGrid from '@/components/PhotoGrid';
+import WishesCarousel from '@/components/WishesCarousel';
+import WishesModal from '@/components/WishesModal';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
@@ -23,6 +24,7 @@ import AnimatedGuestName from '../components/AnimatedGuestName';
 const Invitation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showRSVP, setShowRSVP] = useState(false);
+  const [showWishesModal, setShowWishesModal] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const [showGaneshaTransition, setShowGaneshaTransition] = useState(false);
@@ -207,7 +209,7 @@ const Invitation = () => {
             startGuestNameAnimation={startGuestNameAnimation}
           />
           
-          {/* Section ordering: countdown, family details, romantic journey, wedding journey, events, photos */}
+          {/* Section ordering: countdown, family details, romantic journey, wedding journey, events, photos, wishes */}
           <CountdownTimer 
             weddingDate={weddingData.mainWedding.date} 
             weddingTime={weddingData.mainWedding.time}
@@ -229,8 +231,12 @@ const Invitation = () => {
             title="Our Photo Gallery" 
             photos={weddingData.photoGallery}
           />
+
+          {/* New Wishes Carousel Section */}
+          <WishesCarousel onViewAll={() => setShowWishesModal(true)} />
           
           <div className="py-10 w-full text-center bg-floral-pattern">
+            {/* ... keep existing code (accept invitation section) */}
             <div className="relative inline-block">
               {showThankYouMessage ? (
                 <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
@@ -286,6 +292,7 @@ const Invitation = () => {
           <Footer />
           
           <RSVPModal open={showRSVP} onOpenChange={() => setShowRSVP(false)} />
+          <WishesModal open={showWishesModal} onOpenChange={setShowWishesModal} />
         </div>
       )}
     </div>

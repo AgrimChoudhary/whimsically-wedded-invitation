@@ -562,6 +562,115 @@ export type Database = {
           },
         ]
       }
+      wish_likes: {
+        Row: {
+          created_at: string
+          guest_id: string
+          guest_name: string
+          id: string
+          wish_id: string
+        }
+        Insert: {
+          created_at?: string
+          guest_id: string
+          guest_name: string
+          id?: string
+          wish_id: string
+        }
+        Update: {
+          created_at?: string
+          guest_id?: string
+          guest_name?: string
+          id?: string
+          wish_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wish_likes_wish_id_fkey"
+            columns: ["wish_id"]
+            isOneToOne: false
+            referencedRelation: "wishes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wish_replies: {
+        Row: {
+          content: string
+          created_at: string
+          guest_id: string
+          guest_name: string
+          id: string
+          is_approved: boolean
+          wish_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          guest_id: string
+          guest_name: string
+          id?: string
+          is_approved?: boolean
+          wish_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          guest_id?: string
+          guest_name?: string
+          id?: string
+          is_approved?: boolean
+          wish_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wish_replies_wish_id_fkey"
+            columns: ["wish_id"]
+            isOneToOne: false
+            referencedRelation: "wishes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wishes: {
+        Row: {
+          content: string
+          created_at: string
+          guest_id: string
+          guest_name: string
+          id: string
+          image_url: string | null
+          is_approved: boolean
+          likes_count: number
+          replies_count: number
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          guest_id: string
+          guest_name: string
+          id?: string
+          image_url?: string | null
+          is_approved?: boolean
+          likes_count?: number
+          replies_count?: number
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          guest_id?: string
+          guest_name?: string
+          id?: string
+          image_url?: string | null
+          is_approved?: boolean
+          likes_count?: number
+          replies_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
