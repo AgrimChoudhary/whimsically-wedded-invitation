@@ -30,9 +30,10 @@ export const useWishes = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Fetch approved wishes
+  // Fetch approved wishes for public display
   const fetchWishes = async () => {
     try {
+      console.log('Fetching approved wishes for public display...');
       const { data, error } = await supabase
         .from('wishes')
         .select('*')
@@ -40,7 +41,12 @@ export const useWishes = () => {
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching approved wishes:', error);
+        throw error;
+      }
+      
+      console.log('Fetched approved wishes:', data);
       setWishes(data || []);
     } catch (error) {
       console.error('Error fetching wishes:', error);
@@ -56,20 +62,36 @@ export const useWishes = () => {
 
   // Submit a new wish
   const submitWish = async (content: string, guestId: string, guestName: string) => {
-    if (!content.trim() || content.length > 280) return false;
+    if (!content.trim() || content.length > 280) {
+      toast({
+        title: "Invalid wish",
+        description: "Please enter a wish between 1 and 280 characters.",
+        variant: "destructive",
+      });
+      return false;
+    }
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
+      console.log('Submitting wish:', { content, guestId, guestName });
+      
+      const { data, error } = await supabase
         .from('wishes')
         .insert({
           guest_id: guestId,
           guest_name: guestName,
           content: content.trim(),
           is_approved: false // Requires host approval
-        });
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error submitting wish:', error);
+        throw error;
+      }
+
+      console.log('Wish submitted successfully:', data);
 
       toast({
         title: "✨ Wish Submitted!",
@@ -94,6 +116,8 @@ export const useWishes = () => {
   // Toggle like on a wish
   const toggleLike = async (wishId: string, guestId: string, guestName: string) => {
     try {
+      console.log('Toggling like for wish:', wishId, 'by guest:', guestId);
+      
       // Check if already liked
       const { data: existingLike } = await supabase
         .from('wish_likes')
@@ -111,6 +135,7 @@ export const useWishes = () => {
           .eq('guest_id', guestId);
 
         if (error) throw error;
+        console.log('Like removed');
       } else {
         // Add like
         const { error } = await supabase
@@ -122,6 +147,7 @@ export const useWishes = () => {
           });
 
         if (error) throw error;
+        console.log('Like added');
 
         toast({
           title: "❤️ Liked!",
@@ -147,7 +173,7 @@ export const useWishes = () => {
     fetchWishes();
 
     const channel = supabase
-      .channel('wishes-changes')
+      .channel('public-wishes-changes')
       .on(
         'postgres_changes',
         { 
@@ -156,7 +182,8 @@ export const useWishes = () => {
           table: 'wishes',
           filter: 'is_approved=eq.true'
         },
-        () => {
+        (payload) => {
+          console.log('Real-time approved wish change:', payload);
           fetchWishes();
         }
       )
@@ -167,7 +194,8 @@ export const useWishes = () => {
           schema: 'public', 
           table: 'wish_likes'
         },
-        () => {
+        (payload) => {
+          console.log('Real-time like change:', payload);
           fetchWishes();
         }
       )

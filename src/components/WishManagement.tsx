@@ -33,12 +33,18 @@ const WishManagement = () => {
   // Fetch all wishes (approved and pending)
   const fetchWishes = async () => {
     try {
+      console.log('Fetching all wishes for management...');
       const { data, error } = await supabase
         .from('wishes')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching wishes:', error);
+        throw error;
+      }
+      
+      console.log('Fetched wishes:', data);
       setWishes(data || []);
     } catch (error) {
       console.error('Error fetching wishes:', error);
@@ -55,12 +61,16 @@ const WishManagement = () => {
   // Approve a wish
   const approveWish = async (wishId: string) => {
     try {
+      console.log('Approving wish:', wishId);
       const { error } = await supabase
         .from('wishes')
         .update({ is_approved: true })
         .eq('id', wishId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error approving wish:', error);
+        throw error;
+      }
 
       setWishes(wishes.map(wish => 
         wish.id === wishId ? { ...wish, is_approved: true } : wish
@@ -83,12 +93,16 @@ const WishManagement = () => {
   // Reject/Delete a wish
   const rejectWish = async (wishId: string) => {
     try {
+      console.log('Rejecting wish:', wishId);
       const { error } = await supabase
         .from('wishes')
         .delete()
         .eq('id', wishId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error rejecting wish:', error);
+        throw error;
+      }
 
       setWishes(wishes.filter(wish => wish.id !== wishId));
 
@@ -106,8 +120,29 @@ const WishManagement = () => {
     }
   };
 
+  // Set up real-time subscription for new wishes
   useEffect(() => {
     fetchWishes();
+
+    const channel = supabase
+      .channel('wish-management-changes')
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'wishes'
+        },
+        (payload) => {
+          console.log('Real-time wish change:', payload);
+          fetchWishes(); // Refresh the list when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Filter wishes based on search and status
@@ -171,6 +206,15 @@ const WishManagement = () => {
         </Select>
       </div>
 
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-gray-100 p-4 rounded text-sm">
+          <p>Debug: Total wishes: {wishes.length}</p>
+          <p>Debug: Filtered wishes: {filteredWishes.length}</p>
+          <p>Debug: Loading: {isLoading ? 'Yes' : 'No'}</p>
+        </div>
+      )}
+
       {/* Wishes List */}
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
@@ -189,6 +233,11 @@ const WishManagement = () => {
                 ? 'Try adjusting your filters to see more wishes.' 
                 : 'Wedding wishes will appear here as guests submit them.'}
             </p>
+            {wishes.length === 0 && (
+              <p className="text-sm text-gray-500 mt-2">
+                Tip: Guests can submit wishes from the main invitation page.
+              </p>
+            )}
           </CardContent>
         </Card>
       ) : (
