@@ -2,14 +2,10 @@
 import React from 'react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MapPin, Phone, Heart } from 'lucide-react';
-import { useAudio } from "@/context/AudioContext";
 import { useWedding } from "@/context/WeddingContext";
-import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const isMobile = useIsMobile();
-  const { isPlaying, toggleMusic } = useAudio();
   const { weddingData } = useWedding();
   
   // Format the wedding date for display
@@ -113,22 +109,6 @@ export const Footer: React.FC = () => {
             With love, {weddingData.couple.groomFirstName} &amp; {weddingData.couple.brideFirstName} | {formatWeddingDate(weddingData.mainWedding.date)}
           </p>
         </div>
-      </div>
-      
-      <div className="fixed bottom-6 right-6 z-30">
-        <Button 
-          onClick={toggleMusic}
-          variant="outline"
-          size="icon"
-          className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
-          aria-label={isPlaying ? "Mute music" : "Play music"}
-        >
-          {isPlaying ? (
-            <Volume2 size={18} className="text-wedding-maroon" />
-          ) : (
-            <VolumeX size={18} className="text-wedding-maroon" />
-          )}
-        </Button>
       </div>
       
       {isMobile && <div className="h-16"></div>}
