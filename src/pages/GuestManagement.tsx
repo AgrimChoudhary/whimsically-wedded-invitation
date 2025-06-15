@@ -14,7 +14,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { GuestCard } from '@/components/GuestCard';
 import { GuestForm } from '@/components/GuestForm';
 import { TemplateSelector } from '@/components/TemplateSelector';
 
@@ -328,127 +327,119 @@ const GuestManagement = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                {isMobile ? (
-                  // Mobile card view for guests - Improved layout
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[120px]">Guest Name</TableHead>
+                      <TableHead className="min-w-[120px]">Mobile</TableHead>
+                      <TableHead className="min-w-[100px]">Status</TableHead>
+                      <TableHead className="min-w-[160px] text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {guests.map((guest) => (
-                      <GuestCard
-                        key={guest.id}
-                        guest={guest}
-                        onCopy={copyGuestLink}
-                        onShare={shareOnWhatsApp}
-                        onEdit={openEditDialog}
-                        onDelete={confirmDeleteGuest}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  // Desktop table view
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Guest Name</TableHead>
-                        <TableHead>Mobile</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                      <TableRow key={guest.id} className="hover:bg-wedding-cream/30 transition-colors">
+                        <TableCell className="font-medium">
+                          <div className="truncate max-w-[120px] sm:max-w-none">
+                            {guest.name}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="truncate max-w-[120px] sm:max-w-none">
+                            {guest.mobile}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {guest.status && (
+                            <Badge variant="outline" className={`
+                              text-xs
+                              ${guest.status === 'viewed' ? 'bg-blue-50 text-blue-700 border-blue-200' : 
+                                guest.status === 'accepted' ? 'bg-green-50 text-green-700 border-green-200' :
+                                'bg-red-50 text-red-700 border-red-200'}
+                            `}>
+                              {guest.status.charAt(0).toUpperCase() + guest.status.slice(1)}
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className={`flex ${isMobile ? 'flex-wrap gap-1' : 'justify-end gap-2'}`}>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className={`${isMobile ? 'h-8 w-8 p-0' : 'h-8'} border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream`}
+                                    onClick={() => copyGuestLink(guest.id)}
+                                  >
+                                    <Copy size={14} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Copy invitation link</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className={`${isMobile ? 'h-8 w-8 p-0' : 'h-8'} border-wedding-gold/20 text-green-600 hover:bg-green-50`}
+                                    onClick={() => shareOnWhatsApp(guest)}
+                                  >
+                                    <Share2 size={14} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Share on WhatsApp</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className={`${isMobile ? 'h-8 w-8 p-0' : 'h-8'} border-wedding-gold/20 text-blue-600 hover:bg-blue-50`}
+                                    onClick={() => openEditDialog(guest)}
+                                  >
+                                    <Edit size={14} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Edit guest</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className={`${isMobile ? 'h-8 w-8 p-0' : 'h-8'} border-wedding-gold/20 text-wedding-maroon hover:bg-red-50`}
+                                    onClick={() => confirmDeleteGuest(guest)}
+                                  >
+                                    <Trash size={14} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete guest</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {guests.map((guest) => (
-                        <TableRow key={guest.id} className="hover:bg-wedding-cream/30 transition-colors">
-                          <TableCell className="font-medium">{guest.name}</TableCell>
-                          <TableCell>{guest.mobile}</TableCell>
-                          <TableCell>
-                            {guest.status && (
-                              <Badge variant="outline" className={`
-                                ${guest.status === 'viewed' ? 'bg-blue-50 text-blue-700 border-blue-200' : 
-                                  guest.status === 'accepted' ? 'bg-green-50 text-green-700 border-green-200' :
-                                  'bg-red-50 text-red-700 border-red-200'}
-                              `}>
-                                {guest.status.charAt(0).toUpperCase() + guest.status.slice(1)}
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline" 
-                                      className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-wedding-cream"
-                                      onClick={() => copyGuestLink(guest.id)}
-                                    >
-                                      <Copy size={14} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Copy invitation link</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline" 
-                                      className="h-8 border-wedding-gold/20 text-green-600 hover:bg-green-50"
-                                      onClick={() => shareOnWhatsApp(guest)}
-                                    >
-                                      <Share2 size={14} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Share on WhatsApp</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline" 
-                                      className="h-8 border-wedding-gold/20 text-blue-600 hover:bg-blue-50"
-                                      onClick={() => openEditDialog(guest)}
-                                    >
-                                      <Edit size={14} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Edit guest</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline" 
-                                      className="h-8 border-wedding-gold/20 text-wedding-maroon hover:bg-red-50"
-                                      onClick={() => confirmDeleteGuest(guest)}
-                                    >
-                                      <Trash size={14} />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Delete guest</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </div>
