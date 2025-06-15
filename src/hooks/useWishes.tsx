@@ -60,8 +60,38 @@ export const useWishes = () => {
     }
   };
 
-  // Submit a new wish
-  const submitWish = async (content: string, guestId: string, guestName: string) => {
+  // Upload image to storage
+  const uploadImage = async (file: File, guestId: string): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${guestId}-${Date.now()}.${fileExt}`;
+      const filePath = `wish-images/${fileName}`;
+
+      console.log('Uploading image:', fileName);
+
+      const { error: uploadError } = await supabase.storage
+        .from('wishes')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('wishes')
+        .getPublicUrl(filePath);
+
+      console.log('Image uploaded successfully:', publicUrl);
+      return publicUrl;
+    } catch (error) {
+      console.error('Error in image upload:', error);
+      return null;
+    }
+  };
+
+  // Submit a new wish with optional image
+  const submitWish = async (content: string, guestId: string, guestName: string, imageFile?: File) => {
     if (!content.trim() || content.length > 280) {
       toast({
         title: "Invalid wish",
@@ -73,14 +103,27 @@ export const useWishes = () => {
     
     setIsSubmitting(true);
     try {
-      console.log('Submitting wish:', { content, guestId, guestName });
+      console.log('Submitting wish:', { content, guestId, guestName, hasImage: !!imageFile });
       
+      let imageUrl = null;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, guestId);
+        if (!imageUrl) {
+          toast({
+            title: "Image upload failed",
+            description: "Could not upload image, but wish will be submitted without it.",
+            variant: "destructive",
+          });
+        }
+      }
+
       const { data, error } = await supabase
         .from('wishes')
         .insert({
           guest_id: guestId,
           guest_name: guestName,
           content: content.trim(),
+          image_url: imageUrl,
           is_approved: false // Requires host approval
         })
         .select()
@@ -124,7 +167,7 @@ export const useWishes = () => {
         .select('id')
         .eq('wish_id', wishId)
         .eq('guest_id', guestId)
-        .single();
+        .maybeSingle();
 
       if (existingLike) {
         // Remove like
@@ -136,6 +179,13 @@ export const useWishes = () => {
 
         if (error) throw error;
         console.log('Like removed');
+        
+        // Update local state immediately
+        setWishes(wishes.map(wish => 
+          wish.id === wishId 
+            ? { ...wish, likes_count: Math.max(0, wish.likes_count - 1) }
+            : wish
+        ));
       } else {
         // Add like
         const { error } = await supabase
@@ -149,6 +199,13 @@ export const useWishes = () => {
         if (error) throw error;
         console.log('Like added');
 
+        // Update local state immediately
+        setWishes(wishes.map(wish => 
+          wish.id === wishId 
+            ? { ...wish, likes_count: wish.likes_count + 1 }
+            : wish
+        ));
+
         toast({
           title: "❤️ Liked!",
           description: "You liked this wish",
@@ -156,8 +213,8 @@ export const useWishes = () => {
         });
       }
 
-      // Refresh wishes to get updated counts
-      fetchWishes();
+      // Also refresh wishes to get updated counts from server
+      setTimeout(() => fetchWishes(), 500);
     } catch (error) {
       console.error('Error toggling like:', error);
       toast({

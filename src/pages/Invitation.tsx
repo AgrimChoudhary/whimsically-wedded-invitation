@@ -16,7 +16,7 @@ import WishesModal from '@/components/WishesModal';
 import Footer from '@/components/Footer';
 import RSVPModal from '@/components/RSVPModal';
 import { FloatingPetals, Confetti, FireworksDisplay } from '@/components/AnimatedElements';
-import { ArrowLeftCircle, Heart, MapPin, User, Music, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeftCircle, Heart, MapPin, User, Music, Volume2, VolumeX, Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 import AnimatedGuestName from '../components/AnimatedGuestName';
@@ -235,57 +235,92 @@ const Invitation = () => {
           {/* New Wishes Carousel Section */}
           <WishesCarousel onViewAll={() => setShowWishesModal(true)} />
           
-          <div className="py-10 w-full text-center bg-floral-pattern">
-            {/* ... keep existing code (accept invitation section) */}
-            <div className="relative inline-block">
-              {showThankYouMessage ? (
-                <div className="glass-card p-6 border border-wedding-gold/30 shadow-gold-glow rounded-lg text-center">
-                  <h3 className="text-xl font-playfair text-wedding-maroon mb-2">
-                    {isGuestLoading ? (
-                      <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
-                    ) : (
-                      <>
-                        Dear{' '}
-                        <AnimatedGuestName 
-                          name={guestName}
-                          animationType="brush"
-                          className="font-playfair text-wedding-maroon"
-                          delay={700}
-                          fallback="Guest Name"
-                        />,
-                      </>
-                    )}
-                  </h3>
-                  <h3 className="text-xl font-playfair text-wedding-maroon mb-3">Thank You for Accepting!</h3>
-                  <p className="text-gray-600 mb-4 font-poppins">We are extremely excited to celebrate our special day with you!</p>
-                  <p className="text-sm text-wedding-maroon italic font-poppins">
-                    We are truly honored to have you join us in our celebration of love and commitment.
-                  </p>
-                </div>
-              ) : (
-                <Button
-                  onClick={handleAcceptInvitation}
-                  className="relative overflow-hidden bg-wedding-gold hover:bg-wedding-deep-gold text-white px-8 py-6 rounded-full transition-all duration-300 shadow-gold-soft hover:shadow-gold-glow"
-                >
-                  <span className="relative z-10 flex items-center font-medium">
-                    <Heart size={18} className="mr-2" />
-                    Accept Invitation
-                  </span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-wedding-gold to-wedding-deep-gold opacity-0 hover:opacity-100 transition-opacity duration-500"></span>
-                  
-                  <span className="absolute -top-6 -left-6 text-white/10">
-                    <User size={24} />
-                  </span>
-                  <span className="absolute -bottom-6 -right-6 text-white/10">
-                    <Heart size={24} />
-                  </span>
-                </Button>
-              )}
+          {/* Enhanced Accept Invitation Section with Visual Focus */}
+          <div className="py-16 w-full text-center relative overflow-hidden">
+            {/* Spotlight Background Effect */}
+            <div className="absolute inset-0 bg-gradient-radial from-wedding-gold/10 via-wedding-cream/20 to-transparent"></div>
+            
+            {/* Subtle Border Lines Leading to Button */}
+            <div className="absolute inset-x-0 top-8 h-px bg-gradient-to-r from-transparent via-wedding-gold/30 to-transparent"></div>
+            <div className="absolute inset-x-0 bottom-8 h-px bg-gradient-to-r from-transparent via-wedding-gold/30 to-transparent"></div>
+            
+            {/* Decorative Side Lines */}
+            <div className="absolute left-8 md:left-16 top-1/2 -translate-y-1/2 w-px h-24 md:h-32 bg-gradient-to-b from-transparent via-wedding-gold/40 to-transparent"></div>
+            <div className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 w-px h-24 md:h-32 bg-gradient-to-b from-transparent via-wedding-gold/40 to-transparent"></div>
+            
+            <div className="relative z-10 max-w-2xl mx-auto px-4">
+              {/* Focus Ring Around Content */}
+              <div className="absolute -inset-8 md:-inset-12 rounded-3xl border-2 border-wedding-gold/20 opacity-60 animate-pulse"></div>
+              <div className="absolute -inset-4 md:-inset-6 rounded-2xl border border-wedding-gold/30 opacity-40"></div>
               
-              <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-wedding-blush/40 rounded-tl-lg"></div>
-              <div className="absolute -right-4 -top-4 w-8 h-8 border-t-2 border-r-2 border-wedding-blush/40 rounded-tr-lg"></div>
-              <div className="absolute -left-4 -bottom-4 w-8 h-8 border-b-2 border-l-2 border-wedding-blush/40 rounded-bl-lg"></div>
-              <div className="absolute -right-4 -bottom-4 w-8 h-8 border-b-2 border-r-2 border-wedding-blush/40 rounded-br-lg"></div>
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-2xl border border-wedding-gold/20">
+                {showThankYouMessage ? (
+                  <div className="text-center">
+                    <h3 className="text-xl md:text-2xl font-playfair text-wedding-maroon mb-2">
+                      {isGuestLoading ? (
+                        <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mx-auto"></div>
+                      ) : (
+                        <>
+                          Dear{' '}
+                          <AnimatedGuestName 
+                            name={guestName}
+                            animationType="brush"
+                            className="font-playfair text-wedding-maroon"
+                            delay={700}
+                            fallback="Guest Name"
+                          />,
+                        </>
+                      )}
+                    </h3>
+                    <h3 className="text-xl md:text-2xl font-playfair text-wedding-maroon mb-4">Thank You for Accepting!</h3>
+                    <p className="text-gray-600 mb-4 font-poppins">We are extremely excited to celebrate our special day with you!</p>
+                    <p className="text-sm text-wedding-maroon italic font-poppins">
+                      We are truly honored to have you join us in our celebration of love and commitment.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    {/* Call to Action Text */}
+                    <h3 className="text-2xl md:text-3xl font-playfair text-wedding-maroon mb-4">
+                      Your Presence is Our Present
+                    </h3>
+                    <p className="text-wedding-gold/80 mb-8 font-poppins text-sm md:text-base">
+                      Please confirm your attendance to make our day complete
+                    </p>
+                    
+                    {/* Enhanced Accept Button with Spotlight Effect */}
+                    <div className="relative inline-block">
+                      {/* Glowing Ring Effect */}
+                      <div className="absolute -inset-4 bg-gradient-to-r from-wedding-gold/30 via-wedding-deep-gold/40 to-wedding-gold/30 rounded-full blur-xl animate-pulse"></div>
+                      
+                      <Button
+                        onClick={handleAcceptInvitation}
+                        className="relative overflow-hidden bg-gradient-to-r from-wedding-gold via-wedding-deep-gold to-wedding-gold hover:from-wedding-deep-gold hover:via-wedding-gold hover:to-wedding-deep-gold text-white px-10 py-6 md:px-12 md:py-8 rounded-full transition-all duration-500 shadow-2xl hover:shadow-3xl transform hover:scale-110 text-base md:text-lg font-semibold border-2 border-white/30"
+                      >
+                        <span className="relative z-10 flex items-center font-medium">
+                          <Heart size={20} className="md:w-6 md:h-6 mr-3 animate-pulse" />
+                          Accept Invitation
+                        </span>
+                        
+                        {/* Shimmer Effect */}
+                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full animate-shimmer"></span>
+                        
+                        {/* Decorative Icons */}
+                        <span className="absolute -top-6 -left-6 text-white/20">
+                          <Heart size={24} className="animate-pulse" style={{ animationDelay: '0.5s' }} />
+                        </span>
+                        <span className="absolute -bottom-6 -right-6 text-white/20">
+                          <Sparkles size={24} className="animate-pulse" style={{ animationDelay: '1s' }} />
+                        </span>
+                      </Button>
+                    </div>
+                    
+                    <p className="text-xs md:text-sm text-wedding-gold/60 mt-6 font-poppins italic">
+                      "A wedding is a celebration of love, and we want to celebrate with you"
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
