@@ -13,7 +13,7 @@ import { WeddingEvent, PhotoGalleryItem, ContactPerson, FamilyMember } from '@/t
 
 const Customization = () => {
   const navigate = useNavigate();
-  const { weddingData, updateCouple, addEvent, removeEvent, addPhoto, removePhoto, addContact, removeContact, addFamilyMember, removeFamilyMember } = useWedding();
+  const { weddingData, updateCouple, addEvent, removeEvent, addPhoto, removePhoto, addContact, removeContact, addFamilyMember, removeFamilyMember, updateMainWedding } = useWedding();
   
   const [newEvent, setNewEvent] = useState<Omit<WeddingEvent, 'id'>>({
     name: '',
@@ -695,9 +695,14 @@ const Customization = () => {
                       type="date"
                       value={weddingData.mainWedding.date.toISOString().split('T')[0]}
                       onChange={(e) => {
-                        // This would need to be implemented in the context
-                        console.log('Update wedding date:', e.target.value);
+                        const newDate = new Date(e.target.value);
+                        updateMainWedding({ date: newDate });
+                        toast({
+                          title: "Date Updated",
+                          description: "Wedding date has been updated successfully.",
+                        });
                       }}
+                      className="border-wedding-gold/30"
                     />
                   </div>
                   <div>
@@ -705,10 +710,14 @@ const Customization = () => {
                     <Input
                       value={weddingData.mainWedding.time}
                       onChange={(e) => {
-                        // This would need to be implemented in the context
-                        console.log('Update wedding time:', e.target.value);
+                        updateMainWedding({ time: e.target.value });
+                        toast({
+                          title: "Time Updated",
+                          description: "Wedding time has been updated successfully.",
+                        });
                       }}
                       placeholder="e.g., 7:00 PM"
+                      className="border-wedding-gold/30"
                     />
                   </div>
                 </div>
@@ -718,10 +727,14 @@ const Customization = () => {
                   <Input
                     value={weddingData.mainWedding.venue.name}
                     onChange={(e) => {
-                      // This would need to be implemented in the context
-                      console.log('Update venue name:', e.target.value);
+                      updateMainWedding({ venue: { name: e.target.value } });
+                      toast({
+                        title: "Venue Updated",
+                        description: "Venue name has been updated successfully.",
+                      });
                     }}
                     placeholder="Wedding venue name"
+                    className="border-wedding-gold/30"
                   />
                 </div>
                 
@@ -730,11 +743,15 @@ const Customization = () => {
                   <Textarea
                     value={weddingData.mainWedding.venue.address}
                     onChange={(e) => {
-                      // This would need to be implemented in the context
-                      console.log('Update venue address:', e.target.value);
+                      updateMainWedding({ venue: { address: e.target.value } });
+                      toast({
+                        title: "Address Updated",
+                        description: "Venue address has been updated successfully.",
+                      });
                     }}
                     placeholder="Full venue address"
                     rows={3}
+                    className="border-wedding-gold/30"
                   />
                 </div>
                 
@@ -743,10 +760,14 @@ const Customization = () => {
                   <Input
                     value={weddingData.mainWedding.venue.mapLink || ''}
                     onChange={(e) => {
-                      // This would need to be implemented in the context
-                      console.log('Update map link:', e.target.value);
+                      updateMainWedding({ venue: { mapLink: e.target.value } });
+                      toast({
+                        title: "Map Link Updated",
+                        description: "Map link has been updated successfully.",
+                      });
                     }}
                     placeholder="https://maps.google.com/..."
+                    className="border-wedding-gold/30"
                   />
                 </div>
               </CardContent>

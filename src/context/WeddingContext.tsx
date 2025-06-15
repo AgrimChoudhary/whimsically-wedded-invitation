@@ -1,6 +1,5 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { WeddingData, WeddingCouple, FamilyMember, WeddingEvent, PhotoGalleryItem, ContactPerson } from '@/types/wedding';
+import { WeddingData, WeddingCouple, FamilyMember, WeddingEvent, PhotoGalleryItem, ContactPerson, WeddingVenue } from '@/types/wedding';
 
 interface WeddingContextType {
   weddingData: WeddingData;
@@ -13,6 +12,7 @@ interface WeddingContextType {
   removePhoto: (photoId: string) => void;
   addContact: (contact: Omit<ContactPerson, 'id'>) => void;
   removeContact: (contactId: string) => void;
+  updateMainWedding: (wedding: { date?: Date; time?: string; venue?: Partial<WeddingVenue> }) => void;
 }
 
 // Default wedding data with current hardcoded values
@@ -296,6 +296,20 @@ export const WeddingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   };
 
+  const updateMainWedding = (wedding: { date?: Date; time?: string; venue?: Partial<WeddingVenue> }) => {
+    setWeddingData(prev => ({
+      ...prev,
+      mainWedding: {
+        ...prev.mainWedding,
+        ...(wedding.date && { date: wedding.date }),
+        ...(wedding.time && { time: wedding.time }),
+        ...(wedding.venue && { 
+          venue: { ...prev.mainWedding.venue, ...wedding.venue }
+        })
+      }
+    }));
+  };
+
   return (
     <WeddingContext.Provider value={{
       weddingData,
@@ -307,7 +321,8 @@ export const WeddingProvider: React.FC<{ children: ReactNode }> = ({ children })
       addPhoto,
       removePhoto,
       addContact,
-      removeContact
+      removeContact,
+      updateMainWedding
     }}>
       {children}
     </WeddingContext.Provider>
