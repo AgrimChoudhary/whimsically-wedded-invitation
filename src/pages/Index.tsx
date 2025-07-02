@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import WelcomeForm from '@/components/WelcomeForm';
 import { FloatingPetals } from '@/components/AnimatedElements';
@@ -6,6 +5,7 @@ import { Sparkles, Heart, Star } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGuest } from '@/context/GuestContext';
 import { useWedding } from '@/context/WeddingContext';
+import { formatWeddingDate } from '@/placeholders';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -44,15 +44,6 @@ const Index = () => {
       clearInterval(iconTimer);
     };
   }, []);
-
-  // Format the wedding date for display
-  const formatWeddingDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
 
   return (
     <div className="min-h-screen pattern-background relative overflow-hidden">

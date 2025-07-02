@@ -1,16 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
 import { Star, Music, Heart, Crown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AnimatedGuestName from './AnimatedGuestName';
-
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const GROOM_LAST_NAME = "Malhotra";
-const BRIDE_FIRST_NAME = "Kiara";
-const BRIDE_LAST_NAME = "Advani";
 
 interface InvitationHeaderProps {
   brideName?: string;
@@ -20,8 +13,8 @@ interface InvitationHeaderProps {
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
-  brideName = BRIDE_FIRST_NAME, 
-  groomName = GROOM_FIRST_NAME,
+  brideName = "Kiara", 
+  groomName = "Sidharth",
   coupleImageUrl,
   startGuestNameAnimation = false
 }) => {

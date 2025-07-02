@@ -1,29 +1,21 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuest } from '../context/GuestContext';
+import { useWedding } from '../context/WeddingContext';
 import { useAudio } from '../context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { Heart, Sparkles, Calendar, Volume2, VolumeX, Crown, Star } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { formatWeddingDate } from '@/placeholders';
 import AnimatedGuestName from './AnimatedGuestName';
-
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const GROOM_LAST_NAME = "Malhotra";
-const BRIDE_FIRST_NAME = "Kiara";
-const BRIDE_LAST_NAME = "Advani";
-const WEDDING_DATE = "May 15, 2025";
 
 const WelcomeForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showIcon, setShowIcon] = useState(0);
-  const [brideName, setBrideName] = useState(BRIDE_FIRST_NAME);
-  const [groomName, setGroomName] = useState(GROOM_FIRST_NAME);
-  const [weddingDate, setWeddingDate] = useState(WEDDING_DATE);
   const { isPlaying, toggleMusic } = useAudio();
   const { guestName, isLoading: isGuestLoading } = useGuest();
+  const { weddingData } = useWedding();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -140,7 +132,7 @@ const WelcomeForm: React.FC = () => {
           <div className="absolute -left-8 -top-8 text-7xl text-wedding-gold/8 font-great-vibes">"</div>
           <div className="relative px-6 py-4 rounded-xl bg-gradient-to-r from-wedding-cream/60 to-wedding-blush/40 backdrop-blur-sm border border-wedding-gold/20">
             <p className="text-wedding-maroon font-kruti text-xl md:text-2xl relative z-10 leading-relaxed">
-              {groomName} & {brideName} cordially invite you to celebrate their wedding
+              {weddingData.couple.groomFirstName} & {weddingData.couple.brideFirstName} cordially invite you to celebrate their wedding
             </p>
           </div>
           <div className="absolute -right-8 -bottom-8 text-7xl text-wedding-gold/8 font-great-vibes">"</div>
@@ -217,7 +209,7 @@ const WelcomeForm: React.FC = () => {
         <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-wedding-cream/80 via-wedding-blush/60 to-wedding-cream/80 text-wedding-maroon border-2 border-wedding-gold/30 shadow-lg backdrop-blur-sm">
           <p className="text-sm font-dancing-script font-semibold flex items-center gap-2">
             <Calendar size={16} className="text-wedding-gold animate-pulse" />
-            Save the Date: {weddingDate}
+            Save the Date: {formatWeddingDate(weddingData.mainWedding.date)}
             <Sparkles size={14} className="text-wedding-gold animate-pulse" />
           </p>
         </div>

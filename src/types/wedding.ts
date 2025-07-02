@@ -1,4 +1,3 @@
-
 export interface WeddingCouple {
   groomFirstName: string;
   groomLastName: string;
@@ -6,6 +5,8 @@ export interface WeddingCouple {
   brideLastName: string;
   groomAbout?: string;
   brideAbout?: string;
+  groomCity?: string;
+  brideCity?: string;
   coupleStory?: string;
   couplePhotoUrl?: string;
 }
