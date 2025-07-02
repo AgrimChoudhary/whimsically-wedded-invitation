@@ -1,21 +1,12 @@
-
 import React from 'react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MapPin, Phone, Heart } from 'lucide-react';
 import { useWedding } from "@/context/WeddingContext";
+import { formatWeddingDate } from '@/placeholders';
 
 export const Footer: React.FC = () => {
   const isMobile = useIsMobile();
   const { weddingData } = useWedding();
-  
-  // Format the wedding date for display
-  const formatWeddingDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
   
   return (
     <footer className="w-full py-8 mt-auto bg-gradient-to-b from-wedding-cream/10 to-wedding-cream/40 backdrop-blur-sm border-t border-wedding-gold/20 relative overflow-hidden">
@@ -106,7 +97,7 @@ export const Footer: React.FC = () => {
           </p>
           
           <p className="text-sm text-gray-500 font-dancing-script">
-            With love, {weddingData.couple.groomFirstName} &amp; {weddingData.couple.brideFirstName} | {formatWeddingDate(weddingData.mainWedding.date)}
+            With love, {weddingData.couple.groomFirstName} & {weddingData.couple.brideFirstName} | {formatWeddingDate(weddingData.mainWedding.date)}
           </p>
         </div>
       </div>

@@ -18,11 +18,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { GuestForm } from '@/components/GuestForm';
 import { TemplateSelector } from '@/components/TemplateSelector';
 import WishManagement from '@/components/WishManagement';
-
-// Couple names as placeholders for easy future changes
-const GROOM_FIRST_NAME = "Sidharth";
-const BRIDE_FIRST_NAME = "Kiara";
-const WEDDING_DATE = "May 15, 2025";
+import { useWedding } from '@/context/WeddingContext';
+import { formatWeddingDate } from '@/placeholders';
 
 interface Guest {
   id: string;
@@ -33,37 +30,12 @@ interface Guest {
   updated_at?: string;
 }
 
-const defaultMessageTemplate = `Dear {guest-name},\n\nYou are cordially invited to the wedding ceremony of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nClick here to view your personalized invitation: {unique-link}\n\nWe look forward to celebrating our special day with you!`;
-
-const messageTemplates = [
-  {
-    name: "Formal Invitation",
-    template: `Dear {guest-name},\n\nWe are delighted to invite you to the wedding ceremony of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nPlease find your personalized invitation here: {unique-link}\n\nYour presence would make our special day complete.\n\nWarm regards,\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME}`
-  },
-  {
-    name: "Casual & Friendly",
-    template: `Hey {guest-name}! 🎉\n\nWe're tying the knot! You're invited to our wedding celebration on ${WEDDING_DATE}.\n\nCheck out your personal invitation: {unique-link}\n\nCan't wait to celebrate with you!\n\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME}`
-  },
-  {
-    name: "Short & Sweet",
-    template: `Hi {guest-name},\n\nYou're invited! ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} are getting married on ${WEDDING_DATE}.\n\nYour invitation: {unique-link}`
-  },
-  {
-    name: "Elegant Request",
-    template: `Dear {guest-name},\n\nThe honor of your presence is requested at the marriage of ${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} on ${WEDDING_DATE}.\n\nKindly view your invitation: {unique-link}\n\nWe would be delighted by your attendance.`
-  },
-  {
-    name: "Family Focused",
-    template: `Dear {guest-name},\n\nWith great joy, our families invite you to share in our happiness as we unite in marriage on ${WEDDING_DATE}.\n\nYour personal invitation awaits: {unique-link}\n\nWith love,\n${GROOM_FIRST_NAME} & ${BRIDE_FIRST_NAME} and Families`
-  }
-];
-
 const GuestManagement = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [guestToDelete, setGuestToDelete] = useState<Guest | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [messageTemplate, setMessageTemplate] = useState(defaultMessageTemplate);
+  const [messageTemplate, setMessageTemplate] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [guestToEdit, setGuestToEdit] = useState<Guest | null>(null);
   const [editName, setEditName] = useState('');
@@ -71,6 +43,38 @@ const GuestManagement = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { weddingData } = useWedding();
+  
+  // Generate default message template based on wedding data
+  const generateDefaultMessageTemplate = () => {
+    return `Dear {guest-name},\n\nYou are cordially invited to the wedding ceremony of ${weddingData.couple.groomFirstName} & ${weddingData.couple.brideFirstName} on ${formatWeddingDate(weddingData.mainWedding.date)}.\n\nClick here to view your personalized invitation: {unique-link}\n\nWe look forward to celebrating our special day with you!`;
+  };
+  
+  // Generate message templates based on wedding data
+  const generateMessageTemplates = () => {
+    return [
+      {
+        name: "Formal Invitation",
+        template: `Dear {guest-name},\n\nWe are delighted to invite you to the wedding ceremony of ${weddingData.couple.groomFirstName} & ${weddingData.couple.brideFirstName} on ${formatWeddingDate(weddingData.mainWedding.date)}.\n\nPlease find your personalized invitation here: {unique-link}\n\nYour presence would make our special day complete.\n\nWarm regards,\n${weddingData.couple.groomFirstName} & ${weddingData.couple.brideFirstName}`
+      },
+      {
+        name: "Casual & Friendly",
+        template: `Hey {guest-name}! 🎉\n\nWe're tying the knot! You're invited to our wedding celebration on ${formatWeddingDate(weddingData.mainWedding.date)}.\n\nCheck out your personal invitation: {unique-link}\n\nCan't wait to celebrate with you!\n\n${weddingData.couple.groomFirstName} & ${weddingData.couple.brideFirstName}`
+      },
+      {
+        name: "Short & Sweet",
+        template: `Hi {guest-name},\n\nYou're invited! ${weddingData.couple.groomFirstName} & ${weddingData.couple.brideFirstName} are getting married on ${formatWeddingDate(weddingData.mainWedding.date)}.\n\nYour invitation: {unique-link}`
+      },
+      {
+        name: "Elegant Request",
+        template: `Dear {guest-name},\n\nThe honor of your presence is requested at the marriage of ${weddingData.couple.groomFirstName} & ${weddingData.couple.brideFirstName} on ${formatWeddingDate(weddingData.mainWedding.date)}.\n\nKindly view your invitation: {unique-link}\n\nWe would be delighted by your attendance.`
+      },
+      {
+        name: "Family Focused",
+        template: `Dear {guest-name},\n\nWith great joy, our families invite you to share in our happiness as we unite in marriage on ${formatWeddingDate(weddingData.mainWedding.date)}.\n\nYour personal invitation awaits: {unique-link}\n\nWith love,\n${weddingData.couple.groomFirstName} & ${weddingData.couple.brideFirstName} and Families`
+      }
+    ];
+  };
   
   // Fetch existing guests
   useEffect(() => {
@@ -79,6 +83,10 @@ const GuestManagement = () => {
     const savedTemplate = localStorage.getItem('whatsappMessageTemplate');
     if (savedTemplate) {
       setMessageTemplate(savedTemplate);
+    } else {
+      // Set default template if none exists
+      const defaultTemplate = generateDefaultMessageTemplate();
+      setMessageTemplate(defaultTemplate);
     }
   }, []);
   
@@ -274,7 +282,8 @@ const GuestManagement = () => {
   };
 
   const resetMessageTemplate = () => {
-    setMessageTemplate(defaultMessageTemplate);
+    const defaultTemplate = generateDefaultMessageTemplate();
+    setMessageTemplate(defaultTemplate);
     setSelectedTemplate(null);
   };
 
@@ -599,7 +608,7 @@ const GuestManagement = () => {
             <div className="space-y-2">
               <Label>Message Templates</Label>
               <TemplateSelector 
-                templates={messageTemplates}
+                templates={generateMessageTemplates()}
                 selectedTemplate={selectedTemplate}
                 onSelect={selectTemplate}
               />

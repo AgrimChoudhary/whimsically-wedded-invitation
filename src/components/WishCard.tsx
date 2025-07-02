@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Heart, MessageCircle, Clock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -63,11 +62,14 @@ const WishCard: React.FC<WishCardProps> = ({
               </AvatarFallback>
             )}
           </Avatar>
+          <div className="absolute -bottom-1 -right-1 bg-wedding-blush rounded-full p-1">
+            <Heart size={12} className="text-wedding-maroon" fill="#AD1457" />
+          </div>
         </div>
-
+        
         {/* Name and Time */}
         <div className="mb-3 md:mb-4">
-          <h3 className="font-semibold text-wedding-maroon text-base md:text-lg mb-1 font-playfair">
+          <h3 className="font-medium text-wedding-maroon text-base md:text-lg mb-1 font-playfair">
             {wish.guest_name}
           </h3>
           <div className="flex items-center justify-center text-wedding-gold/70 text-xs md:text-sm">

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Send, Upload, X, Heart, Feather, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';

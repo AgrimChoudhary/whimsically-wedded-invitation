@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Heart, Sparkles, Users, Feather, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';

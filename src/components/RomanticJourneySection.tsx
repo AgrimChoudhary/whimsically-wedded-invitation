@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Heart, MapPin, Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useWedding } from '@/context/WeddingContext';
 
 const RomanticJourneySection: React.FC = () => {
   const [animationStarted, setAnimationStarted] = useState(false);
@@ -9,6 +9,7 @@ const RomanticJourneySection: React.FC = () => {
   const [textVisible, setTextVisible] = useState(false);
   const [sparklesVisible, setSparklesVisible] = useState(false);
   const isMobile = useIsMobile();
+  const { weddingData } = useWedding();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -125,7 +126,7 @@ const RomanticJourneySection: React.FC = () => {
                 <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-full border-2 border-red-200 shadow-lg">
                   <MapPin size={18} className="text-red-600" />
                   <span className="text-base font-dancing-script text-red-700 font-semibold">
-                    Kiara - Jaipur
+                    {weddingData.couple.brideFirstName} - {weddingData.couple.brideCity || "Jaipur"}
                   </span>
                 </div>
               </div>
@@ -134,7 +135,7 @@ const RomanticJourneySection: React.FC = () => {
                 <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-full border-2 border-red-200 shadow-lg">
                   <MapPin size={18} className="text-red-600" />
                   <span className="text-base font-dancing-script text-red-700 font-semibold">
-                    Sidharth - Delhi
+                    {weddingData.couple.groomFirstName} - {weddingData.couple.groomCity || "Delhi"}
                   </span>
                 </div>
               </div>
@@ -174,7 +175,7 @@ const RomanticJourneySection: React.FC = () => {
                 <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-2.5 rounded-full border-2 border-red-200 shadow-lg">
                   <MapPin size={16} className="text-red-600" />
                   <span className="text-sm font-dancing-script text-red-700 font-semibold">
-                    Kiara - Jaipur
+                    {weddingData.couple.brideFirstName} - {weddingData.couple.brideCity || "Jaipur"}
                   </span>
                 </div>
               </div>
@@ -183,7 +184,7 @@ const RomanticJourneySection: React.FC = () => {
                 <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-2.5 rounded-full border-2 border-red-200 shadow-lg">
                   <MapPin size={16} className="text-red-600" />
                   <span className="text-sm font-dancing-script text-red-700 font-semibold">
-                    Sidharth - Delhi
+                    {weddingData.couple.groomFirstName} - {weddingData.couple.groomCity || "Delhi"}
                   </span>
                 </div>
               </div>

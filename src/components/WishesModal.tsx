@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Heart, MessageCircle, Send, Sparkles, Search } from 'lucide-react';
 import {

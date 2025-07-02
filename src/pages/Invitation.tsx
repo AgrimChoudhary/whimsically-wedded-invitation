@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -207,6 +206,7 @@ const Invitation = () => {
           <InvitationHeader 
             groomName={weddingData.couple.groomFirstName}
             brideName={weddingData.couple.brideFirstName}
+            coupleImageUrl={weddingData.couple.couplePhotoUrl}
             startGuestNameAnimation={startGuestNameAnimation}
           />
           
@@ -230,7 +230,6 @@ const Invitation = () => {
           
           <PhotoGrid
             title="Our Photo Gallery" 
-            photos={weddingData.photoGallery}
           />
 
           {/* New Wishes Carousel Section */}

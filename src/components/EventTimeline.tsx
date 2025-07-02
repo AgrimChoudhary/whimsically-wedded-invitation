@@ -1,7 +1,7 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Calendar, Music, Heart, MapPin, ExternalLink, Crown, Sparkles } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useWedding } from '@/context/WeddingContext';
 import { Button } from '@/components/ui/button';
 
 interface Event {
@@ -19,51 +19,38 @@ const EventTimeline: React.FC = () => {
   const [activeEvent, setActiveEvent] = useState<number | null>(null);
   const eventRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isMobile = useIsMobile();
+  const { weddingData } = useWedding();
   
-  const events: Event[] = [
-    {
-      name: "Mehendi Ceremony",
-      date: "14th May 2025",
-      time: "11:00 AM",
-      venue: "Suryagarh Palace",
-      mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
-      icon: <div className="p-2 rounded-full bg-gradient-to-br from-red-100 to-red-200 text-red-600 shadow-lg border border-red-300"><Heart size={18} /></div>,
-      color: "bg-gradient-to-br from-red-50/90 to-red-100/70"
-    },
-    {
-      name: "Sangeet Ceremony",
-      date: "14th May 2025",
-      time: "7:00 PM",
-      venue: "Suryagarh Palace",
-      mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
-      icon: <div className="p-2 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-600 shadow-lg border border-yellow-300">
-              <Music size={18} />
-            </div>,
-      color: "bg-gradient-to-br from-yellow-50/90 to-yellow-100/70"
-    },
-    {
-      name: "Wedding Ceremony",
-      date: "15th May 2025",
-      time: "8:00 PM",
-      venue: "Suryagarh Palace",
-      mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
-      icon: <div className="p-2 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 shadow-lg border border-purple-300">
-              <Crown size={18} />
-            </div>,
-      color: "bg-gradient-to-br from-purple-50/90 to-purple-100/70"
-    },
-    {
-      name: "Reception",
-      date: "16th May 2025",
-      time: "7:00 PM",
-      venue: "Suryagarh Palace",
-      mapLink: "https://maps.app.goo.gl/TKKdMSCXfaV92cFJ8",
-      icon: <div className="p-2 rounded-full bg-gradient-to-br from-green-100 to-green-200 text-green-600 shadow-lg border border-green-300">
-              <Sparkles size={18} />
-            </div>,
-      color: "bg-gradient-to-br from-green-50/90 to-green-100/70"
-    },
-  ];
+  // Convert wedding data events to timeline events
+  const events: Event[] = weddingData.events.map((event, index) => {
+    const icons = [
+      <div key="mehendi" className="p-2 rounded-full bg-gradient-to-br from-red-100 to-red-200 text-red-600 shadow-lg border border-red-300"><Heart size={18} /></div>,
+      <div key="sangeet" className="p-2 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-600 shadow-lg border border-yellow-300"><Music size={18} /></div>,
+      <div key="wedding" className="p-2 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 shadow-lg border border-purple-300"><Crown size={18} /></div>,
+      <div key="reception" className="p-2 rounded-full bg-gradient-to-br from-green-100 to-green-200 text-green-600 shadow-lg border border-green-300"><Sparkles size={18} /></div>,
+    ];
+    
+    const colors = [
+      "bg-gradient-to-br from-red-50/90 to-red-100/70",
+      "bg-gradient-to-br from-yellow-50/90 to-yellow-100/70",
+      "bg-gradient-to-br from-purple-50/90 to-purple-100/70",
+      "bg-gradient-to-br from-green-50/90 to-green-100/70"
+    ];
+
+    return {
+      name: event.name,
+      date: new Date(event.date).toLocaleDateString('en-US', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      }),
+      time: event.time,
+      venue: `${event.venue}, ${event.address}`,
+      mapLink: event.mapLink,
+      icon: icons[index % icons.length],
+      color: colors[index % colors.length]
+    };
+  });
   
   useEffect(() => {
     const observer = new IntersectionObserver(

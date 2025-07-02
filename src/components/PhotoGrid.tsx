@@ -1,58 +1,17 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, X, Heart, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useWedding } from '@/context/WeddingContext';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Photo {
-  url: string;
-  title?: string;
-  description?: string;
-}
-
 interface PhotoGridProps {
-  photos?: Photo[];
   title?: string;
 }
-
-const defaultPhotos: Photo[] = [
-  { 
-    url: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&q=80",
-    title: "Our Wedding Day",
-    description: "The most magical day of our lives"
-  },
-  { 
-    url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80",
-    title: "Mehendi Celebration",
-    description: "Celebrating our mehendi ceremony with loved ones"
-  },
-  { 
-    url: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&q=80",
-    title: "Mumbai Reception",
-    description: "Our reception with friends and family"
-  },
-  { 
-    url: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&q=80",
-    title: "Wedding Jewelry",
-    description: "Beautiful jewelry for our special day"
-  },
-  { 
-    url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
-    title: "Sangeet Ceremony",
-    description: "Joyful moments from our sangeet celebration"
-  },
-  { 
-    url: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&q=80&auto=format&fit=crop",
-    title: "Wedding Portrait",
-    description: "A special portrait after our wedding"
-  },
-];
 
 const PhotoGrid: React.FC<PhotoGridProps> = ({ 
-  photos = defaultPhotos,
   title = "Our Photo Gallery" 
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -64,6 +23,9 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
   const [imageLoadingStates, setImageLoadingStates] = useState<{[key: number]: boolean}>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { weddingData } = useWedding();
+  
+  const photos = weddingData.photoGallery;
   
   useEffect(() => {
     setTimeout(() => {
