@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -39,18 +40,18 @@ const Invitation = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-      // Start Ganesha transition after loading completes with a slight delay for smoother experience
+      // Start Ganesha transition immediately after loading completes
       setTimeout(() => {
         setShowGaneshaTransition(true);
-        // Hide the transition element after animation completes (4s total for smoother transition)
+        // Hide the transition element after faster animation completes (2s instead of 4s)
         setTimeout(() => {
           setHideGaneshaTransition(true);
           // Start guest name animation after Ganesha transition completes
           setTimeout(() => {
             setStartGuestNameAnimation(true);
-          }, 300);
-        }, 4000);
-      }, 200);
+          }, 200);
+        }, 2000); // Reduced from 4000ms to 2000ms for faster transition
+      }, 100); // Reduced delay for immediate start
     }, 1500);
     
     // If there's a guestId and they've already accepted, show thank you message
@@ -136,7 +137,7 @@ const Invitation = () => {
         </div>
       ) : (
         <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
-          {/* Enhanced Transitioning Ganesha Image */}
+          {/* Enhanced Transitioning Ganesha Image with faster animation */}
           {showGaneshaTransition && !hideGaneshaTransition && (
             <div 
               className="fixed inset-0 z-50 pointer-events-none"
@@ -144,7 +145,7 @@ const Invitation = () => {
                 background: 'linear-gradient(to bottom, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.3) 70%, transparent 100%)'
               }}
             >
-              <div className="ganesha-transition-container">
+              <div className="ganesha-transition-container-fast">
                 <div className="relative">
                   <div className="absolute -inset-4 bg-gradient-to-r from-orange-400/20 via-yellow-400/30 to-red-400/20 rounded-full blur-xl animate-pulse-soft"></div>
                   <div className="relative bg-gradient-to-br from-orange-50/90 via-yellow-50/95 to-orange-50/90 backdrop-blur-lg rounded-full p-6 border border-orange-200/60">

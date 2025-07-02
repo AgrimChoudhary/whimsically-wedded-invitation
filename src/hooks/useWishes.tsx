@@ -67,15 +67,41 @@ export const useWishes = () => {
       const fileName = `${guestId}-${Date.now()}.${fileExt}`;
       const filePath = `wish-images/${fileName}`;
 
-      console.log('Uploading image:', fileName);
+      console.log('Uploading image to wishes bucket:', fileName);
 
       const { error: uploadError } = await supabase.storage
         .from('wishes')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
         console.error('Error uploading image:', uploadError);
-        return null;
+        // Try to create the bucket if it doesn't exist
+        const { error: bucketError } = await supabase.storage.createBucket('wishes', {
+          public: true,
+          allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
+          fileSizeLimit: 5242880 // 5MB
+        });
+        
+        if (bucketError && !bucketError.message.includes('already exists')) {
+          console.error('Error creating bucket:', bucketError);
+          return null;
+        }
+        
+        // Retry upload after bucket creation
+        const { error: retryError } = await supabase.storage
+          .from('wishes')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+          
+        if (retryError) {
+          console.error('Error on retry upload:', retryError);
+          return null;
+        }
       }
 
       const { data: { publicUrl } } = supabase.storage
@@ -101,12 +127,22 @@ export const useWishes = () => {
       return false;
     }
     
+    if (!guestId || !guestName) {
+      toast({
+        title: "Error",
+        description: "Guest information is missing. Please refresh the page.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
     setIsSubmitting(true);
     try {
       console.log('Submitting wish:', { content, guestId, guestName, hasImage: !!imageFile });
       
       let imageUrl = null;
       if (imageFile) {
+        console.log('Uploading image file:', imageFile.name, 'Size:', imageFile.size);
         imageUrl = await uploadImage(imageFile, guestId);
         if (!imageUrl) {
           toast({
@@ -114,18 +150,24 @@ export const useWishes = () => {
             description: "Could not upload image, but wish will be submitted without it.",
             variant: "destructive",
           });
+        } else {
+          console.log('Image uploaded with URL:', imageUrl);
         }
       }
 
+      const wishData = {
+        guest_id: guestId,
+        guest_name: guestName,
+        content: content.trim(),
+        image_url: imageUrl,
+        is_approved: false // Requires host approval
+      };
+
+      console.log('Inserting wish with data:', wishData);
+
       const { data, error } = await supabase
         .from('wishes')
-        .insert({
-          guest_id: guestId,
-          guest_name: guestName,
-          content: content.trim(),
-          image_url: imageUrl,
-          is_approved: false // Requires host approval
-        })
+        .insert(wishData)
         .select()
         .single();
 
@@ -158,6 +200,15 @@ export const useWishes = () => {
 
   // Toggle like on a wish
   const toggleLike = async (wishId: string, guestId: string, guestName: string) => {
+    if (!guestId || !guestName) {
+      toast({
+        title: "Error",
+        description: "Please refresh the page to like wishes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       console.log('Toggling like for wish:', wishId, 'by guest:', guestId);
       

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Heart, Check, X, Clock, Search, Filter } from 'lucide-react';
+import { Heart, Check, X, Clock, Search, Filter, Image as ImageIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -206,15 +206,6 @@ const WishManagement = () => {
         </Select>
       </div>
 
-      {/* Debug info */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-gray-100 p-4 rounded text-sm">
-          <p>Debug: Total wishes: {wishes.length}</p>
-          <p>Debug: Filtered wishes: {filteredWishes.length}</p>
-          <p>Debug: Loading: {isLoading ? 'Yes' : 'No'}</p>
-        </div>
-      )}
-
       {/* Wishes List */}
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
@@ -233,11 +224,6 @@ const WishManagement = () => {
                 ? 'Try adjusting your filters to see more wishes.' 
                 : 'Wedding wishes will appear here as guests submit them.'}
             </p>
-            {wishes.length === 0 && (
-              <p className="text-sm text-gray-500 mt-2">
-                Tip: Guests can submit wishes from the main invitation page.
-              </p>
-            )}
           </CardContent>
         </Card>
       ) : (
@@ -276,6 +262,26 @@ const WishManagement = () => {
                     <p className="text-gray-700 leading-relaxed font-poppins italic mb-4">
                       "{wish.content}"
                     </p>
+
+                    {/* Display Image if exists */}
+                    {wish.image_url && (
+                      <div className="mb-4">
+                        <div className="relative inline-block rounded-lg overflow-hidden border-2 border-wedding-gold/20 shadow-lg">
+                          <img 
+                            src={wish.image_url} 
+                            alt="Wish attachment" 
+                            className="max-w-xs max-h-48 object-cover"
+                            onError={(e) => {
+                              console.error('Error loading image:', wish.image_url);
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                          <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1">
+                            <ImageIcon size={14} className="text-white" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <span className="flex items-center">
@@ -283,6 +289,12 @@ const WishManagement = () => {
                         {wish.likes_count} likes
                       </span>
                       <span>{wish.replies_count} replies</span>
+                      {wish.image_url && (
+                        <span className="flex items-center text-wedding-gold">
+                          <ImageIcon size={14} className="mr-1" />
+                          Image attached
+                        </span>
+                      )}
                     </div>
                   </div>
                   

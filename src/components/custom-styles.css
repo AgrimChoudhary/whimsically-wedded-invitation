@@ -712,3 +712,34 @@
 .animate-ping-delayed {
   animation: ping-delayed 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
+
+/* Faster Ganesha transition container */
+.ganesha-transition-container-fast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: ganesha-move-to-header-fast 2s ease-in-out forwards;
+  z-index: 100;
+}
+
+@keyframes ganesha-move-to-header-fast {
+  0% {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  60% {
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0;
+  }
+}
