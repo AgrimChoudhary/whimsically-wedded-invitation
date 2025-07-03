@@ -19,7 +19,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   coupleImageUrl,
   startGuestNameAnimation = false
 }) => {
-  const { guestName } = useGuest();
+  const { guestName, guestId } = useGuest();
   const { weddingData } = useWedding();
   const [showHearts, setShowHearts] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
@@ -95,11 +95,22 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
       setTimeout(() => setShowHearts(false), 3000);
     }, 6000); // Delay initial effects until after Ganesha appears
     
+    // Send INVITATION_VIEWED message to parent platform
+    if (guestId) {
+      window.parent.postMessage({
+        type: 'INVITATION_VIEWED',
+        payload: {
+          guestId: guestId,
+          eventId: weddingData.events[0]?.id || 'default-event-id'
+        }
+      }, '*');
+    }
+    
     return () => {
       clearTimeout(ganeshaImageTimer);
       clearTimeout(initialTimer);
     };
-  }, []);
+  }, [guestId, weddingData.events]);
 
   return (
     <header className="relative w-full flex flex-col items-center pt-6 pb-4 sm:pt-8 sm:pb-6 overflow-hidden">
@@ -263,7 +274,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 isClicked ? 'shadow-2xl border-wedding-gold/60' : ''
               }`}>
                 <img 
-                  src={coupleImageUrl || weddingData.couple.couplePhotoUrl || "https://res.cloudinary.com/dtjjgiitl/image/upload/q_auto:good,f_auto,fl_progressive/v1751521337/o35sbpmxjbhk4xi16ds1.jpg"}
+                  src="https://res.cloudinary.com/dtjjgiitl/image/upload/q_auto:good,f_auto,fl_progressive/v1751521337/o35sbpmxjbhk4xi16ds1.jpg"
                   alt={`${firstPersonName} and ${secondPersonName}`}
                   className={`w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10 transition-all duration-500 ${
                     isClicked ? 'brightness-110 contrast-110' : ''

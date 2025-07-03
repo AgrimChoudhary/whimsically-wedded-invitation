@@ -121,6 +121,8 @@ const Invitation = () => {
   }, [setAllWeddingData, setGuestName, setGuestId]);
   
   useEffect(() => {
+    // Show Ganesha image after the transition animation completes
+    // This creates the effect of the image moving into position
     const timer = setTimeout(() => {
       setIsLoading(false);
       // Start Ganesha transition immediately after loading completes
@@ -155,6 +157,18 @@ const Invitation = () => {
 
   const handleAcceptInvitation = () => {
     setConfetti(true);
+    
+    // Send RSVP_ACCEPTED message to parent platform
+    if (guestId) {
+      window.parent.postMessage({
+        type: 'RSVP_ACCEPTED',
+        payload: {
+          guestId: guestId,
+          eventId: weddingData.events[0]?.id || 'default-event-id'
+        }
+      }, '*');
+    }
+    
     updateGuestStatus('accepted');
     setTimeout(() => {
       setShowThankYouMessage(true);
@@ -265,7 +279,7 @@ const Invitation = () => {
             
             {!isMobile && (
               <Button 
-                onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
+                onClick={() => currentGuestId ? navigate(`/${currentGuestId}${location.search}`) : navigate(`/${location.search}`)}
                 variant="outline"
                 size="icon"
                 className="rounded-full bg-wedding-cream/80 backdrop-blur-sm border-wedding-gold/30 hover:bg-wedding-cream shadow-gold-soft"
@@ -278,7 +292,7 @@ const Invitation = () => {
           
           {isMobile && (
             <button 
-              onClick={() => currentGuestId ? navigate(`/${currentGuestId}`) : navigate('/')}
+              onClick={() => currentGuestId ? navigate(`/${currentGuestId}${location.search}`) : navigate(`/${location.search}`)}
               className="fixed top-4 left-4 z-30 flex items-center text-wedding-maroon hover:text-wedding-gold transition-colors duration-300 bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm"
               aria-label="Go back"
             >
@@ -288,9 +302,6 @@ const Invitation = () => {
           )}
           
           <InvitationHeader 
-            groomName={weddingData.couple.groomFirstName}
-            brideName={weddingData.couple.brideFirstName}
-            coupleImageUrl={weddingData.couple.couplePhotoUrl}
             startGuestNameAnimation={startGuestNameAnimation}
           />
           
@@ -300,10 +311,7 @@ const Invitation = () => {
             weddingTime={weddingData.mainWedding.time}
           />
           
-          <FamilyDetails 
-            groomFamily={weddingData.family.groomFamily}
-            brideFamily={weddingData.family.brideFamily}
-          />
+          <FamilyDetails />
 
           {/* New Romantic Journey Section */}
           <RomanticJourneySection />
