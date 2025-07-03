@@ -253,7 +253,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 isClicked ? 'shadow-2xl border-wedding-gold/60' : ''
               }`}>
                 <img 
-                  src={coupleImageUrl || "https://res.cloudinary.com/dtjjgiitl/image/upload/q_auto:good,f_auto,fl_progressive/v1751521337/o35sbpmxjbhk4xi16ds1.jpg"}
+                  src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
                   alt={`${groomName} and ${brideName}`}
                   className={`w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10 transition-all duration-500 ${
                     isClicked ? 'brightness-110 contrast-110' : ''
