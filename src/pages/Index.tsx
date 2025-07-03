@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import WelcomeForm from '@/components/WelcomeForm';
 import { FloatingPetals } from '@/components/AnimatedElements';
 import { Sparkles, Heart, Star } from 'lucide-react';
@@ -7,19 +8,95 @@ import { useGuest } from '@/context/GuestContext';
 import { useWedding } from '@/context/WeddingContext';
 import { formatWeddingDate } from '@/placeholders';
 
+// Security: Define trusted origins
+const TRUSTED_ORIGINS = [
+  'https://utsavy-invitations.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:8080'
+];
+
+const isTrustedOrigin = (origin: string): boolean => {
+  return TRUSTED_ORIGINS.includes(origin) || origin === window.location.origin;
+};
+
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showSparkle, setShowSparkle] = useState(false);
   const [currentIcon, setCurrentIcon] = useState(0);
   const isMobile = useIsMobile();
-  const { guestName } = useGuest();
-  const { weddingData } = useWedding();
+  const location = useLocation();
+  const { guestName, setGuestName, setGuestId } = useGuest();
+  const { weddingData, setAllWeddingData } = useWedding();
   
   const floatingIcons = [
     <Heart key="heart" className="text-wedding-blush" />,
     <Sparkles key="sparkles" className="text-wedding-gold" />,
     <Star key="star" className="text-wedding-maroon" />
   ];
+
+  // Read URL parameters and update contexts
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+
+    // Guest Data
+    const guestNameParam = params.get('guestName');
+    const guestIdParam = params.get('guestId');
+    
+    if (guestNameParam) {
+      setGuestName(guestNameParam);
+    }
+    
+    if (guestIdParam) {
+      setGuestId(guestIdParam);
+    }
+
+    // Wedding Data (JSON string)
+    const weddingDataParam = params.get('weddingData');
+    if (weddingDataParam) {
+      try {
+        const parsedWeddingData = JSON.parse(decodeURIComponent(weddingDataParam));
+        // Convert date string back to Date object if needed
+        if (parsedWeddingData.mainWedding?.date) {
+          parsedWeddingData.mainWedding.date = new Date(parsedWeddingData.mainWedding.date);
+        }
+        setAllWeddingData(parsedWeddingData);
+      } catch (e) {
+        console.error("URL se weddingData parse karne mein error:", e);
+      }
+    }
+  }, [location.search, setGuestName, setGuestId, setAllWeddingData]);
+
+  // Set up message listener for platform communication
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Security check
+      if (!isTrustedOrigin(event.origin)) {
+        console.warn('Untrusted origin se message mila:', event.origin);
+        return;
+      }
+
+      const { type, payload } = event.data;
+
+      switch (type) {
+        case 'UPDATE_WEDDING_DATA':
+          if (payload.mainWedding?.date) {
+            payload.mainWedding.date = new Date(payload.mainWedding.date);
+          }
+          setAllWeddingData(payload);
+          break;
+        case 'UPDATE_GUEST_DATA':
+          if (payload.guestName) setGuestName(payload.guestName);
+          if (payload.guestId) setGuestId(payload.guestId);
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [setAllWeddingData, setGuestName, setGuestId]);
   
   useEffect(() => {
     // Simulating assets loading

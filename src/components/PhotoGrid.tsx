@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, X, Heart, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useWedding } from '@/context/WeddingContext';
+import { useGuest } from '@/context/GuestContext';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,21 +12,103 @@ interface PhotoGridProps {
   title?: string;
 }
 
+interface PhotoWithLikes {
+  id: string;
+  url: string;
+  title: string;
+  description: string;
+  likes_count: number;
+  hasLiked: boolean;
+}
+
+// Security: Define trusted origins
+const TRUSTED_ORIGINS = [
+  'https://utsavy-invitations.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:8080'
+];
+
+const isTrustedOrigin = (origin: string): boolean => {
+  return TRUSTED_ORIGINS.includes(origin) || origin === window.location.origin;
+};
+
 const PhotoGrid: React.FC<PhotoGridProps> = ({ 
   title = "Our Photo Gallery" 
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [likedPhotos, setLikedPhotos] = useState<{[key: number]: boolean}>({});
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
-  const [likeAnimation, setLikeAnimation] = useState<{[key: number]: boolean}>({});
   const [imageLoadingStates, setImageLoadingStates] = useState<{[key: number]: boolean}>({});
+  const [photosWithLikes, setPhotosWithLikes] = useState<PhotoWithLikes[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { weddingData } = useWedding();
+  const { guestId, guestName } = useGuest();
   
-  const photos = weddingData.photoGallery;
+  // Initialize photos with default like data
+  useEffect(() => {
+    const initialPhotos: PhotoWithLikes[] = weddingData.photoGallery.map(photo => ({
+      ...photo,
+      likes_count: 0,
+      hasLiked: false
+    }));
+    setPhotosWithLikes(initialPhotos);
+  }, [weddingData.photoGallery]);
+
+  // Set up message listener for platform communication
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Security check
+      if (!isTrustedOrigin(event.origin)) {
+        console.warn('Untrusted origin se message mila:', event.origin);
+        return;
+      }
+
+      const { type, payload } = event.data;
+
+      switch (type) {
+        case 'INITIAL_PHOTO_LIKES_DATA':
+          console.log('Received initial photo likes data:', payload);
+          if (payload.photosWithLikes && Array.isArray(payload.photosWithLikes)) {
+            setPhotosWithLikes(payload.photosWithLikes);
+          }
+          break;
+        case 'PHOTO_LIKE_UPDATED':
+          console.log('Photo like updated:', payload);
+          // Update local state with new like data
+          setPhotosWithLikes(prevPhotos => 
+            prevPhotos.map(photo => 
+              photo.id === payload.photoId 
+                ? { 
+                    ...photo, 
+                    likes_count: payload.likes_count,
+                    hasLiked: payload.hasLiked 
+                  }
+                : photo
+            )
+          );
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    
+    // Request initial photo likes data from platform
+    window.parent.postMessage({
+      type: 'REQUEST_INITIAL_PHOTO_LIKES_DATA',
+      payload: {
+        photoIds: weddingData.photoGallery.map(photo => photo.id)
+      }
+    }, '*');
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [weddingData.photoGallery]);
   
   useEffect(() => {
     setTimeout(() => {
@@ -42,12 +125,12 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
   
   const goToNextSlide = () => {
     setSlideDirection('left');
-    setCurrentIndex(prevIndex => (prevIndex === photos.length - 1 ? 0 : prevIndex + 1));
+    setCurrentIndex(prevIndex => (prevIndex === photosWithLikes.length - 1 ? 0 : prevIndex + 1));
   };
   
   const goToPrevSlide = () => {
     setSlideDirection('right');
-    setCurrentIndex(prevIndex => (prevIndex === 0 ? photos.length - 1 : prevIndex - 1));
+    setCurrentIndex(prevIndex => (prevIndex === 0 ? photosWithLikes.length - 1 : prevIndex - 1));
   };
   
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,23 +143,40 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
     }
   };
   
-  const toggleLike = (index: number) => {
-    setLikedPhotos(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+  const toggleLike = (photoId: string) => {
+    if (!guestId || !guestName) {
+      console.error('Cannot like photo - missing guest info:', { guestId, guestName });
+      return;
+    }
+
+    console.log('Toggling like for photo:', photoId, 'by guest:', guestName);
     
-    setLikeAnimation(prev => ({
-      ...prev,
-      [index]: true
-    }));
+    // Find current photo to determine current like status
+    const currentPhoto = photosWithLikes.find(photo => photo.id === photoId);
+    const currentlyLiked = currentPhoto?.hasLiked || false;
     
-    setTimeout(() => {
-      setLikeAnimation(prev => ({
-        ...prev,
-        [index]: false
-      }));
-    }, 1000);
+    // Optimistic update - immediately update local state
+    setPhotosWithLikes(prevPhotos => 
+      prevPhotos.map(photo => 
+        photo.id === photoId 
+          ? { 
+              ...photo, 
+              likes_count: currentlyLiked ? Math.max(0, photo.likes_count - 1) : photo.likes_count + 1,
+              hasLiked: !currentlyLiked
+            }
+          : photo
+      )
+    );
+
+    // Send message to parent platform
+    window.parent.postMessage({
+      type: 'TOGGLE_PHOTO_LIKE',
+      payload: {
+        photoId: photoId,
+        guestId: guestId,
+        guestName: guestName
+      }
+    }, '*');
   };
   
   useEffect(() => {
@@ -148,18 +248,6 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
       };
     }
   };
-  
-  const heartAnimationVariants = {
-    initial: { scale: 0, opacity: 0 },
-    animate: { 
-      scale: [0, 1.5, 1], 
-      opacity: [0, 1, 1],
-      transition: { 
-        duration: 0.5,
-        times: [0, 0.3, 1]
-      }
-    }
-  };
 
   return (
     <div className="py-12 bg-wedding-cream/30 relative z-10">
@@ -202,8 +290,8 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
                   )}
                   
                   <img 
-                    src={photos[currentIndex].url} 
-                    alt={photos[currentIndex].title || "Wedding memory"} 
+                    src={photosWithLikes[currentIndex]?.url} 
+                    alt={photosWithLikes[currentIndex]?.title || "Wedding memory"} 
                     className={cn(
                       "w-full h-full object-cover transition-opacity duration-300",
                       imageLoadingStates[currentIndex] ? "opacity-100" : "opacity-0"
@@ -216,9 +304,9 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
                   <div className="absolute inset-[6px] pointer-events-none border border-wedding-gold/20"></div>
                   
                   <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-                    <h4 className="text-white font-medium text-sm sm:text-base">{photos[currentIndex].title}</h4>
-                    {photos[currentIndex].description && (
-                      <p className="text-white/80 text-xs sm:text-sm mt-1">{photos[currentIndex].description}</p>
+                    <h4 className="text-white font-medium text-sm sm:text-base">{photosWithLikes[currentIndex]?.title}</h4>
+                    {photosWithLikes[currentIndex]?.description && (
+                      <p className="text-white/80 text-xs sm:text-sm mt-1">{photosWithLikes[currentIndex]?.description}</p>
                     )}
                   </div>
                   
@@ -228,28 +316,21 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
                     className="absolute bottom-3 right-3 h-8 w-8 rounded-full bg-white/40 hover:bg-white/60 backdrop-blur-sm transition-all duration-300"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleLike(currentIndex);
+                      toggleLike(photosWithLikes[currentIndex]?.id);
                     }}
                   >
-                    {likeAnimation[currentIndex] && (
-                      <motion.div
-                        variants={heartAnimationVariants}
-                        initial="initial"
-                        animate="animate"
-                        className="absolute inset-0 flex items-center justify-center"
-                      >
-                        <Heart 
-                          className="text-red-500 fill-red-500" 
-                          size={20} 
-                        />
-                      </motion.div>
-                    )}
-                    
                     <Heart 
                       size={16} 
-                      className={likedPhotos[currentIndex] ? "text-red-500 fill-red-500" : "text-white"} 
+                      className={photosWithLikes[currentIndex]?.hasLiked ? "text-red-500 fill-red-500" : "text-white"} 
                     />
                   </Button>
+                  
+                  {/* Like count display */}
+                  {photosWithLikes[currentIndex]?.likes_count > 0 && (
+                    <div className="absolute bottom-3 right-12 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+                      {photosWithLikes[currentIndex]?.likes_count}
+                    </div>
+                  )}
                   
                   <Button
                     size="icon"
@@ -283,7 +364,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
           </div>
           
           <div className="flex justify-center mt-3 gap-1">
-            {photos.map((_, index) => (
+            {photosWithLikes.map((_, index) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
@@ -339,16 +420,16 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
                   className="relative"
                 >
                   <img 
-                    src={photos[currentIndex].url} 
-                    alt={photos[currentIndex].title || "Wedding memory"} 
+                    src={photosWithLikes[currentIndex]?.url} 
+                    alt={photosWithLikes[currentIndex]?.title || "Wedding memory"} 
                     className="w-full h-auto"
                     loading="lazy"
                   />
                   
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <h4 className="text-white font-medium text-lg">{photos[currentIndex].title}</h4>
-                    {photos[currentIndex].description && (
-                      <p className="text-white/80 text-sm mt-1">{photos[currentIndex].description}</p>
+                    <h4 className="text-white font-medium text-lg">{photosWithLikes[currentIndex]?.title}</h4>
+                    {photosWithLikes[currentIndex]?.description && (
+                      <p className="text-white/80 text-sm mt-1">{photosWithLikes[currentIndex]?.description}</p>
                     )}
                   </div>
                   
@@ -358,14 +439,21 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
                     className="absolute bottom-4 right-4 h-12 w-12 rounded-full bg-black/40 hover:bg-black/60"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleLike(currentIndex);
+                      toggleLike(photosWithLikes[currentIndex]?.id);
                     }}
                   >
                     <Heart 
                       size={28} 
-                      className={likedPhotos[currentIndex] ? "text-red-500 fill-red-500" : "text-white"} 
+                      className={photosWithLikes[currentIndex]?.hasLiked ? "text-red-500 fill-red-500" : "text-white"} 
                     />
                   </Button>
+                  
+                  {/* Like count display */}
+                  {photosWithLikes[currentIndex]?.likes_count > 0 && (
+                    <div className="absolute bottom-4 right-16 bg-black/50 text-white text-sm px-3 py-1 rounded-full backdrop-blur-sm">
+                      {photosWithLikes[currentIndex]?.likes_count}
+                    </div>
+                  )}
                 </motion.div>
               </AnimatePresence>
               
@@ -394,7 +482,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
               </Button>
               
               <Badge className="absolute top-4 left-4 bg-black/60 text-white">
-                {currentIndex + 1} / {photos.length}
+                {currentIndex + 1} / {photosWithLikes.length}
               </Badge>
             </div>
           </motion.div>

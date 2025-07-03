@@ -15,7 +15,7 @@ interface RSVPModalProps {
 export const RSVPModal: React.FC<RSVPModalProps> = ({ open, onOpenChange }) => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { guestName, guestStatus, updateGuestStatus } = useGuest();
+  const { guestName, guestStatus, updateGuestStatus, guestId } = useGuest();
   
   const handleClose = () => {
     onOpenChange(false);
@@ -27,6 +27,17 @@ export const RSVPModal: React.FC<RSVPModalProps> = ({ open, onOpenChange }) => {
     
     try {
       await updateGuestStatus(status);
+      
+      // Send additional RSVP data to platform
+      window.parent.postMessage({
+        type: 'RSVP_ADDITIONAL_DATA',
+        payload: {
+          guestId: guestId,
+          status: status,
+          message: message.trim() || null,
+          timestamp: new Date().toISOString()
+        }
+      }, '*');
       
       toast({
         title: status === 'accepted' ? "RSVP Confirmed" : "RSVP Response Received",

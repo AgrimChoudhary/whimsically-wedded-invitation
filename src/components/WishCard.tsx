@@ -101,7 +101,7 @@ const WishCard: React.FC<WishCardProps> = ({
             <Heart 
               size={14} 
               className={`md:w-4 md:h-4 mr-1 md:mr-2 transition-all duration-300 ${
-                wish.likes_count > 0 
+                wish.hasLiked 
                   ? 'fill-red-500 text-red-500 animate-pulse' 
                   : 'group-hover/like:scale-110'
               }`}

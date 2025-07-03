@@ -37,8 +37,20 @@ const WishesModal: React.FC<WishesModalProps> = ({ open, onOpenChange }) => {
   };
 
   const handleSubmitReply = () => {
-    // TODO: Implement reply submission
-    console.log('Reply to wish:', replyingToWishId, replyText);
+    if (!replyingToWishId || !replyText.trim() || !guestId || !guestName) return;
+    
+    // Send message to parent platform
+    window.parent.postMessage({
+      type: 'SUBMIT_WISH_REPLY',
+      payload: {
+        wishId: replyingToWishId,
+        guestId: guestId,
+        guestName: guestName,
+        content: replyText.trim()
+      }
+    }, '*');
+    
+    // Clear form
     setReplyText('');
     setReplyingToWishId(null);
   };

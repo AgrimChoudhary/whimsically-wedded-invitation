@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import { User, Phone, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from '@/integrations/supabase/client';
 
 interface GuestFormProps {
   onSuccess: () => void;
@@ -14,15 +12,6 @@ export const GuestForm: React.FC<GuestFormProps> = ({ onSuccess }) => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const generateShortId = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < 5; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,53 +28,16 @@ export const GuestForm: React.FC<GuestFormProps> = ({ onSuccess }) => {
     setIsSubmitting(true);
     
     try {
-      // Generate a short ID (5 characters)
-      const shortId = generateShortId();
-      
-      const { data, error } = await supabase
-        .from('guests')
-        .insert([{ 
-          id: shortId,
-          name, 
-          mobile,
-          status: null,
-          updated_at: null
-        }])
-        .select();
-      
-      if (error) {
-        // If there's an error, try again with another ID
-        console.error('Error adding guest:', error);
-        const newShortId = generateShortId();
-        
-        const { error: retryError } = await supabase
-          .from('guests')
-          .insert([{ 
-            id: newShortId,
-            name, 
-            mobile,
-            status: null,
-            updated_at: null
-          }]);
-        
-        if (retryError) {
-          throw retryError;
+      // Send message to parent platform
+      window.parent.postMessage({
+        type: 'ADD_GUEST',
+        payload: {
+          name: name.trim(),
+          mobile: mobile.trim()
         }
-        
-        toast({
-          title: "Success",
-          description: "Guest added successfully",
-          variant: "default",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Guest added successfully",
-          variant: "default",
-        });
-      }
+      }, '*');
       
-      // Reset the form
+      // Reset the form (actual success will be handled by the message listener)
       setName('');
       setMobile('');
       

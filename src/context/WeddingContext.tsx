@@ -4,6 +4,7 @@ import { defaultWeddingData } from '@/placeholders';
 
 interface WeddingContextType {
   weddingData: WeddingData;
+  setAllWeddingData: (data: WeddingData) => void;
   updateCouple: (couple: Partial<WeddingCouple>) => void;
   addFamilyMember: (type: 'groom' | 'bride', member: Omit<FamilyMember, 'id'>) => void;
   removeFamilyMember: (type: 'groom' | 'bride', memberId: string) => void;
@@ -19,6 +20,10 @@ const WeddingContext = createContext<WeddingContextType | undefined>(undefined);
 
 export const WeddingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [weddingData, setWeddingData] = useState<WeddingData>(defaultWeddingData);
+
+  const setAllWeddingData = (data: WeddingData) => {
+    setWeddingData(data);
+  };
 
   const updateCouple = (couple: Partial<WeddingCouple>) => {
     setWeddingData(prev => ({
@@ -118,6 +123,7 @@ export const WeddingProvider: React.FC<{ children: ReactNode }> = ({ children })
   return (
     <WeddingContext.Provider value={{
       weddingData,
+      setAllWeddingData,
       updateCouple,
       addFamilyMember,
       removeFamilyMember,

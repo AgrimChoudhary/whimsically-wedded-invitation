@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Heart, Check, X, Clock, Search, Filter, Image as ImageIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,6 +21,18 @@ interface Wish {
   updated_at: string;
 }
 
+// Security: Define trusted origins
+const TRUSTED_ORIGINS = [
+  'https://utsavy-invitations.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:8080'
+];
+
+const isTrustedOrigin = (origin: string): boolean => {
+  return TRUSTED_ORIGINS.includes(origin) || origin === window.location.origin;
+};
+
 const WishManagement = () => {
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,56 +40,93 @@ const WishManagement = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved'>('all');
   const { toast } = useToast();
 
-  // Fetch all wishes (approved and pending)
-  const fetchWishes = async () => {
-    try {
-      console.log('Fetching all wishes for management...');
-      const { data, error } = await supabase
-        .from('wishes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching wishes:', error);
-        throw error;
+  // Set up message listener for platform communication
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Security check
+      if (!isTrustedOrigin(event.origin)) {
+        console.warn('Untrusted origin se message mila:', event.origin);
+        return;
       }
-      
-      console.log('Fetched wishes:', data);
-      setWishes(data || []);
-    } catch (error) {
-      console.error('Error fetching wishes:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load wishes",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
+      const { type, payload } = event.data;
+
+      switch (type) {
+        case 'INITIAL_ADMIN_WISHES_DATA':
+          console.log('Received initial admin wishes data:', payload);
+          if (payload.wishes && Array.isArray(payload.wishes)) {
+            setWishes(payload.wishes);
+          }
+          setIsLoading(false);
+          break;
+        case 'WISH_APPROVED':
+          console.log('Wish approved:', payload);
+          setWishes(prevWishes => 
+            prevWishes.map(wish => 
+              wish.id === payload.wishId 
+                ? { ...wish, is_approved: true } 
+                : wish
+            )
+          );
+          toast({
+            title: "✨ Wish Approved!",
+            description: "The wish is now visible to all guests.",
+          });
+          break;
+        case 'WISH_DELETED':
+          console.log('Wish deleted:', payload);
+          setWishes(prevWishes => 
+            prevWishes.filter(wish => wish.id !== payload.wishId)
+          );
+          toast({
+            title: "Wish Removed",
+            description: "The wish has been deleted.",
+          });
+          break;
+        case 'ERROR':
+          console.error('Error from platform:', payload);
+          toast({
+            title: "Error",
+            description: payload.message || "An error occurred",
+            variant: "destructive",
+          });
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    
+    // Request initial admin wishes data from platform
+    window.parent.postMessage({
+      type: 'REQUEST_INITIAL_ADMIN_WISHES_DATA',
+      payload: {}
+    }, '*');
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [toast]);
 
   // Approve a wish
   const approveWish = async (wishId: string) => {
     try {
       console.log('Approving wish:', wishId);
-      const { error } = await supabase
-        .from('wishes')
-        .update({ is_approved: true })
-        .eq('id', wishId);
+      
+      // Send message to parent platform
+      window.parent.postMessage({
+        type: 'APPROVE_WISH',
+        payload: {
+          wishId: wishId
+        }
+      }, '*');
 
-      if (error) {
-        console.error('Error approving wish:', error);
-        throw error;
-      }
-
+      // Optimistic update
       setWishes(wishes.map(wish => 
         wish.id === wishId ? { ...wish, is_approved: true } : wish
       ));
 
-      toast({
-        title: "✨ Wish Approved!",
-        description: "The wish is now visible to all guests.",
-      });
     } catch (error) {
       console.error('Error approving wish:', error);
       toast({
@@ -94,22 +141,18 @@ const WishManagement = () => {
   const rejectWish = async (wishId: string) => {
     try {
       console.log('Rejecting wish:', wishId);
-      const { error } = await supabase
-        .from('wishes')
-        .delete()
-        .eq('id', wishId);
+      
+      // Send message to parent platform
+      window.parent.postMessage({
+        type: 'DELETE_WISH',
+        payload: {
+          wishId: wishId
+        }
+      }, '*');
 
-      if (error) {
-        console.error('Error rejecting wish:', error);
-        throw error;
-      }
-
+      // Optimistic update
       setWishes(wishes.filter(wish => wish.id !== wishId));
 
-      toast({
-        title: "Wish Removed",
-        description: "The wish has been deleted.",
-      });
     } catch (error) {
       console.error('Error rejecting wish:', error);
       toast({
@@ -119,31 +162,6 @@ const WishManagement = () => {
       });
     }
   };
-
-  // Set up real-time subscription for new wishes
-  useEffect(() => {
-    fetchWishes();
-
-    const channel = supabase
-      .channel('wish-management-changes')
-      .on(
-        'postgres_changes',
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'wishes'
-        },
-        (payload) => {
-          console.log('Real-time wish change:', payload);
-          fetchWishes(); // Refresh the list when changes occur
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   // Filter wishes based on search and status
   const filteredWishes = wishes.filter(wish => {

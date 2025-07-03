@@ -1,6 +1,4 @@
-
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface Wish {
@@ -14,6 +12,7 @@ export interface Wish {
   is_approved: boolean;
   created_at: string;
   updated_at: string;
+  hasLiked?: boolean; // Added for platform integration
 }
 
 export interface WishLike {
@@ -24,97 +23,118 @@ export interface WishLike {
   created_at: string;
 }
 
+// Security: Define trusted origins
+const TRUSTED_ORIGINS = [
+  'https://utsavy-invitations.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:8080'
+];
+
+const isTrustedOrigin = (origin: string): boolean => {
+  return TRUSTED_ORIGINS.includes(origin) || origin === window.location.origin;
+};
+
+// Helper function to convert file to base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove the data:image/jpeg;base64, prefix
+      const base64 = result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = error => reject(error);
+  });
+};
+
 export const useWishes = () => {
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Fetch approved wishes for public display
-  const fetchWishes = async () => {
-    try {
-      console.log('Fetching approved wishes for public display...');
-      const { data, error } = await supabase
-        .from('wishes')
-        .select('*')
-        .eq('is_approved', true)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (error) {
-        console.error('Error fetching approved wishes:', error);
-        throw error;
+  // Set up message listener for platform communication
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Security check
+      if (!isTrustedOrigin(event.origin)) {
+        console.warn('Untrusted origin se message mila:', event.origin);
+        return;
       }
-      
-      console.log('Fetched approved wishes:', data);
-      setWishes(data || []);
-    } catch (error) {
-      console.error('Error fetching wishes:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load wishes",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  // Upload image to storage
-  const uploadImage = async (file: File, guestId: string): Promise<string | null> => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${guestId}-${Date.now()}.${fileExt}`;
-      const filePath = `wish-images/${fileName}`;
+      const { type, payload } = event.data;
 
-      console.log('Uploading image to wishes bucket:', fileName);
-
-      const { error: uploadError } = await supabase.storage
-        .from('wishes')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        console.error('Error uploading image:', uploadError);
-        // Try to create the bucket if it doesn't exist
-        const { error: bucketError } = await supabase.storage.createBucket('wishes', {
-          public: true,
-          allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
-          fileSizeLimit: 5242880 // 5MB
-        });
-        
-        if (bucketError && !bucketError.message.includes('already exists')) {
-          console.error('Error creating bucket:', bucketError);
-          return null;
-        }
-        
-        // Retry upload after bucket creation
-        const { error: retryError } = await supabase.storage
-          .from('wishes')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
+      switch (type) {
+        case 'INITIAL_WISHES_DATA':
+          console.log('Received initial wishes data:', payload);
+          if (payload.wishes && Array.isArray(payload.wishes)) {
+            setWishes(payload.wishes);
+          }
+          setIsLoading(false);
+          break;
+        case 'WISH_SUBMITTED_SUCCESS':
+          console.log('Wish submitted successfully');
+          toast({
+            title: "✨ Wish Submitted!",
+            description: "Your heartfelt wish has been submitted and is awaiting approval.",
+            duration: 4000,
           });
-          
-        if (retryError) {
-          console.error('Error on retry upload:', retryError);
-          return null;
-        }
+          // Refresh wishes data
+          window.parent.postMessage({
+            type: 'REQUEST_WISHES_REFRESH',
+            payload: {}
+          }, '*');
+          break;
+        case 'WISH_SUBMITTED_ERROR':
+          console.error('Error submitting wish:', payload.error);
+          toast({
+            title: "Error",
+            description: "Failed to submit wish. Please try again.",
+            variant: "destructive",
+          });
+          break;
+        case 'WISH_LIKE_UPDATED':
+          console.log('Wish like updated:', payload);
+          // Update local state with new like data
+          setWishes(prevWishes => 
+            prevWishes.map(wish => 
+              wish.id === payload.wishId 
+                ? { 
+                    ...wish, 
+                    likes_count: payload.likes_count,
+                    hasLiked: payload.hasLiked 
+                  }
+                : wish
+            )
+          );
+          if (payload.hasLiked) {
+            toast({
+              title: "❤️ Liked!",
+              description: "You liked this wish",
+              duration: 2000,
+            });
+          }
+          break;
+        default:
+          break;
       }
+    };
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('wishes')
-        .getPublicUrl(filePath);
+    window.addEventListener('message', handleMessage);
+    
+    // Request initial wishes data from platform
+    window.parent.postMessage({
+      type: 'REQUEST_INITIAL_WISHES_DATA',
+      payload: {}
+    }, '*');
 
-      console.log('Image uploaded successfully:', publicUrl);
-      return publicUrl;
-    } catch (error) {
-      console.error('Error in image upload:', error);
-      return null;
-    }
-  };
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [toast]);
 
   // Submit a new wish with optional image
   const submitWish = async (content: string, guestId: string, guestName: string, imageFile?: File) => {
@@ -140,18 +160,19 @@ export const useWishes = () => {
     try {
       console.log('Submitting wish:', { content, guestId, guestName, hasImage: !!imageFile });
       
-      let imageUrl = null;
+      let imageData = null;
       if (imageFile) {
-        console.log('Uploading image file:', imageFile.name, 'Size:', imageFile.size);
-        imageUrl = await uploadImage(imageFile, guestId);
-        if (!imageUrl) {
+        console.log('Converting image to base64:', imageFile.name, 'Size:', imageFile.size);
+        try {
+          imageData = await fileToBase64(imageFile);
+          console.log('Image converted to base64 successfully');
+        } catch (error) {
+          console.error('Error converting image to base64:', error);
           toast({
-            title: "Image upload failed",
-            description: "Could not upload image, but wish will be submitted without it.",
+            title: "Image processing failed",
+            description: "Could not process image, but wish will be submitted without it.",
             variant: "destructive",
           });
-        } else {
-          console.log('Image uploaded with URL:', imageUrl);
         }
       }
 
@@ -159,30 +180,18 @@ export const useWishes = () => {
         guest_id: guestId,
         guest_name: guestName,
         content: content.trim(),
-        image_url: imageUrl,
-        is_approved: false // Requires host approval
+        image_data: imageData, // Send as base64 string
+        image_filename: imageFile?.name || null,
+        image_type: imageFile?.type || null
       };
 
-      console.log('Inserting wish with data:', wishData);
+      console.log('Sending wish data to platform:', wishData);
 
-      const { data, error } = await supabase
-        .from('wishes')
-        .insert(wishData)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error submitting wish:', error);
-        throw error;
-      }
-
-      console.log('Wish submitted successfully:', data);
-
-      toast({
-        title: "✨ Wish Submitted!",
-        description: "Your heartfelt wish has been submitted and is awaiting approval.",
-        duration: 4000,
-      });
+      // Send message to parent platform
+      window.parent.postMessage({
+        type: 'SUBMIT_NEW_WISH',
+        payload: wishData
+      }, '*');
 
       return true;
     } catch (error) {
@@ -212,62 +221,43 @@ export const useWishes = () => {
     try {
       console.log('Toggling like for wish:', wishId, 'by guest:', guestId);
       
-      // Check if already liked
-      const { data: existingLike } = await supabase
-        .from('wish_likes')
-        .select('id')
-        .eq('wish_id', wishId)
-        .eq('guest_id', guestId)
-        .maybeSingle();
+      // Find current wish to determine current like status
+      const currentWish = wishes.find(wish => wish.id === wishId);
+      const currentlyLiked = currentWish?.hasLiked || false;
+      
+      // Optimistic update - immediately update local state
+      setWishes(wishes.map(wish => 
+        wish.id === wishId 
+          ? { 
+              ...wish, 
+              likes_count: currentlyLiked ? Math.max(0, wish.likes_count - 1) : wish.likes_count + 1,
+              hasLiked: !currentlyLiked
+            }
+          : wish
+      ));
 
-      if (existingLike) {
-        // Remove like
-        const { error } = await supabase
-          .from('wish_likes')
-          .delete()
-          .eq('wish_id', wishId)
-          .eq('guest_id', guestId);
+      // Send message to parent platform
+      window.parent.postMessage({
+        type: 'TOGGLE_WISH_LIKE',
+        payload: {
+          wishId: wishId,
+          guestId: guestId,
+          guestName: guestName
+        }
+      }, '*');
 
-        if (error) throw error;
-        console.log('Like removed');
-        
-        // Update local state immediately
-        setWishes(wishes.map(wish => 
-          wish.id === wishId 
-            ? { ...wish, likes_count: Math.max(0, wish.likes_count - 1) }
-            : wish
-        ));
-      } else {
-        // Add like
-        const { error } = await supabase
-          .from('wish_likes')
-          .insert({
-            wish_id: wishId,
-            guest_id: guestId,
-            guest_name: guestName
-          });
-
-        if (error) throw error;
-        console.log('Like added');
-
-        // Update local state immediately
-        setWishes(wishes.map(wish => 
-          wish.id === wishId 
-            ? { ...wish, likes_count: wish.likes_count + 1 }
-            : wish
-        ));
-
-        toast({
-          title: "❤️ Liked!",
-          description: "You liked this wish",
-          duration: 2000,
-        });
-      }
-
-      // Also refresh wishes to get updated counts from server
-      setTimeout(() => fetchWishes(), 500);
     } catch (error) {
       console.error('Error toggling like:', error);
+      // Revert optimistic update on error
+      setWishes(wishes.map(wish => 
+        wish.id === wishId 
+          ? { 
+              ...wish, 
+              likes_count: currentWish?.likes_count || 0,
+              hasLiked: currentWish?.hasLiked || false
+            }
+          : wish
+      ));
       toast({
         title: "Error",
         description: "Failed to update like",
@@ -276,43 +266,13 @@ export const useWishes = () => {
     }
   };
 
-  // Set up real-time subscription
-  useEffect(() => {
-    fetchWishes();
-
-    const channel = supabase
-      .channel('public-wishes-changes')
-      .on(
-        'postgres_changes',
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'wishes',
-          filter: 'is_approved=eq.true'
-        },
-        (payload) => {
-          console.log('Real-time approved wish change:', payload);
-          fetchWishes();
-        }
-      )
-      .on(
-        'postgres_changes',
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'wish_likes'
-        },
-        (payload) => {
-          console.log('Real-time like change:', payload);
-          fetchWishes();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  const refreshWishes = () => {
+    // Request fresh wishes data from platform
+    window.parent.postMessage({
+      type: 'REQUEST_WISHES_REFRESH',
+      payload: {}
+    }, '*');
+  };
 
   return {
     wishes,
@@ -320,6 +280,6 @@ export const useWishes = () => {
     isSubmitting,
     submitWish,
     toggleLike,
-    refreshWishes: fetchWishes
+    refreshWishes
   };
 };

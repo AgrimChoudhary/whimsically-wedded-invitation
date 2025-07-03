@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Settings, Heart, User, Copy, Edit, Trash, Share2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,6 +28,18 @@ interface Guest {
   created_at?: string;
   updated_at?: string;
 }
+
+// Security: Define trusted origins
+const TRUSTED_ORIGINS = [
+  'https://utsavy-invitations.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:8080'
+];
+
+const isTrustedOrigin = (origin: string): boolean => {
+  return TRUSTED_ORIGINS.includes(origin) || origin === window.location.origin;
+};
 
 const GuestManagement = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -76,9 +87,82 @@ const GuestManagement = () => {
     ];
   };
   
-  // Fetch existing guests
+  // Set up message listener for platform communication
   useEffect(() => {
-    fetchGuests();
+    const handleMessage = (event: MessageEvent) => {
+      // Security check
+      if (!isTrustedOrigin(event.origin)) {
+        console.warn('Untrusted origin se message mila:', event.origin);
+        return;
+      }
+
+      const { type, payload } = event.data;
+
+      switch (type) {
+        case 'INITIAL_GUESTS_DATA':
+          console.log('Received initial guests data:', payload);
+          if (payload.guests && Array.isArray(payload.guests)) {
+            setGuests(payload.guests);
+          }
+          setIsLoading(false);
+          break;
+        case 'GUEST_ADDED':
+          console.log('Guest added:', payload);
+          setGuests(prev => [payload.guest, ...prev]);
+          toast({
+            title: "Success",
+            description: "Guest added successfully",
+            variant: "default",
+          });
+          break;
+        case 'GUEST_UPDATED':
+          console.log('Guest updated:', payload);
+          setGuests(prev => prev.map(guest => 
+            guest.id === payload.guest.id ? payload.guest : guest
+          ));
+          toast({
+            title: "Success",
+            description: "Guest updated successfully",
+            variant: "default",
+          });
+          break;
+        case 'GUEST_DELETED':
+          console.log('Guest deleted:', payload);
+          setGuests(prev => prev.filter(guest => guest.id !== payload.guestId));
+          toast({
+            title: "Guest removed",
+            variant: "default",
+          });
+          break;
+        case 'ERROR':
+          console.error('Error from platform:', payload);
+          toast({
+            title: "Error",
+            description: payload.message || "An error occurred",
+            variant: "destructive",
+          });
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    
+    // Request initial guests data from platform
+    setIsLoading(true);
+    window.parent.postMessage({
+      type: 'REQUEST_INITIAL_GUESTS_DATA',
+      payload: {}
+    }, '*');
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+  
+  // Load saved message template
+  useEffect(() => {
     // Load saved message template from localStorage if it exists
     const savedTemplate = localStorage.getItem('whatsappMessageTemplate');
     if (savedTemplate) {
@@ -90,29 +174,12 @@ const GuestManagement = () => {
     }
   }, []);
   
-  const fetchGuests = async () => {
+  const fetchGuests = () => {
     setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('guests')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        throw error;
-      }
-      
-      setGuests(data || []);
-    } catch (error) {
-      console.error('Error fetching guests:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load guest list",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    window.parent.postMessage({
+      type: 'REQUEST_INITIAL_GUESTS_DATA',
+      payload: {}
+    }, '*');
   };
   
   const confirmDeleteGuest = (guest: Guest) => {
@@ -123,22 +190,18 @@ const GuestManagement = () => {
     if (!guestToDelete) return;
     
     try {
-      const { error } = await supabase
-        .from('guests')
-        .delete()
-        .eq('id', guestToDelete.id);
+      // Send message to parent platform
+      window.parent.postMessage({
+        type: 'DELETE_GUEST',
+        payload: {
+          guestId: guestToDelete.id
+        }
+      }, '*');
       
-      if (error) {
-        throw error;
-      }
-      
-      // Update the local state
+      // Optimistic update
       setGuests(guests.filter(guest => guest.id !== guestToDelete.id));
+      setGuestToDelete(null);
       
-      toast({
-        title: "Guest removed",
-        variant: "default",
-      });
     } catch (error) {
       console.error('Error deleting guest:', error);
       toast({
@@ -146,8 +209,6 @@ const GuestManagement = () => {
         description: "Failed to remove guest",
         variant: "destructive",
       });
-    } finally {
-      setGuestToDelete(null);
     }
   };
   
@@ -162,31 +223,25 @@ const GuestManagement = () => {
     if (!guestToEdit) return;
     
     try {
-      const { error } = await supabase
-        .from('guests')
-        .update({ 
+      // Send message to parent platform
+      window.parent.postMessage({
+        type: 'UPDATE_GUEST',
+        payload: {
+          guestId: guestToEdit.id,
           name: editName,
           mobile: editMobile
-        })
-        .eq('id', guestToEdit.id);
+        }
+      }, '*');
       
-      if (error) {
-        throw error;
-      }
-      
-      // Update the local state
+      // Optimistic update
       setGuests(guests.map(guest => 
         guest.id === guestToEdit.id 
           ? { ...guest, name: editName, mobile: editMobile } 
           : guest
       ));
       
-      toast({
-        title: "Guest updated",
-        variant: "default",
-      });
-      
       setIsEditDialogOpen(false);
+      
     } catch (error) {
       console.error('Error updating guest:', error);
       toast({
