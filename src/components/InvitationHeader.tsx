@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
+import { useWedding } from '../context/WeddingContext';
 import { FallingHearts, FireworksDisplay } from './AnimatedElements';
 import { Star, Music, Heart, Crown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -13,12 +14,13 @@ interface InvitationHeaderProps {
 }
 
 const InvitationHeader: React.FC<InvitationHeaderProps> = ({ 
-  brideName = "Kiara", 
-  groomName = "Sidharth",
+  brideName, 
+  groomName,
   coupleImageUrl,
   startGuestNameAnimation = false
 }) => {
   const { guestName } = useGuest();
+  const { weddingData } = useWedding();
   const [showHearts, setShowHearts] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -26,6 +28,14 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
   const [clickCount, setClickCount] = useState(0);
   const [showGaneshaImage, setShowGaneshaImage] = useState(false);
   const isMobile = useIsMobile();
+  
+  // Use names from props if provided, otherwise use from weddingData
+  const displayGroomName = groomName || weddingData.couple.groomFirstName;
+  const displayBrideName = brideName || weddingData.couple.brideFirstName;
+  
+  // Determine order based on groomFirst flag
+  const firstPersonName = weddingData.groomFirst ? displayGroomName : displayBrideName;
+  const secondPersonName = weddingData.groomFirst ? displayBrideName : displayGroomName;
   
   const triggerMagicalSurprise = () => {
     setIsClicked(true);
@@ -253,8 +263,8 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 isClicked ? 'shadow-2xl border-wedding-gold/60' : ''
               }`}>
                 <img 
-                  src={coupleImageUrl || "/lovable-uploads/f002c96a-d091-4373-9cc7-72487af38606.png"}
-                  alt={`${groomName} and ${brideName}`}
+                  src={coupleImageUrl || weddingData.couple.couplePhotoUrl || "https://res.cloudinary.com/dtjjgiitl/image/upload/q_auto:good,f_auto,fl_progressive/v1751521337/o35sbpmxjbhk4xi16ds1.jpg"}
+                  alt={`${firstPersonName} and ${secondPersonName}`}
                   className={`w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10 transition-all duration-500 ${
                     isClicked ? 'brightness-110 contrast-110' : ''
                   }`}
@@ -269,7 +279,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 isClicked ? 'text-shadow-lg' : ''
               }`}>
                 <span className="inline-block">
-                  {groomName}
+                  {firstPersonName}
                 </span>
                 
                 <span className={`inline-block mx-4 text-wedding-gold text-4xl sm:text-5xl md:text-6xl transition-all duration-500 ${
@@ -279,7 +289,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 </span>
                 
                 <span className="inline-block">
-                  {brideName}
+                  {secondPersonName}
                 </span>
               </h2>
               

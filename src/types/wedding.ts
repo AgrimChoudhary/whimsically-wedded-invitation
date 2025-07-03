@@ -74,4 +74,5 @@ export interface WeddingData {
   photoGallery: PhotoGalleryItem[];
   contacts: ContactPerson[];
   customMessage?: string;
+  groomFirst?: boolean; // Added for platform integration
 }

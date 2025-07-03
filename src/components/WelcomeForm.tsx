@@ -14,7 +14,7 @@ const WelcomeForm: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [showIcon, setShowIcon] = useState(0);
   const { isPlaying, toggleMusic } = useAudio();
-  const { guestName, isLoading: isGuestLoading } = useGuest();
+  const { guestName, isLoading: isGuestLoading, guestId } = useGuest();
   const { weddingData } = useWedding();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -37,20 +37,35 @@ const WelcomeForm: React.FC = () => {
   const handleOpenInvitation = () => {
     setIsLoading(true);
     
+    // Send INVITATION_VIEWED message to parent platform
+    if (guestId) {
+      window.parent.postMessage({
+        type: 'INVITATION_VIEWED',
+        payload: {
+          guestId: guestId,
+          eventId: weddingData.events[0]?.id || 'default-event-id'
+        }
+      }, '*');
+    }
+    
     // Simulate loading for better UX
     setTimeout(() => {
       // Extract guestId from the path if present
       const pathParts = window.location.pathname.split('/').filter(Boolean);
-      const guestId = pathParts.length === 1 && pathParts[0] !== 'invitation' ? pathParts[0] : '';
+      const currentGuestId = pathParts.length === 1 && pathParts[0] !== 'invitation' ? pathParts[0] : '';
       
       // Navigate to invitation page with guestId if available
-      if (guestId) {
-        navigate(`/invitation/${guestId}`);
+      if (currentGuestId) {
+        navigate(`/invitation/${currentGuestId}${window.location.search}`);
       } else {
-        navigate('/invitation');
+        navigate(`/invitation${window.location.search}`);
       }
     }, 800);
   };
+
+  // Determine which name to show first based on groomFirst flag
+  const firstPersonName = weddingData.groomFirst ? weddingData.couple.groomFirstName : weddingData.couple.brideFirstName;
+  const secondPersonName = weddingData.groomFirst ? weddingData.couple.brideFirstName : weddingData.couple.groomFirstName;
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-md px-6 py-8">
@@ -132,7 +147,7 @@ const WelcomeForm: React.FC = () => {
           <div className="absolute -left-8 -top-8 text-7xl text-wedding-gold/8 font-great-vibes">"</div>
           <div className="relative px-6 py-4 rounded-xl bg-gradient-to-r from-wedding-cream/60 to-wedding-blush/40 backdrop-blur-sm border border-wedding-gold/20">
             <p className="text-wedding-maroon font-kruti text-xl md:text-2xl relative z-10 leading-relaxed">
-              {weddingData.couple.groomFirstName} & {weddingData.couple.brideFirstName} cordially invite you to celebrate their wedding
+              {firstPersonName} & {secondPersonName} cordially invite you to celebrate their wedding
             </p>
           </div>
           <div className="absolute -right-8 -bottom-8 text-7xl text-wedding-gold/8 font-great-vibes">"</div>

@@ -10,6 +10,10 @@ const CoupleSection: React.FC = () => {
   const isMobile = useIsMobile();
   const { weddingData } = useWedding();
 
+  // Determine which name to show first based on groomFirst flag
+  const firstPersonName = weddingData.groomFirst ? weddingData.couple.groomFirstName : weddingData.couple.brideFirstName;
+  const secondPersonName = weddingData.groomFirst ? weddingData.couple.brideFirstName : weddingData.couple.groomFirstName;
+
   return (
     <section className="w-full py-8 md:py-10 overflow-hidden bg-wedding-cream/20">
       <div className="w-full max-w-4xl mx-auto px-4">
@@ -35,7 +39,7 @@ const CoupleSection: React.FC = () => {
               <div className="absolute inset-0 overflow-hidden">
                 <img 
                   src={weddingData.couple.couplePhotoUrl || "https://www.koimoi.com/wp-content/new-galleries/2022/12/sidharth-malhotra-kiara-advani-to-have-a-grand-wedding-in-february-01.jpg"} 
-                  alt={`${weddingData.couple.groomFirstName} and ${weddingData.couple.brideFirstName} Wedding`} 
+                  alt={`${firstPersonName} and ${secondPersonName} Wedding`} 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"
                 />

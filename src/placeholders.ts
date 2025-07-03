@@ -191,7 +191,8 @@ export const defaultWeddingData: WeddingData = {
       phone: "+91 98765 43211"
     }
   ],
-  customMessage: "We are excited to celebrate our special day with you!"
+  customMessage: "We are excited to celebrate our special day with you!",
+  groomFirst: false // Default value for local development
 };
 
 // Helper function to format wedding date

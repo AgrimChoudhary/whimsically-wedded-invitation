@@ -11,6 +11,13 @@ const RomanticJourneySection: React.FC = () => {
   const isMobile = useIsMobile();
   const { weddingData } = useWedding();
 
+  // Determine which name to show first based on groomFirst flag
+  const firstPersonName = weddingData.groomFirst ? weddingData.couple.groomFirstName : weddingData.couple.brideFirstName;
+  const secondPersonName = weddingData.groomFirst ? weddingData.couple.brideFirstName : weddingData.couple.groomFirstName;
+  
+  const firstPersonCity = weddingData.groomFirst ? weddingData.couple.groomCity : weddingData.couple.brideCity;
+  const secondPersonCity = weddingData.groomFirst ? weddingData.couple.brideCity : weddingData.couple.groomCity;
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -126,7 +133,7 @@ const RomanticJourneySection: React.FC = () => {
                 <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-full border-2 border-red-200 shadow-lg">
                   <MapPin size={18} className="text-red-600" />
                   <span className="text-base font-dancing-script text-red-700 font-semibold">
-                    {weddingData.couple.brideFirstName} - {weddingData.couple.brideCity || "Jaipur"}
+                    {firstPersonName} - {firstPersonCity || "Jaipur"}
                   </span>
                 </div>
               </div>
@@ -135,7 +142,7 @@ const RomanticJourneySection: React.FC = () => {
                 <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-full border-2 border-red-200 shadow-lg">
                   <MapPin size={18} className="text-red-600" />
                   <span className="text-base font-dancing-script text-red-700 font-semibold">
-                    {weddingData.couple.groomFirstName} - {weddingData.couple.groomCity || "Delhi"}
+                    {secondPersonName} - {secondPersonCity || "Delhi"}
                   </span>
                 </div>
               </div>
@@ -175,7 +182,7 @@ const RomanticJourneySection: React.FC = () => {
                 <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-2.5 rounded-full border-2 border-red-200 shadow-lg">
                   <MapPin size={16} className="text-red-600" />
                   <span className="text-sm font-dancing-script text-red-700 font-semibold">
-                    {weddingData.couple.brideFirstName} - {weddingData.couple.brideCity || "Jaipur"}
+                    {firstPersonName} - {firstPersonCity || "Jaipur"}
                   </span>
                 </div>
               </div>
@@ -184,7 +191,7 @@ const RomanticJourneySection: React.FC = () => {
                 <div className="flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-2.5 rounded-full border-2 border-red-200 shadow-lg">
                   <MapPin size={16} className="text-red-600" />
                   <span className="text-sm font-dancing-script text-red-700 font-semibold">
-                    {weddingData.couple.groomFirstName} - {weddingData.couple.groomCity || "Delhi"}
+                    {secondPersonName} - {secondPersonCity || "Delhi"}
                   </span>
                 </div>
               </div>
@@ -194,7 +201,7 @@ const RomanticJourneySection: React.FC = () => {
           {/* Animated Hearts */}
           {heartsVisible && (
             <>
-              {/* Bride's Heart */}
+              {/* First Person's Heart */}
               <div 
                 className={`absolute w-8 h-8 md:w-12 md:h-12 ${
                   isMobile 
@@ -212,7 +219,7 @@ const RomanticJourneySection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Groom's Heart */}
+              {/* Second Person's Heart */}
               <div 
                 className={`absolute w-8 h-8 md:w-12 md:h-12 ${
                   isMobile 

@@ -8,6 +8,10 @@ export const Footer: React.FC = () => {
   const isMobile = useIsMobile();
   const { weddingData } = useWedding();
   
+  // Determine which name to show first based on groomFirst flag
+  const firstPersonName = weddingData.groomFirst ? weddingData.couple.groomFirstName : weddingData.couple.brideFirstName;
+  const secondPersonName = weddingData.groomFirst ? weddingData.couple.brideFirstName : weddingData.couple.groomFirstName;
+  
   return (
     <footer className="w-full py-8 mt-auto bg-gradient-to-b from-wedding-cream/10 to-wedding-cream/40 backdrop-blur-sm border-t border-wedding-gold/20 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-wedding-gold/30 to-transparent"></div>
@@ -97,7 +101,7 @@ export const Footer: React.FC = () => {
           </p>
           
           <p className="text-sm text-gray-500 font-dancing-script">
-            With love, {weddingData.couple.groomFirstName} & {weddingData.couple.brideFirstName} | {formatWeddingDate(weddingData.mainWedding.date)}
+            With love, {firstPersonName} & {secondPersonName} | {formatWeddingDate(weddingData.mainWedding.date)}
           </p>
         </div>
       </div>
