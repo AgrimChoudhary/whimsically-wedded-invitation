@@ -121,8 +121,6 @@ const Invitation = () => {
   }, [setAllWeddingData, setGuestName, setGuestId]);
   
   useEffect(() => {
-    // Show Ganesha image after the transition animation completes
-    // This creates the effect of the image moving into position
     const timer = setTimeout(() => {
       setIsLoading(false);
       // Start Ganesha transition immediately after loading completes
