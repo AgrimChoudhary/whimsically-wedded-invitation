@@ -35,6 +35,10 @@ const Index = () => {
     <Star key="star" className="text-wedding-maroon" />
   ];
 
+  // Determine which name to show first based on groomFirst flag
+  const firstPersonName = weddingData.groomFirst ? weddingData.couple.groomFirstName : weddingData.couple.brideFirstName;
+  const secondPersonName = weddingData.groomFirst ? weddingData.couple.brideFirstName : weddingData.couple.groomFirstName;
+
   // Read URL parameters and update contexts
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -159,7 +163,7 @@ const Index = () => {
               </div>
               
               <h1 className="font-great-vibes text-4xl sm:text-5xl md:text-6xl text-wedding-maroon mb-4 opacity-0 animate-fade-in-up relative inline-block">
-                {weddingData.couple.groomFirstName} & {weddingData.couple.brideFirstName}
+                {firstPersonName} & {secondPersonName}
                 {showSparkle && (
                   <Sparkles 
                     size={isMobile ? 18 : 28} 

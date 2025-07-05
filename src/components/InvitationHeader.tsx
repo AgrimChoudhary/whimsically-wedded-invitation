@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { useWedding } from '../context/WeddingContext';
@@ -274,7 +275,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 isClicked ? 'shadow-2xl border-wedding-gold/60' : ''
               }`}>
                 <img 
-                  src="https://xieiyoyiuhzrhwqhfmuq.supabase.co/storage/v1/object/public/images/for%20links%20only/f002c96a-d091-4373-9cc7-72487af38606.png"
+                  src={weddingData.couple.couplePhotoUrl || "/placeholder.svg"}
                   alt={`${firstPersonName} and ${secondPersonName}`}
                   className={`w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10 transition-all duration-500 ${
                     isClicked ? 'brightness-110 contrast-110' : ''
