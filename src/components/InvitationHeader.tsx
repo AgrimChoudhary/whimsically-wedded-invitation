@@ -175,7 +175,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                   size={18} 
                   className="absolute -bottom-2 -left-4 text-red-400 animate-pulse-soft" 
                   fill="#F87171" 
-                  style={{animationDelay: '1.2s'}}
+                  style={{animationDelay: '0.2s'}}
                 />
                 <Star 
                   size={15} 
