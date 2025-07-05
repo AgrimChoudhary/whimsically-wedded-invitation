@@ -181,7 +181,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                   size={15} 
                   className="absolute -bottom-3 -right-3 text-orange-300 animate-pulse-soft" 
                   fill="#FDBA74" 
-                  style={{animationDelay: '0.6s'}}
+                  style={{animationDelay: '0.2s'}}
                 />
               </div>
             </div>
