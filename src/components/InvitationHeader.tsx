@@ -150,7 +150,7 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 {/* Only show the image after transition completes */}
                 {showGaneshaImage && (
                   <img 
-                    src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
+                    src="https://xieiyoyiuhzrhwqhfmuq.supabase.co/storage/v1/object/public/images/for%20links%20only/f002c96a-d091-4373-9cc7-72487af38606.png" 
                     alt="Lord Ganesha" 
                     className="w-full h-full object-contain animate-floating relative z-10 opacity-0 animate-fade-in"
                     loading="lazy"
