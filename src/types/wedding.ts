@@ -1,3 +1,4 @@
+
 export interface WeddingCouple {
   groomFirstName: string;
   groomLastName: string;
@@ -24,10 +25,12 @@ export interface WeddingFamily {
   groomFamily: {
     title: string;
     members: FamilyMember[];
+    familyPhotoUrl?: string; // New parameter for groom family photo
   };
   brideFamily: {
     title: string;
     members: FamilyMember[];
+    familyPhotoUrl?: string; // New parameter for bride family photo
   };
 }
 

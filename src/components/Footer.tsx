@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MapPin, Phone, Heart } from 'lucide-react';
@@ -68,20 +69,24 @@ export const Footer: React.FC = () => {
                   <Phone size={20} className="text-wedding-maroon" />
                 </div>
                 <h3 className="text-lg font-playfair text-wedding-maroon mb-2">Contact</h3>
-                {weddingData.contacts.length > 0 && (
-                  <>
-                    <p className="text-sm font-medium text-gray-700 mb-1">{weddingData.contacts[0].name}</p>
-                    <p className="text-xs text-gray-600 mb-3">{weddingData.contacts[0].relation}</p>
-                    
-                    <a 
-                      href={`tel:${weddingData.contacts[0].phone}`} 
-                      className="inline-flex items-center px-3 py-1.5 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-xs font-medium"
-                    >
-                      <Phone size={12} className="mr-1" />
-                      {weddingData.contacts[0].phone}
-                    </a>
-                  </>
-                )}
+                
+                {/* Dynamic contact cards */}
+                <div className="space-y-3 w-full">
+                  {weddingData.contacts.map((contact, index) => (
+                    <div key={contact.id || index} className="border-b border-wedding-gold/20 pb-2 last:border-b-0 last:pb-0">
+                      <p className="text-sm font-medium text-gray-700 mb-1">{contact.name}</p>
+                      <p className="text-xs text-gray-600 mb-2">{contact.relation}</p>
+                      
+                      <a 
+                        href={`tel:${contact.phone}`} 
+                        className="inline-flex items-center px-3 py-1.5 rounded-full bg-wedding-gold/10 hover:bg-wedding-gold/20 text-wedding-maroon border border-wedding-gold/30 transition-all duration-300 text-xs font-medium"
+                      >
+                        <Phone size={12} className="mr-1" />
+                        {contact.phone}
+                      </a>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
