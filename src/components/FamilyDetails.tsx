@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import FamilyMemberCard from './FamilyMemberCard';
 import { Heart, Users, Crown, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { AspectRatio } from "./ui/aspect-ratio";
+import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { motion } from "framer-motion";
 import { useWedding } from '@/context/WeddingContext';
@@ -54,45 +54,9 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
     return members.filter(member => !member.name.includes(" & "));
   };
 
-  // Extract parents for main card display
-  const getParentsForMainCard = (members: FamilyMember[], familyType: 'groom' | 'bride') => {
-    const fatherRelation = familyType === 'groom' ? 'Father of the Groom' : 'Father of the Bride';
-    const motherRelation = familyType === 'groom' ? 'Mother of the Groom' : 'Mother of the Bride';
-    
-    const father = members.find(member => member.relation === fatherRelation);
-    const mother = members.find(member => member.relation === motherRelation);
-    
-    // If we have both parents, combine them
-    if (father && mother) {
-      return {
-        name: `${father.name} & ${mother.name}`,
-        relation: `Parents of the ${familyType === 'groom' ? 'Groom' : 'Bride'}`,
-        image: father.image || mother.image, // Use father's image, fallback to mother's
-      };
-    }
-    
-    // If we have a combined parents entry, use it
-    const combinedParents = members.find(member => 
-      member.relation.includes('Parents') && !member.showInDialogOnly
-    );
-    if (combinedParents) {
-      return combinedParents;
-    }
-    
-    // Fallback to first visible member
-    const visibleMembers = getVisibleMembers(members);
-    return visibleMembers[0] || { name: '', relation: '', image: undefined };
-  };
-
   // Determine which family to show first based on groomFirst flag
   const firstFamily = weddingData.groomFirst ? groomFamily : brideFamily;
   const secondFamily = weddingData.groomFirst ? brideFamily : groomFamily;
-  const firstFamilyType = weddingData.groomFirst ? 'groom' : 'bride';
-  const secondFamilyType = weddingData.groomFirst ? 'bride' : 'groom';
-
-  // Get parent data for main cards
-  const firstFamilyMainCard = getParentsForMainCard(firstFamily.members, firstFamilyType);
-  const secondFamilyMainCard = getParentsForMainCard(secondFamily.members, secondFamilyType);
 
   return (
     <section className="w-full py-16 bg-gradient-to-br from-wedding-cream via-wedding-blush/5 to-wedding-cream relative overflow-hidden">
@@ -137,9 +101,9 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
               </div>
               
               <FamilyMemberCard
-                name={firstFamilyMainCard.name}
-                relation={firstFamilyMainCard.relation}
-                photoUrl={firstFamilyMainCard.image}
+                name={getVisibleMembers(firstFamily.members)[0]?.name || ''}
+                relation={getVisibleMembers(firstFamily.members)[0]?.relation || ''}
+                photoUrl={getVisibleMembers(firstFamily.members)[0]?.image}
               />
 
               <div className="mt-4 flex items-center justify-center">
@@ -169,9 +133,9 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
               </div>
               
               <FamilyMemberCard
-                name={secondFamilyMainCard.name}
-                relation={secondFamilyMainCard.relation}
-                photoUrl={secondFamilyMainCard.image}
+                name={getVisibleMembers(secondFamily.members)[0]?.name || ''}
+                relation={getVisibleMembers(secondFamily.members)[0]?.relation || ''}
+                photoUrl={getVisibleMembers(secondFamily.members)[0]?.image}
               />
 
               <div className="mt-4 flex items-center justify-center">
