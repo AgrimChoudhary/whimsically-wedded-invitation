@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import FamilyMemberCard from './FamilyMemberCard';
 import { Heart, Users, Crown, Sparkles } from 'lucide-react';
@@ -19,6 +20,9 @@ interface FamilyMember {
 interface FamilyData {
   title: string;
   members: FamilyMember[];
+  familyPhotoUrl?: string;
+  fatherName?: string;
+  motherName?: string;
 }
 
 interface FamilyDetailsProps {
@@ -43,15 +47,16 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
     setIsDialogOpen(true);
   };
 
-  // Filter out members that should only show in dialog
-  const getVisibleMembers = (members: FamilyMember[]) => {
-    return members.filter(member => !member.showInDialogOnly);
-  };
-
-  // For dialog view, filter out the combined parent card
-  const getDialogMembers = (members: FamilyMember[]) => {
-    // Remove entries that contain both parents (typically contain " & " in the name)
-    return members.filter(member => !member.name.includes(" & "));
+  // Get combined parents name for main card display
+  const getCombinedParentsName = (family: FamilyData) => {
+    if (family.fatherName && family.motherName) {
+      return `${family.fatherName} & ${family.motherName}`;
+    } else if (family.fatherName) {
+      return family.fatherName;
+    } else if (family.motherName) {
+      return family.motherName;
+    }
+    return 'Parents';
   };
 
   // Determine which family to show first based on groomFirst flag
@@ -101,9 +106,9 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
               </div>
               
               <FamilyMemberCard
-                name={getVisibleMembers(firstFamily.members)[0]?.name || ''}
-                relation={getVisibleMembers(firstFamily.members)[0]?.relation || ''}
-                photoUrl={getVisibleMembers(firstFamily.members)[0]?.image}
+                name={getCombinedParentsName(firstFamily)}
+                relation="Parents"
+                photoUrl={firstFamily.familyPhotoUrl || "/placeholder.svg"}
               />
 
               <div className="mt-4 flex items-center justify-center">
@@ -133,9 +138,9 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
               </div>
               
               <FamilyMemberCard
-                name={getVisibleMembers(secondFamily.members)[0]?.name || ''}
-                relation={getVisibleMembers(secondFamily.members)[0]?.relation || ''}
-                photoUrl={getVisibleMembers(secondFamily.members)[0]?.image}
+                name={getCombinedParentsName(secondFamily)}
+                relation="Parents"
+                photoUrl={secondFamily.familyPhotoUrl || "/placeholder.svg"}
               />
 
               <div className="mt-4 flex items-center justify-center">
@@ -164,7 +169,7 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
             </DialogHeader>
             
             <div className="grid grid-cols-1 gap-6 mt-4 max-h-[60vh] overflow-y-auto pr-1">
-              {selectedFamily && getDialogMembers(selectedFamily.members).map((member, index) => (
+              {selectedFamily && selectedFamily.members.map((member, index) => (
                 <div key={index} className="bg-gradient-to-br from-white/90 to-wedding-cream/60 rounded-lg shadow-sm p-4 border border-wedding-gold/20 hover:border-wedding-gold/40 transition-all duration-300">
                   <div className="flex flex-col sm:flex-row gap-4 items-center">
                     <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-wedding-gold/30 shadow-lg">
