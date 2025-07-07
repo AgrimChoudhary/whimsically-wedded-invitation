@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import FamilyMemberCard from './FamilyMemberCard';
 import { Heart, Users, Crown, Sparkles } from 'lucide-react';
@@ -19,6 +20,8 @@ interface FamilyMember {
 interface FamilyData {
   title: string;
   members: FamilyMember[];
+  familyPhotoUrl?: string;
+  parentsNameCombined?: string;
 }
 
 interface FamilyDetailsProps {
@@ -58,6 +61,73 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
   const firstFamily = weddingData.groomFirst ? groomFamily : brideFamily;
   const secondFamily = weddingData.groomFirst ? brideFamily : groomFamily;
 
+  const FamilyCard = ({ family }: { family: FamilyData }) => (
+    <motion.div 
+      className="relative rounded-xl overflow-hidden luxury-card cursor-pointer group"
+      whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
+      whileTap={{ scale: 0.98 }}
+      onClick={() => handleShowFamily(family)}
+    >
+      <div className="absolute inset-0 luxury-glow-border opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+      <div className="relative bg-gradient-to-br from-white/95 to-wedding-cream/80 backdrop-blur-sm">
+        {/* Family Photo Section */}
+        {family.familyPhotoUrl && (
+          <div className="relative h-48 overflow-hidden">
+            <AspectRatio ratio={16/9} className="bg-wedding-cream">
+              <img 
+                src={family.familyPhotoUrl} 
+                alt={`${family.title} Photo`}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+            </AspectRatio>
+            
+            {/* Family Title Overlay */}
+            <div className="absolute bottom-3 left-3 right-3">
+              <h3 className="text-white font-playfair text-lg flex items-center gap-2">
+                <Crown size={16} className="text-wedding-gold" />
+                {family.title}
+              </h3>
+            </div>
+          </div>
+        )}
+        
+        {/* Family Details Section */}
+        <div className="p-6">
+          {/* Show title if no photo */}
+          {!family.familyPhotoUrl && (
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-playfair text-wedding-maroon flex items-center justify-center gap-2">
+                <Crown size={18} className="text-wedding-gold" />
+                {family.title}
+              </h3>
+            </div>
+          )}
+          
+          {/* Combined Parents Names */}
+          {family.parentsNameCombined && (
+            <div className="text-center mb-4">
+              <h4 className="font-playfair text-lg text-wedding-maroon mb-1">
+                {family.parentsNameCombined}
+              </h4>
+              <p className="text-sm text-gray-600 italic">Parents</p>
+            </div>
+          )}
+
+          <div className="flex items-center justify-center">
+            <Badge variant="outline" className="bg-wedding-gold/10 text-wedding-maroon border-wedding-gold/30 group-hover:bg-wedding-gold/20 group-hover:border-wedding-gold/50 transition-all duration-300">
+              <Users size={14} className="mr-1" /> 
+              <span className="text-xs">View Family Details</span>
+              <Sparkles size={12} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Badge>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+
   return (
     <section className="w-full py-16 bg-gradient-to-br from-wedding-cream via-wedding-blush/5 to-wedding-cream relative overflow-hidden">
       {/* Royal background elements */}
@@ -85,68 +155,10 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* First Family Card (based on groomFirst flag) */}
-          <motion.div 
-            className="relative rounded-xl overflow-hidden luxury-card cursor-pointer group"
-            whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => handleShowFamily(firstFamily)}
-          >
-            <div className="absolute inset-0 luxury-glow-border opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-            <div className="relative p-6 bg-gradient-to-br from-white/95 to-wedding-cream/80 backdrop-blur-sm">
-              <div className="text-center mb-4">
-                <h3 className="text-xl font-playfair text-wedding-maroon flex items-center justify-center gap-2">
-                  <Crown size={18} className="text-wedding-gold" />
-                  {firstFamily.title}
-                </h3>
-              </div>
-              
-              <FamilyMemberCard
-                name={getVisibleMembers(firstFamily.members)[0]?.name || ''}
-                relation={getVisibleMembers(firstFamily.members)[0]?.relation || ''}
-                photoUrl={getVisibleMembers(firstFamily.members)[0]?.image}
-              />
-
-              <div className="mt-4 flex items-center justify-center">
-                <Badge variant="outline" className="bg-wedding-gold/10 text-wedding-maroon border-wedding-gold/30 group-hover:bg-wedding-gold/20 group-hover:border-wedding-gold/50 transition-all duration-300">
-                  <Users size={14} className="mr-1" /> 
-                  <span className="text-xs">View Family Details</span>
-                  <Sparkles size={12} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </Badge>
-              </div>
-            </div>
-          </motion.div>
+          <FamilyCard family={firstFamily} />
 
           {/* Second Family Card (based on groomFirst flag) */}
-          <motion.div 
-            className="relative rounded-xl overflow-hidden luxury-card cursor-pointer group"
-            whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => handleShowFamily(secondFamily)}
-          >
-            <div className="absolute inset-0 luxury-glow-border opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-            <div className="relative p-6 bg-gradient-to-br from-white/95 to-wedding-cream/80 backdrop-blur-sm">
-              <div className="text-center mb-4">
-                <h3 className="text-xl font-playfair text-wedding-maroon flex items-center justify-center gap-2">
-                  <Crown size={18} className="text-wedding-gold" />
-                  {secondFamily.title}
-                </h3>
-              </div>
-              
-              <FamilyMemberCard
-                name={getVisibleMembers(secondFamily.members)[0]?.name || ''}
-                relation={getVisibleMembers(secondFamily.members)[0]?.relation || ''}
-                photoUrl={getVisibleMembers(secondFamily.members)[0]?.image}
-              />
-
-              <div className="mt-4 flex items-center justify-center">
-                <Badge variant="outline" className="bg-wedding-gold/10 text-wedding-maroon border-wedding-gold/30 group-hover:bg-wedding-gold/20 group-hover:border-wedding-gold/50 transition-all duration-300">
-                  <Users size={14} className="mr-1" /> 
-                  <span className="text-xs">View Family Details</span>
-                  <Sparkles size={12} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </Badge>
-              </div>
-            </div>
-          </motion.div>
+          <FamilyCard family={secondFamily} />
         </div>
 
         {/* Family Details Dialog */}
@@ -173,6 +185,8 @@ const FamilyDetails: React.FC<FamilyDetailsProps> = ({
                           src={member.image || "/placeholder.svg"} 
                           alt={member.name} 
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                       </AspectRatio>
                     </div>

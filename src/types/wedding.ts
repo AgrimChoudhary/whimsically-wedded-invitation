@@ -9,6 +9,7 @@ export interface WeddingCouple {
   brideCity?: string;
   coupleStory?: string;
   couplePhotoUrl?: string;
+  coupleImageUrl?: string; // New parameter for couple section image
 }
 
 export interface FamilyMember {
@@ -24,10 +25,14 @@ export interface WeddingFamily {
   groomFamily: {
     title: string;
     members: FamilyMember[];
+    familyPhotoUrl?: string; // New parameter for groom family photo
+    parentsNameCombined?: string; // New parameter for combined parent names
   };
   brideFamily: {
     title: string;
     members: FamilyMember[];
+    familyPhotoUrl?: string; // New parameter for bride family photo
+    parentsNameCombined?: string; // New parameter for combined parent names
   };
 }
 

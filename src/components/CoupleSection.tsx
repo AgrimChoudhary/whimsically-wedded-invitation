@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Calendar, Heart } from 'lucide-react';
@@ -13,6 +14,9 @@ const CoupleSection: React.FC = () => {
   // Determine which name to show first based on groomFirst flag
   const firstPersonName = weddingData.groomFirst ? weddingData.couple.groomFirstName : weddingData.couple.brideFirstName;
   const secondPersonName = weddingData.groomFirst ? weddingData.couple.brideFirstName : weddingData.couple.groomFirstName;
+
+  // Use coupleImageUrl if provided, otherwise fall back to couplePhotoUrl
+  const coupleImage = weddingData.couple.coupleImageUrl || weddingData.couple.couplePhotoUrl || "https://www.koimoi.com/wp-content/new-galleries/2022/12/sidharth-malhotra-kiara-advani-to-have-a-grand-wedding-in-february-01.jpg";
 
   return (
     <section className="w-full py-8 md:py-10 overflow-hidden bg-wedding-cream/20">
@@ -38,10 +42,11 @@ const CoupleSection: React.FC = () => {
             <AspectRatio ratio={isMobile ? 4/3 : 20/9} className="bg-wedding-cream">
               <div className="absolute inset-0 overflow-hidden">
                 <img 
-                  src={weddingData.couple.couplePhotoUrl || "https://www.koimoi.com/wp-content/new-galleries/2022/12/sidharth-malhotra-kiara-advani-to-have-a-grand-wedding-in-february-01.jpg"} 
+                  src={coupleImage} 
                   alt={`${firstPersonName} and ${secondPersonName} Wedding`} 
                   className={`w-full h-full object-cover transition-transform duration-10000 ${isHovered ? 'scale-105' : 'scale-100'}`}
                   loading="lazy"
+                  decoding="async"
                 />
                 <div className={`absolute inset-0 bg-gradient-to-t from-black/50 to-transparent transition-opacity duration-700 ${isHovered ? 'opacity-30' : 'opacity-60'}`}></div>
                 
@@ -51,6 +56,8 @@ const CoupleSection: React.FC = () => {
                       src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
                       alt="Kalash decoration" 
                       className="w-full h-full object-contain opacity-40"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                   <div className="absolute top-3 right-3 w-12 h-12 md:w-16 md:h-16">
@@ -58,6 +65,8 @@ const CoupleSection: React.FC = () => {
                       src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
                       alt="Om symbol" 
                       className="w-full h-full object-contain opacity-40"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                   

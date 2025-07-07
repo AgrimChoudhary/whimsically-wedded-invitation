@@ -78,6 +78,41 @@ const Invitation = () => {
       } catch (e) {
         console.error("URL se weddingData parse karne mein error:", e);
       }
+    } else {
+      // Handle individual parameters for new family photo and parent name parameters
+      const updatedWeddingData = { ...weddingData };
+      
+      // New family parameters
+      const groomFamilyPhoto = params.get('groomFamilyPhoto');
+      const brideFamilyPhoto = params.get('brideFamilyPhoto');
+      const groomParentsName = params.get('groomParentsName');
+      const brideParentsName = params.get('brideParentsName');
+      const coupleImage = params.get('coupleImage');
+      
+      if (groomFamilyPhoto) {
+        updatedWeddingData.family.groomFamily.familyPhotoUrl = groomFamilyPhoto;
+      }
+      
+      if (brideFamilyPhoto) {
+        updatedWeddingData.family.brideFamily.familyPhotoUrl = brideFamilyPhoto;
+      }
+      
+      if (groomParentsName) {
+        updatedWeddingData.family.groomFamily.parentsNameCombined = groomParentsName;
+      }
+      
+      if (brideParentsName) {
+        updatedWeddingData.family.brideFamily.parentsNameCombined = brideParentsName;
+      }
+      
+      if (coupleImage) {
+        updatedWeddingData.couple.coupleImageUrl = coupleImage;
+      }
+      
+      // Update wedding data if any new parameters were found
+      if (groomFamilyPhoto || brideFamilyPhoto || groomParentsName || brideParentsName || coupleImage) {
+        setAllWeddingData(updatedWeddingData);
+      }
     }
 
     // RSVP Status
@@ -87,7 +122,7 @@ const Invitation = () => {
     if (hasRespondedParam === 'true' && acceptedParam === 'true') {
       setShowThankYouMessage(true);
     }
-  }, [location.search, setGuestName, setGuestId, setAllWeddingData]);
+  }, [location.search, setGuestName, setGuestId, setAllWeddingData, weddingData]);
 
   // Set up message listener for platform communication
   useEffect(() => {
