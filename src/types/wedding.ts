@@ -1,4 +1,3 @@
-
 export interface WeddingCouple {
   groomFirstName: string;
   groomLastName: string;
@@ -25,16 +24,10 @@ export interface WeddingFamily {
   groomFamily: {
     title: string;
     members: FamilyMember[];
-    familyPhotoUrl?: string;
-    fatherName?: string;
-    motherName?: string;
   };
   brideFamily: {
     title: string;
     members: FamilyMember[];
-    familyPhotoUrl?: string;
-    fatherName?: string;
-    motherName?: string;
   };
 }
 
@@ -81,5 +74,5 @@ export interface WeddingData {
   photoGallery: PhotoGalleryItem[];
   contacts: ContactPerson[];
   customMessage?: string;
-  groomFirst?: boolean;
+  groomFirst?: boolean; // Added for platform integration
 }

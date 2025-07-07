@@ -74,39 +74,6 @@ const Invitation = () => {
         if (parsedWeddingData.mainWedding?.date) {
           parsedWeddingData.mainWedding.date = new Date(parsedWeddingData.mainWedding.date);
         }
-
-        // Handle new family photo and parent name parameters
-        const groomFamilyPhoto = params.get('groomFamilyPhotoUrl');
-        const brideFamilyPhoto = params.get('brideFamilyPhotoUrl');
-        const groomFatherName = params.get('groomFatherName');
-        const groomMotherName = params.get('groomMotherName');
-        const brideFatherName = params.get('brideFatherName');
-        const brideMotherName = params.get('brideMotherName');
-        const couplePhoto = params.get('couplePhotoUrl');
-
-        // Update family data with new parameters
-        if (groomFamilyPhoto) {
-          parsedWeddingData.family.groomFamily.familyPhotoUrl = groomFamilyPhoto;
-        }
-        if (brideFamilyPhoto) {
-          parsedWeddingData.family.brideFamily.familyPhotoUrl = brideFamilyPhoto;
-        }
-        if (groomFatherName) {
-          parsedWeddingData.family.groomFamily.fatherName = groomFatherName;
-        }
-        if (groomMotherName) {
-          parsedWeddingData.family.groomFamily.motherName = groomMotherName;
-        }
-        if (brideFatherName) {
-          parsedWeddingData.family.brideFamily.fatherName = brideFatherName;
-        }
-        if (brideMotherName) {
-          parsedWeddingData.family.brideFamily.motherName = brideMotherName;
-        }
-        if (couplePhoto) {
-          parsedWeddingData.couple.couplePhotoUrl = couplePhoto;
-        }
-
         setAllWeddingData(parsedWeddingData);
       } catch (e) {
         console.error("URL se weddingData parse karne mein error:", e);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGuest } from '../context/GuestContext';
 import { useWedding } from '../context/WeddingContext';
@@ -151,11 +150,10 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 {/* Only show the image after transition completes */}
                 {showGaneshaImage && (
                   <img 
-                    src="/lovable-uploads/a3236bd1-0ba5-41b5-a422-ef2a60c43cd4.png" 
+                    src="https://xieiyoyiuhzrhwqhfmuq.supabase.co/storage/v1/object/public/images/for%20links%20only/b0b6e6c1-770d-4a6e-8f9c-7f3bdcd7c3a4.png" 
                     alt="Lord Ganesha" 
                     className="w-full h-full object-contain animate-floating relative z-10 opacity-0 animate-fade-in"
                     loading="lazy"
-                    decoding="async"
                     style={{ animationDelay: '0.2s' }}
                   />
                 )}
@@ -276,13 +274,12 @@ const InvitationHeader: React.FC<InvitationHeaderProps> = ({
                 isClicked ? 'shadow-2xl border-wedding-gold/60' : ''
               }`}>
                 <img 
-                  src={coupleImageUrl || weddingData.couple.couplePhotoUrl || "/placeholder.svg"}
+                  src="https://xieiyoyiuhzrhwqhfmuq.supabase.co/storage/v1/object/public/images/for%20links%20only/f002c96a-d091-4373-9cc7-72487af38606.png"
                   alt={`${firstPersonName} and ${secondPersonName}`}
                   className={`w-44 h-auto sm:w-52 md:w-60 lg:w-72 object-contain relative z-10 transition-all duration-500 ${
                     isClicked ? 'brightness-110 contrast-110' : ''
                   }`}
                   loading="lazy"
-                  decoding="async"
                 />
               </div>
             </div>
