@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -218,11 +219,12 @@ export const useWishes = () => {
       return;
     }
 
+    // Find current wish to determine current like status
+    const currentWish = wishes.find(wish => wish.id === wishId);
+
     try {
       console.log('Toggling like for wish:', wishId, 'by guest:', guestId);
       
-      // Find current wish to determine current like status
-      const currentWish = wishes.find(wish => wish.id === wishId);
       const currentlyLiked = currentWish?.hasLiked || false;
       
       // Optimistic update - immediately update local state

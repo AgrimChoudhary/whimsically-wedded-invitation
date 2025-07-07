@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGuest } from '@/context/GuestContext';
@@ -65,55 +66,123 @@ const Invitation = () => {
       setGuestId(guestIdParam);
     }
 
-    // Wedding Data (JSON string)
+    // Start with a copy of current wedding data
+    let updatedWeddingData = { ...weddingData };
+
+    // First, handle weddingData JSON parameter if it exists
     const weddingDataParam = params.get('weddingData');
     if (weddingDataParam) {
       try {
         const parsedWeddingData = JSON.parse(decodeURIComponent(weddingDataParam));
-        // Convert date string back to Date object if needed
-        if (parsedWeddingData.mainWedding?.date) {
-          parsedWeddingData.mainWedding.date = new Date(parsedWeddingData.mainWedding.date);
-        }
-        setAllWeddingData(parsedWeddingData);
+        // Merge parsed wedding data with current data
+        updatedWeddingData = {
+          ...updatedWeddingData,
+          ...parsedWeddingData
+        };
       } catch (e) {
-        console.error("URL se weddingData parse karne mein error:", e);
-      }
-    } else {
-      // Handle individual parameters for new family photo and parent name parameters
-      const updatedWeddingData = { ...weddingData };
-      
-      // New family parameters
-      const groomFamilyPhoto = params.get('groomFamilyPhoto');
-      const brideFamilyPhoto = params.get('brideFamilyPhoto');
-      const groomParentsName = params.get('groomParentsName');
-      const brideParentsName = params.get('brideParentsName');
-      const coupleImage = params.get('coupleImage');
-      
-      if (groomFamilyPhoto) {
-        updatedWeddingData.family.groomFamily.familyPhotoUrl = groomFamilyPhoto;
-      }
-      
-      if (brideFamilyPhoto) {
-        updatedWeddingData.family.brideFamily.familyPhotoUrl = brideFamilyPhoto;
-      }
-      
-      if (groomParentsName) {
-        updatedWeddingData.family.groomFamily.parentsNameCombined = groomParentsName;
-      }
-      
-      if (brideParentsName) {
-        updatedWeddingData.family.brideFamily.parentsNameCombined = brideParentsName;
-      }
-      
-      if (coupleImage) {
-        updatedWeddingData.couple.coupleImageUrl = coupleImage;
-      }
-      
-      // Update wedding data if any new parameters were found
-      if (groomFamilyPhoto || brideFamilyPhoto || groomParentsName || brideParentsName || coupleImage) {
-        setAllWeddingData(updatedWeddingData);
+        console.error("Error parsing weddingData from URL:", e);
       }
     }
+
+    // Then, process individual parameters and override/merge with wedding data
+    const individualParams = {
+      groomName: params.get('groomName'),
+      brideName: params.get('brideName'),
+      groomCity: params.get('groomCity'),
+      brideCity: params.get('brideCity'),
+      groomFirst: params.get('groomFirst'),
+      weddingDate: params.get('weddingDate'),
+      weddingTime: params.get('weddingTime'),
+      venueName: params.get('venueName'),
+      venueAddress: params.get('venueAddress'),
+      venueMapLink: params.get('venueMapLink'),
+      groomFamilyPhoto: params.get('groomFamilyPhoto'),
+      brideFamilyPhoto: params.get('brideFamilyPhoto'),
+      groomParentsName: params.get('groomParentsName'),
+      brideParentsName: params.get('brideParentsName'),
+      couplePhotoUrl: params.get('couplePhotoUrl'),
+      coupleImage: params.get('coupleImage')
+    };
+
+    // Update wedding data with individual parameters
+    if (individualParams.groomName || individualParams.brideName) {
+      updatedWeddingData.couple = {
+        ...updatedWeddingData.couple,
+        groomFirstName: individualParams.groomName || updatedWeddingData.couple.groomFirstName,
+        brideFirstName: individualParams.brideName || updatedWeddingData.couple.brideFirstName,
+        groomCity: individualParams.groomCity || updatedWeddingData.couple.groomCity,
+        brideCity: individualParams.brideCity || updatedWeddingData.couple.brideCity,
+        couplePhotoUrl: individualParams.couplePhotoUrl || updatedWeddingData.couple.couplePhotoUrl,
+        coupleImageUrl: individualParams.coupleImage || updatedWeddingData.couple.coupleImageUrl
+      };
+    }
+
+    // Handle groomFirst parameter
+    if (individualParams.groomFirst !== null) {
+      updatedWeddingData.groomFirst = individualParams.groomFirst === 'true';
+    }
+
+    // Handle wedding date and time
+    if (individualParams.weddingDate) {
+      try {
+        updatedWeddingData.mainWedding = {
+          ...updatedWeddingData.mainWedding,
+          date: new Date(individualParams.weddingDate),
+          time: individualParams.weddingTime || updatedWeddingData.mainWedding.time
+        };
+      } catch (e) {
+        console.error("Error parsing wedding date:", e);
+      }
+    }
+
+    // Handle venue information
+    if (individualParams.venueName) {
+      updatedWeddingData.mainWedding = {
+        ...updatedWeddingData.mainWedding,
+        venue: {
+          name: individualParams.venueName,
+          address: individualParams.venueAddress || updatedWeddingData.mainWedding.venue.address || '',
+          mapLink: individualParams.venueMapLink || updatedWeddingData.mainWedding.venue.mapLink
+        }
+      };
+    }
+
+    // Handle family photos and parent names
+    if (individualParams.groomFamilyPhoto || individualParams.groomParentsName) {
+      updatedWeddingData.family = {
+        ...updatedWeddingData.family,
+        groomFamily: {
+          ...updatedWeddingData.family.groomFamily,
+          familyPhotoUrl: individualParams.groomFamilyPhoto || updatedWeddingData.family.groomFamily.familyPhotoUrl,
+          parentsNameCombined: individualParams.groomParentsName || updatedWeddingData.family.groomFamily.parentsNameCombined
+        }
+      };
+    }
+
+    if (individualParams.brideFamilyPhoto || individualParams.brideParentsName) {
+      updatedWeddingData.family = {
+        ...updatedWeddingData.family,
+        brideFamily: {
+          ...updatedWeddingData.family.brideFamily,
+          familyPhotoUrl: individualParams.brideFamilyPhoto || updatedWeddingData.family.brideFamily.familyPhotoUrl,
+          parentsNameCombined: individualParams.brideParentsName || updatedWeddingData.family.brideFamily.parentsNameCombined
+        }
+      };
+    }
+
+    // Ensure mainWedding.date is a Date object
+    if (updatedWeddingData.mainWedding?.date && typeof updatedWeddingData.mainWedding.date === 'string') {
+      try {
+        updatedWeddingData.mainWedding.date = new Date(updatedWeddingData.mainWedding.date);
+      } catch (e) {
+        console.error("Error converting date string to Date object:", e);
+        // Fallback to a default date if conversion fails
+        updatedWeddingData.mainWedding.date = new Date('2024-12-15');
+      }
+    }
+
+    // Update wedding data if any changes were made
+    setAllWeddingData(updatedWeddingData);
 
     // RSVP Status
     const hasRespondedParam = params.get('hasResponded');
@@ -122,7 +191,9 @@ const Invitation = () => {
     if (hasRespondedParam === 'true' && acceptedParam === 'true') {
       setShowThankYouMessage(true);
     }
-  }, [location.search, setGuestName, setGuestId, setAllWeddingData, weddingData]);
+
+    console.log('Final wedding data:', updatedWeddingData);
+  }, [location.search, setGuestName, setGuestId, setAllWeddingData]);
 
   // Set up message listener for platform communication
   useEffect(() => {
